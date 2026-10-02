@@ -132,6 +132,15 @@
 - Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 - Use the format `<type>[optional scope][optional !]: <description>`, with a
   short description and optional body and footers separated by blank lines.
+- Scopes are optional. Include one when it helps readers understand the area
+  affected by the change; omit it when the description is already clear.
+- Choose scopes by meaning rather than mechanically mapping them to files or
+  directories. For example, `docs(AGENTS)` can clarify a change to working
+  agreements without establishing a general file-based scope convention.
+- Let scope conventions emerge as the project evolves. Reuse established
+  scopes for the same concepts, consulting recent commit history when helpful.
+  Introduce a new scope when it improves clarity; no exhaustive scope list
+  is required upfront.
 - Use `feat` for new features and `fix` for bug fixes. Other types include
   `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, and `revert`.
 - Use lowercase type names consistently.
