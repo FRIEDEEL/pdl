@@ -10,6 +10,15 @@
 - Read relevant files and inspect the project as needed to prepare a proposal.
 - Report what changed, which checks were run, and any unresolved issues.
 
+## Language
+
+- Use English for project documentation, code comments, docstrings, and commit
+  messages, except for `DEVLOG.md` as described below.
+- Write `DEVLOG.md` in Chinese during the current solo development stage.
+  Plan to transition it to English if the project adopts a collaborative
+  workflow; agree on the timing and translation scope with the user first.
+- Continue discussing work with the user in Chinese.
+
 ## Python Project Conventions
 
 - Use pyenv to manage Python versions.
@@ -22,6 +31,15 @@
 - Follow the existing structure in established projects. Do not migrate
   project layouts without explicit instructions.
 
+## Dependency Management
+
+- Before adding a dependency, explain its purpose and whether it is needed at
+  runtime or only for development, as part of the proposed change.
+- Keep runtime dependencies minimal and place development tools in development
+  dependency groups.
+- Use uv to update dependency declarations and `uv.lock`, keeping them consistent.
+- Do not upgrade unrelated dependencies as a side effect of other work.
+
 ## Testing
 
 - Use pytest for testing and place tests in `tests/`.
@@ -30,6 +48,12 @@
 - For example, `src/package_name/io/reader.py` corresponds to
   `tests/io/test_reader.py`.
 - Run relevant tests after changes and report the results.
+- Prioritize public behavior, edge cases, and regression coverage for fixed bugs.
+- Avoid tests that merely repeat implementation logic or depend unnecessarily
+  on internal details.
+- Distinguish numerical and structural tests from image comparison tests for
+  drawing features. Agree on the rendering test strategy once the drawing
+  approach is defined.
 
 ## Code Quality and Type Checking
 
@@ -91,14 +115,61 @@
 
 ## Git Workflow
 
-- Follow Gitflow.
+- Use Gitflow as a baseline, with flexibility for solo development.
 - Use `main` for released code and `develop` for development integration.
-- Use `feature/*` branches for feature development, branching from and merging
+- Direct development on `develop` is allowed, especially during initial
+  scaffolding and MVP development. Do not create a feature branch for every task.
+- When a feature branch is used, use `feature/*`, branching from and merging
   back into `develop`.
 - Use `release/*` branches for release preparation, branching from `develop`
   and merging into both `main` and `develop` when the release is complete.
 - Use `hotfix/*` branches for urgent fixes to released code, branching from
   `main` and integrating the fixes into both `main` and `develop`.
+
+### Commit Messages
+
+- Write all commit messages in English, including subjects, bodies, and footers.
+- Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
+- Use the format `<type>[optional scope][optional !]: <description>`, with a
+  short description and optional body and footers separated by blank lines.
+- Use `feat` for new features and `fix` for bug fixes. Other types include
+  `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, and `revert`.
+- Use lowercase type names consistently.
+- Use the additional `wip` type for incomplete development checkpoints, such as
+  `wip(renderer): sketch the drawing pipeline`. Describe remaining work and
+  known failing checks in the body when applicable.
+- Mark breaking changes with `!` before the colon or a `BREAKING CHANGE:`
+  footer, and explain the incompatible change.
+- Apply this format to merge commits as well, for example:
+  `chore(merge): integrate feature/rendering into develop`.
+
+### Commit Granularity
+
+- Prefer small, focused commits that capture a clear development step.
+- A single function, class method, or localized change may justify a commit.
+- WIP commits are acceptable. Clearly indicate their incomplete status
+  in the commit message.
+- Do not combine unrelated changes merely to produce a larger commit.
+
+### Validation and Integration
+
+- WIP commits may temporarily fail checks. Clearly report incomplete work and
+  known failing checks when creating them.
+- Before merging into `develop`, ensure that the relevant lint, formatting,
+  type-checking, and test checks pass on the resulting combined code.
+- When developing directly on `develop`, require relevant checks to pass at
+  the end of a completed work phase rather than before every small commit.
+- Do not describe work as complete while relevant checks remain failing or
+  unverified. Report any blockers explicitly.
+
+### History and Merging
+
+- Preserve the complete development history, including fine-grained and
+  WIP commits.
+- Use merge as the default integration method. Always use `git merge --no-ff`
+  when merging branches.
+- Do not rebase, squash, amend commits, or otherwise rewrite existing history
+  unless explicitly instructed.
 - Do not treat authorization to edit files as authorization to commit, push,
   merge, or publish a release. Perform these actions only when explicitly
   instructed.
