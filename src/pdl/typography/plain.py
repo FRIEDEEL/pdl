@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import unicodedata
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
@@ -48,11 +48,13 @@ class FontStack:
             raise ValueError("A FontStack needs at least one font.")
 
 
-_font_context: ContextVar[tuple[Font, ...]] = ContextVar("pdl_fonts", default=())
+type FontPolicy = tuple[Font, ...] | Callable[[], tuple[Font, ...]]
+
+_font_context: ContextVar[FontPolicy] = ContextVar("pdl_fonts", default=())
 
 
 @contextmanager
-def font_context(fonts: tuple[Font, ...]) -> Generator[None, None, None]:
+def font_context(fonts: FontPolicy) -> Generator[None, None, None]:
     """Use task-local defaults for measurement and rendering together."""
     token = _font_context.set(fonts)
     try:
@@ -242,6 +244,8 @@ class Text:
             if isinstance(self.font, Font)
             else _font_context.get()
         )
+        if callable(selected):
+            selected = selected()
         if not selected:
             raise ValueError("Specify Text.font or Canvas fonts before measuring text.")
         files: list[FontKey] = []

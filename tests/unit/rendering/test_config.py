@@ -4,7 +4,7 @@ from pathlib import Path as FilePath
 
 import pytest
 
-from pdl import Canvas, Font, RendererConfig, TeX, TeXConfig, Text
+from pdl import Canvas, Font, Line, RendererConfig, TeX, TeXConfig, Text
 from pdl.geometry.primitives import Path
 
 
@@ -42,5 +42,31 @@ def test_font_discovery_at_render_start(font: Font) -> None:
     canvas.draw(Text("Discovered label"))
     rendered = canvas.render(renderer=RendererConfig(fonts=(str(font.file),)))
     assert "Discovered label</text>" in rendered
-    with pytest.raises(ValueError, match="Specify"):
+    assert "Discovered label</text>" in canvas.render()
+
+
+def test_unconfigured_first_render_uses_default_font(
+    font: Font, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("pdl.rendering.config.default_fonts", lambda: (font,))
+    canvas = Canvas(50, 30)
+    canvas.draw(Text("First render", position=(2, 10)))
+    assert "First render</text>" in canvas.render()
+    assert "First render" in canvas.render("tikz")
+
+
+def test_geometry_and_explicit_text_do_not_require_default_discovery(
+    font: Font, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def missing() -> tuple[Font, ...]:
+        raise FileNotFoundError("No default font")
+
+    monkeypatch.setattr("pdl.rendering.config.default_fonts", missing)
+    canvas = Canvas(50, 30)
+    canvas.draw(Line((0, 0), (10, 10)))
+    canvas.draw(Text("Explicit", font))
+    assert "<text" in canvas.render()
+    assert "Explicit" in canvas.render("tikz")
+    canvas.draw(Text("Needs default"))
+    with pytest.raises(FileNotFoundError, match="default font"):
         canvas.render()
