@@ -122,6 +122,22 @@ class Path:
                 self.cubic_to(command.control1, command.control2, command.end)
         return self
 
+    def extend(self, geometry: Geometry) -> Self:
+        """Append independent subpaths without connecting their start points."""
+        for command in geometry.to_path().commands:
+            match command:
+                case Move(end):
+                    self.move_to(end)
+                case Segment(end):
+                    self.line_to(end)
+                case Quadratic(control, end):
+                    self.quadratic_to(control, end)
+                case Cubic(c1, c2, end):
+                    self.cubic_to(c1, c2, end)
+                case Close():
+                    self.close()
+        return self
+
     def to_path(self) -> Path:
         result = Path()
         result._commands = self._commands.copy()

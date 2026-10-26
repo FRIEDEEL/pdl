@@ -110,3 +110,12 @@ def test_invalid_geometry() -> None:
         Rectangle((0, 0), -1, 3)
     with pytest.raises(ValueError):
         Arc((0, 0), 1, 1, 0, 361)
+
+
+def test_extend_preserves_independent_closed_subpaths() -> None:
+    first = Rectangle((0, 0), 2, 2).to_path()
+    second = Rectangle((5, 5), 1, 1)
+    result = first.extend(second)
+    assert result is first
+    assert sum(isinstance(command, Move) for command in result.commands) == 2
+    assert sum(isinstance(command, Close) for command in result.commands) == 2

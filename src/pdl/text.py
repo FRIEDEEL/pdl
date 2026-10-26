@@ -46,24 +46,6 @@ class TextLayout:
         return self._outline.to_path()
 
 
-def _append(target: Path, source: Path) -> None:
-    # Concatenation preserves independent contours and their winding direction.
-    from pdl.geometry import Close, Cubic, Move, Quadratic, Segment
-
-    for command in source.commands:
-        match command:
-            case Move(end):
-                target.move_to(end)
-            case Segment(end):
-                target.line_to(end)
-            case Quadratic(control, end):
-                target.quadratic_to(control, end)
-            case Cubic(c1, c2, end):
-                target.cubic_to(c1, c2, end)
-            case Close():
-                target.close()
-
-
 @lru_cache(maxsize=128)
 def _layout(
     file: str,
@@ -102,7 +84,7 @@ def _layout(
             placement = Transform.translate(
                 x + position.x_offset * scale, y + position.y_offset * scale
             ) @ Transform.scale(scale)
-            _append(path, transform_path(outline, placement))
+            path.extend(transform_path(outline, placement))
             x += position.x_advance * scale
             y += position.y_advance * scale
     width = max(widths, default=0)
