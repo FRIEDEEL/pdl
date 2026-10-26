@@ -115,3 +115,10 @@ def test_empty_tex_has_zero_layout(config: TeXConfig) -> None:
     canvas = Canvas(10, 10)
     canvas.draw(tex)
     ET.fromstring(canvas.render())
+
+
+def test_singular_tex_placement_is_invisible() -> None:
+    canvas = Canvas(10, 10)
+    canvas.draw(Group((Drawing(TeX("A")),), Transform.scale(0)))
+    assert r"\node" not in canvas.render("tikz")
+    assert "tex0-" not in canvas.render()
