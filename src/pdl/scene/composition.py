@@ -39,6 +39,12 @@ class Drawing:
     def transformed(self, transform: Transform) -> Drawing:
         return Drawing(self.geometry, self.style, transform @ self.transform)
 
+    def child(self, index: int) -> Drawing:
+        """Address a Group child with this instance's accumulated placement."""
+        if not isinstance(self.geometry, Group):
+            raise TypeError("Only an explicitly defined Group has addressable children.")
+        return self.geometry.child(index).transformed(self.transform)
+
 
 @dataclass(frozen=True)
 class Group:
@@ -59,6 +65,10 @@ class Group:
 
     def transformed(self, transform: Transform) -> Group:
         return Group(self.children, transform @ self.transform)
+
+    def child(self, index: int) -> Drawing:
+        """Address a child in this group's parent coordinate space."""
+        return self.children[index].transformed(self.transform)
 
     @property
     def bounds(self) -> Bounds:

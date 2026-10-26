@@ -110,6 +110,28 @@ def test_internal_references_follow_reused_group_placement(font: Font) -> None:
     assert len(paths) == 2 and paths[0].attrib["d"] != paths[1].attrib["d"]
 
 
+def test_nested_child_anchor_uses_the_complete_instance_transform(font: Font) -> None:
+    node = Node(Text("Port", font), position=(10, 5))
+    inner = Group((Drawing(node),), Transform.rotate(25))
+    outer = Group((Drawing(inner),), Transform.translate(30, 20))
+    instance = Drawing(outer, transform=Transform.translate(50, 20))
+    port = instance.child(0).child(0)
+    with layout_session() as context:
+        local = context.point(node.anchor("west"))
+        expected = (instance.transform @ outer.transform @ inner.transform).apply(local)
+        assert context.point(port.anchor("west")) == expected
+    assert port.geometry is node
+    with pytest.raises(TypeError, match="Group"):
+        port.child(0)
+
+
+def test_child_access_does_not_measure_or_discover_fonts() -> None:
+    node = Node(Text("Unmeasured"))
+    group = Group((Drawing(node),), Transform.translate(20, 30))
+    connection = Connection(group.child(0).anchor("west"), (0, 30))
+    assert isinstance(connection.start, AnchorRef)
+
+
 @dataclass
 class MutableComposite:
     children: tuple[Drawing, ...] = ()
