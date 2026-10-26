@@ -1,55 +1,13 @@
 """Ordered drawing container and backend-independent paint."""
 
-from dataclasses import dataclass
 from math import isfinite
 from pathlib import Path as FilePath
 from typing import Literal
 
-from pdl.geometry import Geometry
-
-
-@dataclass(frozen=True)
-class Color:
-    """An RGB color with channels in the inclusive range zero to one."""
-
-    red: float
-    green: float
-    blue: float
-
-    def __post_init__(self) -> None:
-        if not all(isfinite(v) and 0 <= v <= 1 for v in (self.red, self.green, self.blue)):
-            raise ValueError("Color channels must be between zero and one.")
-
-
-BLACK = Color(0, 0, 0)
-
-
-@dataclass(frozen=True)
-class Style:
-    """Explicit fill and stroke properties, with no backend defaults."""
-
-    stroke: Color | None = BLACK
-    fill: Color | None = None
-    line_width: float = 1
-    line_cap: Literal["butt", "round", "square"] = "butt"
-    line_join: Literal["miter", "round", "bevel"] = "miter"
-    fill_rule: Literal["nonzero", "evenodd"] = "nonzero"
-
-    def __post_init__(self) -> None:
-        if not isfinite(self.line_width) or self.line_width < 0:
-            raise ValueError("Line width must be finite and nonnegative.")
-        if self.line_cap not in ("butt", "round", "square"):
-            raise ValueError("Unknown line cap.")
-        if self.line_join not in ("miter", "round", "bevel"):
-            raise ValueError("Unknown line join.")
-        if self.fill_rule not in ("nonzero", "evenodd"):
-            raise ValueError("Unknown fill rule.")
-
-
-@dataclass(frozen=True)
-class Drawing:
-    geometry: Geometry
-    style: Style
+from pdl.paint import BLACK as BLACK
+from pdl.paint import Color as Color
+from pdl.paint import Style as Style
+from pdl.scene import Drawing, Graphic
 
 
 class Canvas:
@@ -71,9 +29,9 @@ class Canvas:
     def drawings(self) -> tuple[Drawing, ...]:
         return tuple(self._drawings)
 
-    def draw(self, geometry: Geometry, style: Style | None = None) -> None:
+    def draw(self, geometry: Graphic, style: Style | None = None) -> None:
         """Append geometry and paint; do not flatten the geometry."""
-        self._drawings.append(Drawing(geometry, style if style is not None else Style()))
+        self._drawings.append(Drawing(geometry, style))
 
     def render(self, backend: Literal["svg", "tikz"] = "svg") -> str:
         """Return SVG markup or a standalone compilable TikZ document."""
