@@ -12,8 +12,8 @@ from pdl.scene.composition import Drawing, Group, bounds
 def test_affine_order_and_reuse() -> None:
     original = Group((Drawing(Line((0, 0), (2, 0))),))
     placed = original.transformed(Transform.translate(10, 5) @ Transform.rotate(90))
-    assert original.anchor("east") == Point(2, 0)
-    p = placed.anchor("north")
+    assert bounds(original).anchor("east") == Point(2, 0)
+    p = bounds(placed).anchor("north")
     assert (p.x, p.y) == pytest.approx((10, 7))
     assert bounds(original).width == 2
 

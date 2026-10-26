@@ -1,18 +1,36 @@
 """Optional geometry/layout overlays for example inspection."""
 
+from dataclasses import dataclass
+
 from pdl.geometry.primitives import Circle, Line, Rectangle, point
 from pdl.scene.composition import Drawing, Graphic, Group, bounds, walk
+from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Color, Style
 from pdl.typography.plain import PT_TO_MM, Text
 from pdl.typography.tex import TeX
 
 
-def debug_overlay(graphic: Graphic) -> Group:
+@dataclass(frozen=True)
+class DebugOverlay:
+    """An inspection overlay measured with the same policy as its target."""
+
+    graphic: Graphic
+
+    def decompose(self) -> tuple[Drawing, ...]:
+        with layout_session():
+            return _overlay(self.graphic).children
+
+
+def debug_overlay(graphic: Graphic) -> DebugOverlay:
     """Show an object's bounds, rectangular anchors and text baselines.
 
     Return only the overlay, so callers can draw the original object first.
     Text boxes are layout bounds, not ink bounds. Stroke expansion is excluded.
     """
+    return DebugOverlay(graphic)
+
+
+def _overlay(graphic: Graphic) -> Group:
     box = bounds(graphic)
     red = Style(stroke=Color(0.8, 0.2, 0.25), line_width=0.15)
     green = Style(stroke=Color(0.1, 0.6, 0.4), line_width=0.15)

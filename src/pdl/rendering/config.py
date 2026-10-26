@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from collections.abc import Generator
@@ -11,6 +12,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from pdl.scene.evaluation import layout_session
 from pdl.typography.plain import Font, font_context
 from pdl.typography.tex import TeXConfig
 
@@ -22,13 +24,16 @@ class RendererConfig:
     Font strings are file paths, TeX-discoverable filenames, or fontconfig
     family names. A Text.font override takes precedence over these defaults.
     Native SVG text references the discovered family; fonts must be installed
-    on the viewing machine. Backend font metrics may differ slightly.
+    on the viewing machine. An empty stack uses a discovered system sans-serif
+    font when needed. Backend font metrics may differ slightly.
     """
 
     fonts: tuple[Font | str, ...] = ()
     tex: TeXConfig | None = None
 
     def resolve_fonts(self) -> tuple[Font, ...]:
+        if not self.fonts:
+            return default_fonts()
         return tuple(font if isinstance(font, Font) else resolve_font(font) for font in self.fonts)
 
 
@@ -62,6 +67,31 @@ def resolve_font(request: str) -> Font:
     raise FileNotFoundError(f"Cannot resolve font {request!r}; provide an explicit font file.")
 
 
+@lru_cache(maxsize=1)
+def default_fonts() -> tuple[Font, ...]:
+    """Find a usable default without making font discovery a geometry dependency."""
+    try:
+        return (resolve_font("sans-serif"),)
+    except FileNotFoundError:
+        pass
+    candidates = (
+        Path("/System/Library/Fonts/Helvetica.ttc"),
+        Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+        Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / "arial.ttf",
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return (Font(candidate),)
+    try:
+        return (resolve_font("texgyreheros-regular.otf"),)
+    except FileNotFoundError as error:
+        raise FileNotFoundError(
+            "No default font found; set RendererConfig(fonts=(...)) to an installed font."
+        ) from error
+
+
 _current: ContextVar[RendererConfig] = ContextVar("pdl_renderer", default=RendererConfig())
 
 
@@ -72,10 +102,13 @@ def current_renderer() -> RendererConfig:
 @contextmanager
 def rendering(config: RendererConfig) -> Generator[None, None, None]:
     """Resolve fonts at rendering/measurement start and restore task-local state."""
-    fonts = config.resolve_fonts()
+    # Explicit choices are checked at the boundary. The automatic default is
+    # lazy so geometry-only drawings and explicitly fonted text work without
+    # system font discovery tools.
+    fonts = config.resolve_fonts() if config.fonts else default_fonts
     token = _current.set(config)
     try:
-        with font_context(fonts):
+        with font_context(fonts), layout_session(fresh=True):
             yield
     finally:
         _current.reset(token)

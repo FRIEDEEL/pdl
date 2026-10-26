@@ -15,6 +15,7 @@ from pdl.geometry.primitives import (
 )
 from pdl.rendering.formatting import number
 from pdl.scene.canvas import Color
+from pdl.scene.paint import Style
 
 
 def coordinate(p: Point) -> str:
@@ -31,6 +32,19 @@ def color(value: Color) -> str:
         + number(value.blue)
         + "}"
     )
+
+
+def paint_options(style: Style) -> list[str]:
+    stroke = style.stroke if style.line_width > 0 else None
+    return [
+        f"draw={color(stroke) if stroke is not None else 'none'}",
+        f"fill={color(style.fill) if style.fill is not None else 'none'}",
+        f"line width={number(style.line_width)}mm",
+        f"line cap={style.line_cap}",
+        f"line join={style.line_join}",
+        "miter limit=10",
+        "even odd rule" if style.fill_rule == "evenodd" else "nonzero rule",
+    ]
 
 
 def path_data(geometry: Geometry) -> str:

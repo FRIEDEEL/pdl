@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from pdl import Canvas
+from pdl import Canvas, Connection, Font, Node, RendererConfig, Text
 from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing, Group, bounds
 from pdl.typography.tex import TeX, TeXConfig
@@ -117,3 +117,30 @@ def test_singular_tex_placement_is_invisible() -> None:
     canvas.draw(Group((Drawing(TeX("A")),), Transform.scale(0)))
     assert r"\node" not in canvas.render("tikz")
     assert "tex0-" not in canvas.render()
+
+
+def test_deferred_native_nodes_compile_with_text_and_tex(
+    config: TeXConfig, font: Font, tmp_path: FilePath
+) -> None:
+    first = Node(Text("Source"), position=(20, 20))
+    second = Node(TeX(r"$\frac{x_i}{y^2}+\RR$"), position=first.anchor("east") + (40, 0))
+    canvas = Canvas(100, 50, renderer=RendererConfig(fonts=(font,), tex=config))
+    canvas.draw(Connection(first.anchor("east"), second.anchor("west")))
+    canvas.draw(second)
+    canvas.draw(first)
+    source = canvas.render("tikz")
+    assert source.count(r"\node[rectangle,anchor=center") == 2
+    assert r"\usepackage{amssymb}" in source
+    file = tmp_path / "nodes.tex"
+    file.write_text(source)
+    result = subprocess.run(
+        ["xelatex", "-no-shell-escape", "-interaction=nonstopmode", "-halt-on-error", file.name],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout[-6000:]
+    assert (tmp_path / "nodes.pdf").stat().st_size > 0
+    ET.fromstring(canvas.render())

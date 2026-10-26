@@ -9,9 +9,27 @@
 - Solid RGB fill and stroke, fill rules, line caps and joins.
 - Ordered, fixed-size millimeter canvas with SVG and standalone TikZ exports.
 - TikZ-style and SVG-style arc constructors, a dual-backend gallery and tests.
+- Deferred anchor references for connections and relative node positions,
+  including anchors on explicitly placed component children.
+- Native TikZ node shapes for translation and rotation, with general
+  decomposition for SVG and other affine placements.
+- Automatic default fonts for initial renders and examples comparing font
+  choices on the same authoring objects.
+
+### Changed
+
+- **Breaking:** `Node.anchor()` and `Group.anchor()` return `AnchorRef` instead
+  of coordinate snapshots. `Canvas.anchor()` has been removed. Define
+  relationships with object or instance anchors; use `Canvas.bounds()` for
+  explicit numerical layout bounds.
+- Content sizes and dependent endpoints are recalculated on each render,
+  using that invocation's font configuration. Paint order remains unchanged.
+- Backends select supported native objects before general decomposition.
 
 ### Limitations
 
 - Generic arc lowering and rotated TikZ arcs use cubic approximation.
-- Text, groups, layers, automatic layout and backend-specific options are not
-  included in this stage.
+- Layers, automatic routing, general constraint solving and arbitrary
+  backend-specific options remain outside this stage.
+- Native SVG and LaTeX text metrics may differ slightly. Default font coverage
+  depends on the installed fonts; explicit font stacks remain available.
