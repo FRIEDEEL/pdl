@@ -10,9 +10,10 @@ from pdl.geometry import Point
 from pdl.paint import BLACK as BLACK
 from pdl.paint import Color as Color
 from pdl.paint import Style as Style
+from pdl.renderer import RendererConfig, rendering
 from pdl.scene import Drawing, Graphic
 from pdl.scene import bounds as scene_bounds
-from pdl.text import Font, font_context
+from pdl.text import Font
 
 
 class Canvas:
@@ -23,12 +24,19 @@ class Canvas:
     Content outside the viewport is clipped.
     """
 
-    def __init__(self, width: float, height: float, *, fonts: tuple[Font, ...] = ()) -> None:
+    def __init__(
+        self,
+        width: float,
+        height: float,
+        *,
+        fonts: tuple[Font, ...] = (),
+        renderer: RendererConfig | None = None,
+    ) -> None:
         if not all(isfinite(v) and v > 0 for v in (width, height)):
             raise ValueError("Canvas dimensions must be positive and finite.")
         self.width = width
         self.height = height
-        self.fonts = fonts
+        self.renderer = renderer or RendererConfig(fonts=fonts)
         self._drawings: list[Drawing] = []
 
     @property
@@ -41,7 +49,9 @@ class Canvas:
 
     def typography(self, fonts: tuple[Font, ...] | None = None) -> AbstractContextManager[None]:
         """Share the canvas font policy with authoring-time measurements."""
-        return font_context(self.fonts if fonts is None else fonts)
+        return rendering(
+            self.renderer if fonts is None else RendererConfig(fonts=fonts, tex=self.renderer.tex)
+        )
 
     def bounds(self, graphic: Graphic) -> Bounds:
         """Measure geometry or layout using this canvas's font policy."""
@@ -63,6 +73,7 @@ class Canvas:
         *,
         standalone: bool = True,
         fonts: tuple[Font, ...] | None = None,
+        renderer: RendererConfig | None = None,
     ) -> str:
         """Export with optional ordered defaults for Text without an explicit font.
 
@@ -73,7 +84,8 @@ class Canvas:
         from pdl.backends.svg import render as svg_render
         from pdl.backends.tikz import render as tikz_render
 
-        with self.typography(fonts):
+        context = rendering(renderer) if renderer is not None else self.typography(fonts)
+        with context:
             if backend == "svg":
                 return svg_render(self)
             if backend == "tikz":

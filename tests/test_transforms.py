@@ -36,3 +36,16 @@ def test_reflection_and_nonuniform_scale() -> None:
     path = transform_path(Line((1, 2), (3, 4)), Transform.scale(-2, 3))
     box = geometry_bounds(path)
     assert (box.left, box.bottom, box.right, box.top) == (-6, 6, -2, 12)
+
+
+def test_placed_circles_keep_native_output_when_possible() -> None:
+    from pdl import Canvas
+
+    circle = Circle((0, 0), 2)
+    canvas = Canvas(40, 20)
+    canvas.draw(Group((Drawing(circle),), Transform.translate(10, 10) @ Transform.scale(2)))
+    assert "<circle" in canvas.render()
+    assert "circle[radius=4mm]" in canvas.render("tikz")
+    canvas = Canvas(40, 20)
+    canvas.draw(Group((Drawing(circle),), Transform.scale(2, 1)))
+    assert "<path" in canvas.render()

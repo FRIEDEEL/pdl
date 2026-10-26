@@ -24,12 +24,13 @@ def test_multiline_alignment_and_baseline(font: Font) -> None:
     )
 
 
-def test_literal_special_characters_and_outlines(font: Font) -> None:
+def test_literal_special_characters_remain_native(font: Font) -> None:
     text = Text("A&B $ 50% café", font, position=Point(5, 6))
     canvas = Canvas(100, 30)
     canvas.draw(text)
     assert 'fill="rgb(0%,0%,0%)"' in canvas.render()
-    assert "controls" in canvas.render("tikz")
+    assert "controls" not in canvas.render("tikz")
+    assert r"\newfontfamily" in canvas.render("tikz")
     assert text.text == "A&B $ 50% café"
 
 
@@ -55,8 +56,9 @@ def test_canvas_defaults_are_shared_with_node_measurement(font: Font) -> None:
     assert canvas.bounds(node).width > 0
     assert canvas.anchor(node).x == pytest.approx(30)
     canvas.draw(node)
-    assert "<path" in canvas.render()
-    assert "controls" in canvas.render("tikz")
+    assert "<text" in canvas.render()
+    assert "controls" not in canvas.render("tikz")
+    assert r"\newfontfamily" in canvas.render("tikz")
     with pytest.raises(ValueError, match="Specify"):
         label.layout
 
@@ -64,11 +66,11 @@ def test_canvas_defaults_are_shared_with_node_measurement(font: Font) -> None:
 def test_render_can_supply_defaults_and_explicit_font_wins(font: Font) -> None:
     canvas = Canvas(80, 40)
     canvas.draw(Text("Inherited"))
-    assert "<path" in canvas.render(fonts=(font,))
+    assert "<text" in canvas.render(fonts=(font,))
     explicit = Text("Explicit", font)
     canvas = Canvas(80, 40)
     canvas.draw(explicit)
-    assert "<path" in canvas.render()
+    assert "<text" in canvas.render()
 
 
 def test_japanese_first_chinese_fallback() -> None:

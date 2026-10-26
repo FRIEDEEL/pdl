@@ -2,17 +2,19 @@
 
 from pdl.backends._format import number
 from pdl.backends.tikz_geometry import color, path_data
-from pdl.backends.tikz_text import configuration, preamble, render_tex
+from pdl.backends.tikz_text import configuration, font_commands, preamble, render_tex, render_text
 from pdl.canvas import Canvas
 from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
 from pdl.tex import TeX
-from pdl.text import Text
-from pdl.transforms import Transform, transform_path
+from pdl.text import Font, Text
+from pdl.transforms import Transform, placed_geometry
 
 
-def render_drawing(drawing: Drawing) -> str:
+def render_drawing(drawing: Drawing, commands: dict[Font, str]) -> str:
     geometry = drawing.geometry
+    if isinstance(geometry, Text):
+        return render_text(geometry, drawing, commands)
     if isinstance(geometry, TeX):
         return render_tex(geometry, drawing)
     if isinstance(geometry, Composite):
@@ -21,7 +23,7 @@ def render_drawing(drawing: Drawing) -> str:
         Style(stroke=None, fill=BLACK) if isinstance(geometry, Text) else Style()
     )
     if drawing.transform != Transform():
-        geometry = transform_path(geometry, drawing.transform)
+        geometry = placed_geometry(geometry, drawing.transform)
     s = paint
     stroke = s.stroke if s.line_width > 0 else None
     options = [
@@ -45,7 +47,8 @@ def picture(canvas: Canvas) -> str:
         f"\\path[use as bounding box] (0,0) rectangle ({w},{h});",
         f"\\clip (0,0) rectangle ({w},{h});",
     ]
-    lines.extend(render_drawing(drawing) for drawing in walk(canvas.drawings))
+    commands = font_commands(canvas)
+    lines.extend(render_drawing(drawing, commands) for drawing in walk(canvas.drawings))
     lines.append(r"\end{tikzpicture}")
     return "\n".join(lines) + "\n"
 
