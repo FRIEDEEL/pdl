@@ -5,8 +5,7 @@ from math import isfinite
 from pathlib import Path as FilePath
 from typing import Literal
 
-from pdl.geometry.bounds import Anchor, Bounds
-from pdl.geometry.primitives import Point
+from pdl.geometry.bounds import Bounds
 from pdl.rendering.config import RendererConfig, rendering
 from pdl.scene.composition import Drawing, Graphic
 from pdl.scene.composition import bounds as scene_bounds
@@ -43,29 +42,25 @@ class Canvas:
     def drawings(self) -> tuple[Drawing, ...]:
         return tuple(self._drawings)
 
-    def draw(self, geometry: Graphic, style: Style | None = None) -> None:
+    def draw(self, geometry: Graphic | Drawing, style: Style | None = None) -> None:
         """Append geometry and paint; do not flatten the geometry."""
-        self._drawings.append(Drawing(geometry, style))
+        if isinstance(geometry, Drawing):
+            if style is not None:
+                geometry = Drawing(geometry.geometry, style, geometry.transform)
+            self._drawings.append(geometry)
+        else:
+            self._drawings.append(Drawing(geometry, style))
 
     def typography(self, fonts: tuple[Font, ...] | None = None) -> AbstractContextManager[None]:
-        """Share the canvas font policy with authoring-time measurements."""
+        """Use the canvas policy for explicitly requested measurements."""
         return rendering(
             self.renderer if fonts is None else RendererConfig(fonts=fonts, tex=self.renderer.tex)
         )
 
-    def bounds(self, graphic: Graphic) -> Bounds:
+    def bounds(self, graphic: Graphic | Drawing) -> Bounds:
         """Measure geometry or layout using this canvas's font policy."""
         with self.typography():
             return scene_bounds(graphic)
-
-    def anchor(self, graphic: Graphic, name: Anchor = "center") -> Point:
-        """Measure an explicit anchor using the same policy as export."""
-        from pdl.components.nodes import Node
-
-        with self.typography():
-            if isinstance(graphic, Node):
-                return graphic.anchor(name)
-            return scene_bounds(graphic).anchor(name)
 
     def render(
         self,
@@ -77,9 +72,8 @@ class Canvas:
     ) -> str:
         """Export with optional ordered defaults for Text without an explicit font.
 
-        For content-sized nodes and anchor snapshots, configure fonts on the
-        canvas before measuring; changing fonts at export does not reroute
-        previously constructed connections.
+        Content sizes and anchor references are evaluated for this invocation.
+        Changing export fonts also recomputes dependent connection endpoints.
         """
         from pdl.rendering.svg.document import render as svg_render
         from pdl.rendering.tikz.document import render as tikz_render

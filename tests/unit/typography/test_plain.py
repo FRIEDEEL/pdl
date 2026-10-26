@@ -54,7 +54,7 @@ def test_canvas_defaults_are_shared_with_node_measurement(font: Font) -> None:
     label = Text("Inherited font")
     node = Node(label, (30, 20))
     assert canvas.bounds(node).width > 0
-    assert canvas.anchor(node).x == pytest.approx(30)
+    assert canvas.bounds(node).anchor().x == pytest.approx(30)
     canvas.draw(node)
     assert "<text" in canvas.render()
     assert "controls" not in canvas.render("tikz")

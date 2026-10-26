@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import hypot, isfinite, sqrt
+from math import isfinite
 from typing import Literal
 
 from pdl.geometry.bounds import Anchor, Bounds
-from pdl.geometry.primitives import Circle, Point, Position, Rectangle, point
+from pdl.geometry.primitives import Circle, Rectangle, point
 from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing
+from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import BLACK, Style
+from pdl.scene.references import AnchorRef, PointSource
 from pdl.typography.plain import Text
 from pdl.typography.tex import TeX
 
@@ -24,7 +26,7 @@ class Node:
     """
 
     label: Text | TeX
-    position: Position = (0, 0)
+    position: PointSource = (0, 0)
     shape: Literal["rectangle", "circle"] = "rectangle"
     padding: tuple[float, float] = (2, 1.5)
     min_width: float = 0
@@ -33,7 +35,8 @@ class Node:
     text_style: Style = Style(stroke=None, fill=BLACK)
 
     def __post_init__(self) -> None:
-        point(self.position)
+        if not isinstance(self.position, AnchorRef):
+            point(self.position)
         if self.shape not in ("rectangle", "circle"):
             raise ValueError("Node shape must be rectangle or circle.")
         if not all(
@@ -43,28 +46,11 @@ class Node:
 
     @property
     def bounds(self) -> Bounds:
-        label = self.label.layout_bounds
-        width = max(self.min_width, label.width + 2 * self.padding[0])
-        height = max(self.min_height, label.height + 2 * self.padding[1])
-        if self.shape == "circle":
-            width = height = max(
-                hypot(label.width + 2 * self.padding[0], label.height + 2 * self.padding[1]),
-                self.min_width,
-                self.min_height,
-            )
-        p = point(self.position)
-        return Bounds(p.x - width / 2, p.y - height / 2, p.x + width / 2, p.y + height / 2)
+        with layout_session() as context:
+            return context.node_bounds(self)
 
-    def anchor(self, name: Anchor = "center") -> Point:
-        box = self.bounds
-        target = box.anchor(name)
-        if self.shape == "circle" and " " in name:
-            center = box.anchor()
-            return Point(
-                center.x + (target.x - center.x) / sqrt(2),
-                center.y + (target.y - center.y) / sqrt(2),
-            )
-        return target
+    def anchor(self, name: Anchor = "center") -> AnchorRef:
+        return AnchorRef(self, name)
 
     def decompose(self) -> tuple[Drawing, ...]:
         box = self.bounds

@@ -3,22 +3,24 @@
 from dataclasses import dataclass
 from math import hypot, isfinite
 
-from pdl.geometry.primitives import Point, Polygon, Polyline, Position, point
+from pdl.geometry.primitives import Point, Polygon, Polyline, point
 from pdl.scene.composition import Drawing
+from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
+from pdl.scene.references import AnchorRef, PointSource
 
 
 @dataclass(frozen=True)
 class Connection:
     """An explicitly routed polyline with optional filled triangle arrowheads.
 
-    Endpoints are snapshots, not live references. Define and position nodes
-    first, then obtain anchors and construct their connections.
+    Coordinates and object anchors can be mixed. Anchor coordinates are
+    evaluated at export time; fixed via points do not imply automatic routing.
     """
 
-    start: Position
-    end: Position
-    via: tuple[Position, ...] = ()
+    start: PointSource
+    end: PointSource
+    via: tuple[PointSource, ...] = ()
     arrow_start: bool = False
     arrow_end: bool = True
     arrow_size: float = 2
@@ -27,16 +29,23 @@ class Connection:
     def __post_init__(self) -> None:
         if not isfinite(self.arrow_size) or self.arrow_size <= 0:
             raise ValueError("Arrow size must be positive and finite.")
-        if len(self._points()) < 2:
-            raise ValueError("A connection needs at least two distinct consecutive points.")
+        sources = (self.start, *self.via, self.end)
+        for source in sources:
+            if not isinstance(source, AnchorRef):
+                point(source)
+        if not any(isinstance(source, AnchorRef) for source in sources):
+            self._points()
 
     def _points(self) -> list[Point]:
-        result: list[Point] = []
-        for position in (self.start, *self.via, self.end):
-            p = point(position)
-            if not result or p != result[-1]:
-                result.append(p)
-        return result
+        with layout_session() as context:
+            result: list[Point] = []
+            for position in (self.start, *self.via, self.end):
+                p = context.point(position)
+                if not result or p != result[-1]:
+                    result.append(p)
+            if len(result) < 2:
+                raise ValueError("A connection needs at least two distinct consecutive points.")
+            return result
 
     def decompose(self) -> tuple[Drawing, ...]:
         points = self._points()

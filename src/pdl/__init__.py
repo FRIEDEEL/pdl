@@ -18,10 +18,12 @@ from pdl.geometry.transforms import Transform
 from pdl.rendering.config import RendererConfig
 from pdl.scene.canvas import BLACK, Canvas, Color, Style
 from pdl.scene.composition import Drawing, Group, bounds
+from pdl.scene.references import AnchorRef
 from pdl.typography.plain import Font, FontStack, Text
 from pdl.typography.tex import TeX, TeXConfig
 
 __all__ = [
+    "AnchorRef",
     "RendererConfig",
     "Transform",
     "Text",

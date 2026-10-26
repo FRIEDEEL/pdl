@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from pdl.scene.evaluation import layout_session
 from pdl.typography.plain import Font, font_context
 from pdl.typography.tex import TeXConfig
 
@@ -75,7 +76,7 @@ def rendering(config: RendererConfig) -> Generator[None, None, None]:
     fonts = config.resolve_fonts()
     token = _current.set(config)
     try:
-        with font_context(fonts):
+        with font_context(fonts), layout_session(fresh=True):
             yield
     finally:
         _current.reset(token)

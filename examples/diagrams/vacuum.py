@@ -5,7 +5,6 @@ from pdl import Canvas, Connection, Node, RendererConfig, Style, TeX, Text, Tran
 
 
 def example() -> Canvas:
-    canvas = Canvas(200, 143, renderer=RendererConfig(fonts=("sans-serif",)))
     paint = Style(stroke=BLUE, fill=PALE, line_width=0.45)
     title = Text("Vacuum system / topology and scientific labels", size=16, position=(8, 131))
     chamber = Node(
@@ -20,15 +19,11 @@ def example() -> Canvas:
     vent = Node(Text("Vent"), (28, 94), min_width=20, style=paint)
     gauge = Node(Text("Pressure\ngauge"), (166, 94), style=paint)
     main_pipe = Connection(
-        canvas.anchor(chamber, "south"), canvas.anchor(turbo, "north"), via=((100, 64), (155, 64))
+        chamber.anchor("south"), turbo.anchor("north"), via=((100, 64), (155, 64))
     )
-    backing_pipe = Connection(canvas.anchor(turbo, "west"), canvas.anchor(backing, "east"))
-    vent_pipe = Connection(
-        canvas.anchor(vent, "east"), canvas.anchor(chamber, "west"), arrow_end=False
-    )
-    gauge_pipe = Connection(
-        canvas.anchor(chamber, "east"), canvas.anchor(gauge, "west"), arrow_end=False
-    )
+    backing_pipe = Connection(turbo.anchor("west"), backing.anchor("east"))
+    vent_pipe = Connection(vent.anchor("east"), chamber.anchor("west"), arrow_end=False)
+    gauge_pipe = Connection(chamber.anchor("east"), gauge.anchor("west"), arrow_end=False)
     valve_symbol = valve()
     valves = (
         valve_symbol.transformed(Transform.translate(128, 64)),
@@ -46,6 +41,7 @@ def example() -> Canvas:
             position=(8, 8),
         ),
     )
+    canvas = Canvas(200, 143, renderer=RendererConfig(fonts=("sans-serif",)))
     canvas.draw(title, LABEL)
     for connection in (main_pipe, backing_pipe, vent_pipe, gauge_pipe):
         canvas.draw(connection)

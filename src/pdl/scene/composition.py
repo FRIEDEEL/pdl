@@ -6,12 +6,12 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
-from pdl.geometry.bounds import Anchor, Bounds, geometry_bounds
-from pdl.geometry.primitives import Geometry, Point
-from pdl.geometry.transforms import Transform, transform_path
+from pdl.geometry.bounds import Anchor, Bounds
+from pdl.geometry.primitives import Geometry
+from pdl.geometry.transforms import Transform
+from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
-from pdl.typography.plain import Text
-from pdl.typography.tex import TeX
+from pdl.scene.references import AnchorRef
 
 
 @runtime_checkable
@@ -31,6 +31,13 @@ class Drawing:
     geometry: Graphic
     style: Style | None = None
     transform: Transform = Transform()
+
+    def anchor(self, name: Anchor = "center") -> AnchorRef:
+        """Reference this instance, including its explicit placement."""
+        return AnchorRef(self, name)
+
+    def transformed(self, transform: Transform) -> Drawing:
+        return Drawing(self.geometry, self.style, transform @ self.transform)
 
 
 @dataclass(frozen=True)
@@ -57,8 +64,9 @@ class Group:
     def bounds(self) -> Bounds:
         return bounds(self)
 
-    def anchor(self, name: Anchor = "center") -> Point:
-        return self.bounds.anchor(name)
+    def anchor(self, name: Anchor = "center") -> AnchorRef:
+        """Reference the axis-aligned bounds of this placed group."""
+        return AnchorRef(self, name)
 
 
 def walk(
@@ -68,29 +76,22 @@ def walk(
     ancestors: frozenset[int] = frozenset(),
 ) -> Iterator[Drawing]:
     """Traverse composites without discarding leaf object identity."""
-    for drawing in drawings:
-        placement = transform @ drawing.transform
-        paint = drawing.style if drawing.style is not None else style
-        geometry = drawing.geometry
-        if isinstance(geometry, Composite):
-            if id(geometry) in ancestors:
-                raise ValueError("Cyclic composite graph.")
-            yield from walk(geometry.decompose(), placement, paint, ancestors | {id(geometry)})
-        else:
-            yield Drawing(geometry, paint, placement)
+    with layout_session() as context:
+        for drawing in drawings:
+            placement = transform @ drawing.transform
+            paint = drawing.style if drawing.style is not None else style
+            geometry = drawing.geometry
+            if isinstance(geometry, Composite):
+                if id(geometry) in ancestors:
+                    raise ValueError("Cyclic composite graph.")
+                yield from walk(
+                    context.decompose(geometry), placement, paint, ancestors | {id(geometry)}
+                )
+            else:
+                yield Drawing(geometry, paint, placement)
 
 
-def bounds(graphic: Graphic) -> Bounds:
+def bounds(graphic: Graphic | Drawing) -> Bounds:
     """Return axis-aligned geometry/layout bounds, excluding stroke."""
-    result: Bounds | None = None
-    for drawing in walk((Drawing(graphic),)):
-        geometry = drawing.geometry
-        if isinstance(geometry, Composite):
-            raise TypeError("Traversal must produce geometry leaves.")
-        box = (
-            geometry.layout_bounds.transformed(drawing.transform)
-            if isinstance(geometry, (Text, TeX))
-            else geometry_bounds(transform_path(geometry, drawing.transform))
-        )
-        result = box if result is None else result.union(box)
-    return result if result is not None else Bounds(0, 0, 0, 0)
+    with layout_session() as context:
+        return context.bounds(graphic)
