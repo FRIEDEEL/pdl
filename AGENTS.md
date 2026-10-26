@@ -6,11 +6,13 @@
 - The AI owns implementation, routine design choices, testing, documentation,
   and local Git integration within the agreed project goals. Do not request
   separate approval for each implementation step, commit, or feature merge.
-- The user reviews major architecture decisions, example code, and rendered
-  results. Present major architectural changes for agreement before implementing
-  them; deliver concrete examples and outputs for acceptance.
-- Explain significant approaches and trade-offs concisely, and ask when an
-  unresolved choice materially changes the architecture or agreed scope.
+- The user performs acceptance between stages, reviewing architecture, example
+  code, and rendered results. Once stage goals are agreed, handle internal
+  design and implementation decisions autonomously rather than introducing
+  additional approval checkpoints within the stage.
+- Explain significant approaches and trade-offs concisely. Ask before changes
+  that materially exceed the agreed stage scope; report decisions and concrete
+  examples and outputs at the stage acceptance checkpoint.
 - Read relevant files and inspect the project as needed to prepare a proposal.
 - Report what changed, which checks were run, and any unresolved issues.
 
