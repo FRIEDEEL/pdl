@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import unicodedata
+from collections.abc import Generator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from functools import lru_cache
 from math import isfinite
@@ -34,65 +38,139 @@ class Font:
 
 
 @dataclass(frozen=True)
+class FontStack:
+    """An ordered font candidate list, searched per combining sequence."""
+
+    fonts: tuple[Font, ...]
+
+    def __post_init__(self) -> None:
+        if not self.fonts:
+            raise ValueError("A FontStack needs at least one font.")
+
+
+_font_context: ContextVar[tuple[Font, ...]] = ContextVar("pdl_fonts", default=())
+
+
+@contextmanager
+def font_context(fonts: tuple[Font, ...]) -> Generator[None, None, None]:
+    """Use task-local defaults for measurement and rendering together."""
+    token = _font_context.set(fonts)
+    try:
+        yield
+    finally:
+        _font_context.reset(token)
+
+
+@dataclass(frozen=True)
 class TextLayout:
     """Layout metrics relative to the first baseline, in millimeters."""
 
     box: Bounds
     ink: Bounds
     advances: tuple[float, ...]
+    fonts_used: tuple[str, ...]
     _outline: Path
 
     def to_path(self) -> Path:
         return self._outline.to_path()
 
 
+def _clusters(text: str) -> list[str]:
+    """Keep combining marks, variation selectors and joiner sequences together.
+
+    This is a horizontal-label subset, not a complete Unicode grapheme or
+    bidirectional paragraph implementation.
+    """
+    result: list[str] = []
+    for character in text:
+        attached = (
+            unicodedata.category(character).startswith("M")
+            or character == "\u200d"
+            or (result and result[-1].endswith("\u200d"))
+        )
+        if result and attached:
+            result[-1] += character
+        else:
+            result.append(character)
+    return result
+
+
+def _shape(font: hb.Font, text: str) -> tuple[list[hb.GlyphInfo], list[hb.GlyphPosition]]:
+    buffer = hb.Buffer()
+    buffer.add_str(text)
+    buffer.guess_segment_properties()
+    hb.shape(font, buffer)
+    return buffer.glyph_infos, buffer.glyph_positions
+
+
+type FontKey = tuple[str, int, int, int]
+
+
 @lru_cache(maxsize=128)
 def _layout(
-    file: str,
-    index: int,
-    stamp: tuple[int, int],
-    text: str,
-    size: float,
-    align: str,
-    line_spacing: float,
+    files: tuple[FontKey, ...], text: str, size: float, align: str, line_spacing: float
 ) -> TextLayout:
-    del stamp  # The stat signature invalidates cached layouts after font edits.
-    data = FilePath(file).read_bytes()
-    face = hb.Face(data, index)
-    font = hb.Font(face)
-    font.scale = (face.upem, face.upem)
-    scale = size * PT_TO_MM / face.upem
-    extents = font.get_font_extents("ltr")
-    ascender, descender = extents.ascender * scale, extents.descender * scale
+    if any(unicodedata.bidirectional(c) in ("R", "AL", "AN") for c in text):
+        raise ValueError(
+            "Stage 2 Text supports left-to-right labels; use TeX for complex directionality."
+        )
+    fonts: list[hb.Font] = []
+    scales: list[float] = []
+    for file, index, _, _ in files:
+        face = hb.Face(FilePath(file).read_bytes(), index)
+        font = hb.Font(face)
+        font.scale = (face.upem, face.upem)
+        fonts.append(font)
+        scales.append(size * PT_TO_MM / face.upem)
     path = Path()
     widths: list[float] = []
+    used: set[int] = set()
     lines = text.split("\n")
     for row, content in enumerate(lines):
-        buffer = hb.Buffer()
-        buffer.add_str(content)
-        buffer.guess_segment_properties()
-        hb.shape(font, buffer)
-        infos, positions = buffer.glyph_infos, buffer.glyph_positions
-        if any(info.codepoint == 0 for info in infos):
-            raise ValueError(f"Font {file!r} lacks glyphs needed for {content!r}.")
-        width = sum(p.x_advance for p in positions) * scale
+        runs: list[tuple[int, str]] = []
+        for cluster in _clusters(content):
+            selected: int | None = None
+            for index, font in enumerate(fonts):
+                infos, _ = _shape(font, cluster)
+                if all(info.codepoint != 0 for info in infos):
+                    selected = index
+                    break
+            if selected is None:
+                raise ValueError(f"Font candidates lack glyphs needed for {cluster!r}.")
+            if runs and runs[-1][0] == selected:
+                runs[-1] = (selected, runs[-1][1] + cluster)
+            else:
+                runs.append((selected, cluster))
+        shaped = [(index, *_shape(fonts[index], run)) for index, run in runs]
+        width = sum(
+            sum(p.x_advance for p in positions) * scales[index] for index, _, positions in shaped
+        )
         widths.append(width)
-        offset = -width / 2 if align == "center" else -width if align == "right" else 0
-        x, y = offset, -row * size * PT_TO_MM * line_spacing
-        for info, position in zip(infos, positions, strict=True):
-            outline = glyph_path(file, index, info.codepoint)
-            placement = Transform.translate(
-                x + position.x_offset * scale, y + position.y_offset * scale
-            ) @ Transform.scale(scale)
-            path.extend(transform_path(outline, placement))
-            x += position.x_advance * scale
-            y += position.y_advance * scale
+        x = -width / 2 if align == "center" else -width if align == "right" else 0
+        y = -row * size * PT_TO_MM * line_spacing
+        for index, infos, positions in shaped:
+            used.add(index)
+            scale = scales[index]
+            file, collection, _, _ = files[index]
+            for info, position in zip(infos, positions, strict=True):
+                outline = glyph_path(file, collection, info.codepoint)
+                placement = Transform.translate(
+                    x + position.x_offset * scale, y + position.y_offset * scale
+                ) @ Transform.scale(scale)
+                path.extend(transform_path(outline, placement))
+                x += position.x_advance * scale
+                y += position.y_advance * scale
+    selected_fonts = used or {0}
+    ascender = max(fonts[i].get_font_extents("ltr").ascender * scales[i] for i in selected_fonts)
+    descender = min(fonts[i].get_font_extents("ltr").descender * scales[i] for i in selected_fonts)
     width = max(widths, default=0)
     left = -width / 2 if align == "center" else -width if align == "right" else 0
     box = Bounds(
         left, descender - (len(lines) - 1) * size * PT_TO_MM * line_spacing, left + width, ascender
     )
-    return TextLayout(box, geometry_bounds(path), tuple(widths), path)
+    return TextLayout(
+        box, geometry_bounds(path), tuple(widths), tuple(files[i][0] for i in sorted(used)), path
+    )
 
 
 @dataclass(frozen=True)
@@ -109,7 +187,7 @@ class Text:
     """
 
     text: str
-    font: Font
+    font: Font | FontStack | None = None
     position: Position = (0, 0)
     size: float = 12
     align: Literal["left", "center", "right"] = "left"
@@ -124,17 +202,21 @@ class Text:
 
     @property
     def layout(self) -> TextLayout:
-        file = FilePath(self.font.file).resolve()
-        stat = file.stat()
-        return _layout(
-            str(file),
-            self.font.index,
-            (stat.st_mtime_ns, stat.st_size),
-            self.text,
-            self.size,
-            self.align,
-            self.line_spacing,
+        selected = (
+            self.font.fonts
+            if isinstance(self.font, FontStack)
+            else (self.font,)
+            if isinstance(self.font, Font)
+            else _font_context.get()
         )
+        if not selected:
+            raise ValueError("Specify Text.font or Canvas fonts before measuring text.")
+        files: list[FontKey] = []
+        for font in selected:
+            file = FilePath(font.file).resolve()
+            stat = file.stat()
+            files.append((str(file), font.index, stat.st_mtime_ns, stat.st_size))
+        return _layout(tuple(files), self.text, self.size, self.align, self.line_spacing)
 
     @property
     def layout_bounds(self) -> Bounds:

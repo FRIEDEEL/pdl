@@ -17,13 +17,14 @@ from pdl.geometry import (
 from pdl.nodes import Node
 from pdl.scene import Drawing, Group, bounds
 from pdl.tex import TeX, TeXConfig
-from pdl.text import Font, Text
+from pdl.text import Font, FontStack, Text
 from pdl.transforms import Transform
 
 __all__ = [
     "Transform",
     "Text",
     "Font",
+    "FontStack",
     "TeXConfig",
     "TeX",
     "bounds",

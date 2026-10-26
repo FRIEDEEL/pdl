@@ -34,7 +34,7 @@ def test_literal_special_characters_and_outlines(font: Font) -> None:
 
 
 def test_missing_glyph_is_explicit(font: Font) -> None:
-    with pytest.raises(ValueError, match="lacks glyphs"):
+    with pytest.raises(ValueError, match="lack glyphs"):
         Text("\U0010ffff", font).to_path()
 
 
@@ -44,3 +44,52 @@ def test_layout_snapshot_is_independent(font: Font) -> None:
     original = len(path.commands)
     path.line_to((100, 100))
     assert len(text.to_path().commands) == original
+
+
+def test_canvas_defaults_are_shared_with_node_measurement(font: Font) -> None:
+    from pdl import Node
+
+    canvas = Canvas(80, 40, fonts=(font,))
+    label = Text("Inherited font")
+    node = Node(label, (30, 20))
+    assert canvas.bounds(node).width > 0
+    assert canvas.anchor(node).x == pytest.approx(30)
+    canvas.draw(node)
+    assert "<path" in canvas.render()
+    assert "controls" in canvas.render("tikz")
+    with pytest.raises(ValueError, match="Specify"):
+        label.layout
+
+
+def test_render_can_supply_defaults_and_explicit_font_wins(font: Font) -> None:
+    canvas = Canvas(80, 40)
+    canvas.draw(Text("Inherited"))
+    assert "<path" in canvas.render(fonts=(font,))
+    explicit = Text("Explicit", font)
+    canvas = Canvas(80, 40)
+    canvas.draw(explicit)
+    assert "<path" in canvas.render()
+
+
+def test_japanese_first_chinese_fallback() -> None:
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    from pdl import FontStack
+
+    executable = shutil.which("kpsewhich")
+    if executable is None:
+        pytest.skip("TeX example fonts unavailable.")
+    paths: list[str] = []
+    for name in ("HaranoAjiGothic-Regular.otf", "FandolHei-Regular.otf"):
+        result = subprocess.run([executable, name], capture_output=True, text=True, check=False)
+        file = result.stdout.strip()
+        if not file or not Path(file).is_file():
+            pytest.skip("Japanese and Chinese test fonts unavailable.")
+        paths.append(file)
+    text = Text("真空系统と流量", FontStack(tuple(Font(file) for file in paths)))
+    assert text.to_path().commands
+    assert text.layout.fonts_used == tuple(paths)
+    with pytest.raises(ValueError, match="lack glyphs"):
+        Text("真空系统と流量", Font(paths[0])).to_path()
