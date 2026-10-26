@@ -1,24 +1,31 @@
 """Native TeX node rendering and document environment collection."""
 
+from collections.abc import Iterator
 from pathlib import Path as FilePath
 
+from pdl.components.nodes import Node
 from pdl.geometry.primitives import point
 from pdl.rendering.config import current_renderer
 from pdl.rendering.formatting import number
 from pdl.rendering.tikz.geometry import color, coordinate
-from pdl.scene.canvas import Canvas
-from pdl.scene.composition import Drawing, walk
+from pdl.scene.composition import Drawing
 from pdl.scene.paint import BLACK, Style
 from pdl.typography.plain import Font, Text
 from pdl.typography.tex import TeX, TeXConfig
 
 
-def configuration(canvas: Canvas) -> TeXConfig | None:
-    configs = {
-        drawing.geometry.environment
-        for drawing in walk(canvas.drawings)
-        if isinstance(drawing.geometry, TeX)
-    }
+def resources(drawings: tuple[Drawing, ...]) -> Iterator[Text | TeX]:
+    """Inspect native object content without decomposing supported objects."""
+    for drawing in drawings:
+        geometry = drawing.geometry
+        if isinstance(geometry, Node):
+            yield geometry.label
+        elif isinstance(geometry, (Text, TeX)):
+            yield geometry
+
+
+def configuration(drawings: tuple[Drawing, ...]) -> TeXConfig | None:
+    configs = {text.environment for text in resources(drawings) if isinstance(text, TeX)}
     if len(configs) > 1:
         raise ValueError("One native TikZ document requires a shared TeXConfig.")
     explicit = current_renderer().tex
@@ -28,14 +35,14 @@ def configuration(canvas: Canvas) -> TeXConfig | None:
         raise ValueError("One native TikZ document requires a shared TeXConfig.")
     if configs:
         return next(iter(configs))
-    return TeXConfig() if any(isinstance(d.geometry, Text) for d in walk(canvas.drawings)) else None
+    return TeXConfig() if any(isinstance(text, Text) for text in resources(drawings)) else None
 
 
-def font_commands(canvas: Canvas) -> dict[Font, str]:
+def font_commands(drawings: tuple[Drawing, ...]) -> dict[Font, str]:
     result: dict[Font, str] = {}
-    for drawing in walk(canvas.drawings):
-        if isinstance(drawing.geometry, Text):
-            for run in drawing.geometry.layout.runs:
+    for text in resources(drawings):
+        if isinstance(text, Text):
+            for run in text.layout.runs:
                 if run.font not in result:
                     index = len(result)
                     letters = ""
@@ -48,12 +55,12 @@ def font_commands(canvas: Canvas) -> dict[Font, str]:
     return result
 
 
-def preamble(canvas: Canvas) -> str:
-    config = configuration(canvas)
+def preamble(drawings: tuple[Drawing, ...]) -> str:
+    config = configuration(drawings)
     lines = [r"\usepackage{tikz}"]
     if config:
         lines.append(config.latex_preamble())
-    commands = font_commands(canvas)
+    commands = font_commands(drawings)
     if commands:
         lines.append(r"\usepackage{fontspec}")
     for font, command in commands.items():

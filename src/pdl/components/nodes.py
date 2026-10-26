@@ -60,6 +60,11 @@ class Node:
             if self.shape == "circle"
             else Rectangle((box.left, box.bottom), box.width, box.height)
         )
+        return Drawing(shape, self.style), self.label_drawing()
+
+    def label_drawing(self) -> Drawing:
+        """Place the label using the same layout as native and fallback output."""
+        center = self.bounds.anchor()
         label_center = self.label.layout_bounds.anchor()
         placement = Transform.translate(center.x - label_center.x, center.y - label_center.y)
-        return Drawing(shape, self.style), Drawing(self.label, self.text_style, placement)
+        return Drawing(self.label, self.text_style, placement)

@@ -4,8 +4,9 @@ from pdl.geometry.transforms import Transform, placed_geometry
 from pdl.rendering.formatting import number
 from pdl.rendering.svg.geometry import shape, style_attributes
 from pdl.rendering.svg.text import render_tex, render_text
+from pdl.rendering.traversal import prepare
 from pdl.scene.canvas import Canvas
-from pdl.scene.composition import Composite, Drawing, walk
+from pdl.scene.composition import Composite, Drawing
 from pdl.scene.paint import BLACK, Style
 from pdl.typography.plain import Text
 from pdl.typography.tex import TeX
@@ -30,7 +31,8 @@ def render_drawing(drawing: Drawing, prefix: str = "tex-") -> str:
 def render(canvas: Canvas) -> str:
     w, h = number(canvas.width), number(canvas.height)
     elements = [
-        render_drawing(drawing, f"tex{i}-") for i, drawing in enumerate(walk(canvas.drawings))
+        render_drawing(drawing, f"tex{i}-")
+        for i, drawing in enumerate(prepare(canvas.drawings, lambda _: False))
     ]
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}mm" height="{h}mm" '

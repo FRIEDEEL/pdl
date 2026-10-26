@@ -88,10 +88,12 @@ class Canvas:
 
     def latex_preamble(self) -> str:
         """Return required packages and macros for an embedded TikZ fragment."""
+        from pdl.rendering.tikz.nodes import supports
         from pdl.rendering.tikz.text import preamble
+        from pdl.rendering.traversal import prepare
 
         with self.typography():
-            return preamble(self)
+            return preamble(tuple(prepare(self.drawings, supports)))
 
     def save(
         self,
