@@ -2,15 +2,19 @@
 
 from pdl.backends._format import number
 from pdl.backends.svg_geometry import shape, style_attributes
+from pdl.backends.svg_text import render_tex
 from pdl.canvas import Canvas
 from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
+from pdl.tex import TeX
 from pdl.text import Text
 from pdl.transforms import Transform, transform_path
 
 
-def render_drawing(drawing: Drawing) -> str:
+def render_drawing(drawing: Drawing, prefix: str = "tex-") -> str:
     geometry = drawing.geometry
+    if isinstance(geometry, TeX):
+        return render_tex(geometry, drawing, prefix)
     if isinstance(geometry, Composite):
         raise TypeError("Expected a geometry leaf.")
     paint = drawing.style or (
@@ -23,7 +27,9 @@ def render_drawing(drawing: Drawing) -> str:
 
 def render(canvas: Canvas) -> str:
     w, h = number(canvas.width), number(canvas.height)
-    elements = [render_drawing(drawing) for drawing in walk(canvas.drawings)]
+    elements = [
+        render_drawing(drawing, f"tex{i}-") for i, drawing in enumerate(walk(canvas.drawings))
+    ]
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}mm" height="{h}mm" '
         f'viewBox="0 0 {w} {h}" overflow="hidden">\n'

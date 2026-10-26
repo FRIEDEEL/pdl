@@ -33,7 +33,7 @@ class Canvas:
         """Append geometry and paint; do not flatten the geometry."""
         self._drawings.append(Drawing(geometry, style))
 
-    def render(self, backend: Literal["svg", "tikz"] = "svg") -> str:
+    def render(self, backend: Literal["svg", "tikz"] = "svg", *, standalone: bool = True) -> str:
         """Return SVG markup or a standalone compilable TikZ document."""
         from pdl.backends.svg import render as svg_render
         from pdl.backends.tikz import render as tikz_render
@@ -41,8 +41,14 @@ class Canvas:
         if backend == "svg":
             return svg_render(self)
         if backend == "tikz":
-            return tikz_render(self)
+            return tikz_render(self, standalone=standalone)
         raise ValueError(f"Unknown backend: {backend}")
+
+    def latex_preamble(self) -> str:
+        """Return required packages and macros for an embedded TikZ fragment."""
+        from pdl.backends.tikz_text import preamble
+
+        return preamble(self)
 
     def save(self, filename: str | FilePath, *, backend: Literal["svg", "tikz"]) -> None:
         """Write the selected output as UTF-8 text."""

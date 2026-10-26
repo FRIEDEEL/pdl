@@ -2,15 +2,19 @@
 
 from pdl.backends._format import number
 from pdl.backends.tikz_geometry import color, path_data
+from pdl.backends.tikz_text import configuration, preamble, render_tex
 from pdl.canvas import Canvas
 from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
+from pdl.tex import TeX
 from pdl.text import Text
 from pdl.transforms import Transform, transform_path
 
 
 def render_drawing(drawing: Drawing) -> str:
     geometry = drawing.geometry
+    if isinstance(geometry, TeX):
+        return render_tex(geometry, drawing)
     if isinstance(geometry, Composite):
         raise TypeError("Expected a geometry leaf.")
     paint = drawing.style or (
@@ -34,6 +38,7 @@ def render_drawing(drawing: Drawing) -> str:
 
 def picture(canvas: Canvas) -> str:
     """Return a TikZ picture fragment for embedding in another document."""
+    configuration(canvas)
     w, h = number(canvas.width), number(canvas.height)
     lines = [
         r"\begin{tikzpicture}[x=1mm,y=1mm]",
@@ -45,10 +50,16 @@ def picture(canvas: Canvas) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render(canvas: Canvas) -> str:
+def render(canvas: Canvas, *, standalone: bool = True) -> str:
+    if not standalone:
+        return picture(canvas)
+    config = configuration(canvas)
+    engine = f"% !TeX program = {config.engine}\n" if config else ""
     return (
-        r"\documentclass[tikz,border=0pt]{standalone}"
+        engine
+        + r"\documentclass[tikz,border=0pt]{standalone}"
         + "\n"
+        + preamble(canvas)
         + r"\begin{document}"
         + "\n"
         + picture(canvas)
