@@ -161,13 +161,22 @@ def measure(tex: TeX) -> TeXLayout:
         element = ET.fromstring(svg)
         marker = element.find(".//*[@id='pdl-origin']")
         if marker is None:
-            raise RuntimeError("SVG converter did not retain the TeX baseline marker.")
+            empty = all(int(metrics[i]) == 0 for i in (1, 2, 3)) and not any(
+                el.tag.rsplit("}", 1)[-1] in ("path", "rect", "image", "use")
+                for el in element.iter()
+            )
+            if not empty:
+                raise RuntimeError("SVG converter did not retain the TeX baseline marker.")
+            origin_x = origin_y = 0.0
+        else:
+            origin_x = float(marker.attrib["data-x"])
+            origin_y = float(marker.attrib["data-y"])
         values = {
             "width": int(metrics[1]) / 65536 * PT_TO_MM,
             "height": int(metrics[2]) / 65536 * PT_TO_MM,
             "depth": int(metrics[3]) / 65536 * PT_TO_MM,
-            "origin_x": float(marker.attrib["data-x"]),
-            "origin_y": float(marker.attrib["data-y"]),
+            "origin_x": origin_x,
+            "origin_y": origin_y,
             "svg": svg,
         }
         serialized = json.dumps(values)
