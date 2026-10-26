@@ -1,7 +1,7 @@
 [project]
 name = "pdl"
 version = "0.1.0"
-description = ""
+description = "Static vector diagrams with native SVG and TikZ output"
 readme = "README.md"
 authors = [
     { name = "LiGuang", email = "guangli25@outlook.com" }
@@ -35,3 +35,4 @@ include = ["src", "tests", "examples"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]
