@@ -116,15 +116,15 @@
 ## Git Workflow
 
 - Use Gitflow as a baseline, with flexibility for solo development.
-- Use `main` for released code and `develop` for development integration.
-- Direct development on `develop` is allowed, especially during initial
+- Use `main` for released code and `dev` for development integration.
+- Direct development on `dev` is allowed, especially during initial
   scaffolding and MVP development. Do not create a feature branch for every task.
-- When a feature branch is used, use `feature/*`, branching from and merging
-  back into `develop`.
-- Use `release/*` branches for release preparation, branching from `develop`
-  and merging into both `main` and `develop` when the release is complete.
+- When a feature branch is used, use `feat/*`, branching from and merging
+  back into `dev`.
+- Use `release/*` branches for release preparation, branching from `dev`
+  and merging into both `main` and `dev` when the release is complete.
 - Use `hotfix/*` branches for urgent fixes to released code, branching from
-  `main` and integrating the fixes into both `main` and `develop`.
+  `main` and integrating the fixes into both `main` and `dev`.
 
 ### Commit Messages
 
@@ -150,7 +150,7 @@
 - Mark breaking changes with `!` before the colon or a `BREAKING CHANGE:`
   footer, and explain the incompatible change.
 - Apply this format to merge commits as well, for example:
-  `chore(merge): integrate feature/rendering into develop`.
+  `chore(merge): integrate feat/rendering into dev`.
 
 ### Commit Granularity
 
@@ -164,9 +164,9 @@
 
 - WIP commits may temporarily fail checks. Clearly report incomplete work and
   known failing checks when creating them.
-- Before merging into `develop`, ensure that the relevant lint, formatting,
+- Before merging into `dev`, ensure that the relevant lint, formatting,
   type-checking, and test checks pass on the resulting combined code.
-- When developing directly on `develop`, require relevant checks to pass at
+- When developing directly on `dev`, require relevant checks to pass at
   the end of a completed work phase rather than before every small commit.
 - Do not describe work as complete while relevant checks remain failing or
   unverified. Report any blockers explicitly.
@@ -179,6 +179,8 @@
   when merging branches.
 - Do not rebase, squash, amend commits, or otherwise rewrite existing history
   unless explicitly instructed.
-- Do not treat authorization to edit files as authorization to commit, push,
-  merge, or publish a release. Perform these actions only when explicitly
-  instructed.
+- The user has granted standing authorization to create commits for authorized
+  work in this project. Commit each feature or focused development step
+  separately, following the message and granularity rules above.
+- This standing authorization does not include push, merge, or release
+  publication. Perform those actions only when explicitly instructed.
