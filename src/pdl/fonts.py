@@ -24,7 +24,12 @@ class _GlyphSet(Protocol):
     def __getitem__(self, key: str) -> _Glyph: ...
 
 
+class _NameTable(Protocol):
+    def getBestFamilyName(self) -> str | None: ...
+
+
 class _Font(Protocol):
+    def __getitem__(self, key: str) -> _NameTable: ...
     def getGlyphSet(self) -> _GlyphSet: ...
     def getGlyphName(self, glyphID: int) -> str: ...
     def close(self) -> None: ...
@@ -78,3 +83,20 @@ def glyph_path(file: str, index: int, gid: int) -> Path:
     """Return an independent outline snapshot for a shaped glyph ID."""
     stat = FilePath(file).stat()
     return _glyph(file, index, (stat.st_mtime_ns, stat.st_size), gid).to_path()
+
+
+@lru_cache(maxsize=64)
+def _family(file: str, index: int, stamp: tuple[int, int]) -> str:
+    del stamp
+    factory = cast(_FontFactory, TTFont)
+    font = factory(file, fontNumber=index)
+    try:
+        return font["name"].getBestFamilyName() or FilePath(file).stem
+    finally:
+        font.close()
+
+
+def font_family(file: str, index: int = 0) -> str:
+    """Read a native font-family name without generating glyph outlines."""
+    stat = FilePath(file).stat()
+    return _family(file, index, (stat.st_mtime_ns, stat.st_size))

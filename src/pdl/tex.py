@@ -96,7 +96,7 @@ def _source(tex: TeX) -> str:
     return (
         r"\documentclass[border=0pt]{standalone}"
         + "\n"
-        + tex.config.latex_preamble()
+        + tex.environment.latex_preamble()
         + "\n"
         + r"\begin{document}"
         + "\n"
@@ -114,22 +114,27 @@ def _source(tex: TeX) -> str:
 
 def measure(tex: TeX) -> TeXLayout:
     """Compile a fragment once and retain baseline and box metrics together."""
-    engine, engine_version = _tool(tex.config.engine)
+    engine, engine_version = _tool(tex.environment.engine)
     converter, converter_version = _tool("dvisvgm")
     source = _source(tex)
     digest = hashlib.sha256(
         (
-            source + engine + engine_version + converter + converter_version + tex.config.cache_salt
+            source
+            + engine
+            + engine_version
+            + converter
+            + converter_version
+            + tex.environment.cache_salt
         ).encode()
     )
-    for dependency in tex.config.dependencies:
+    for dependency in tex.environment.dependencies:
         file = FilePath(dependency).resolve()
         digest.update(str(file).encode())
         digest.update(file.read_bytes())
     key = digest.hexdigest()
     root = (
-        FilePath(tex.config.cache_dir)
-        if tex.config.cache_dir is not None
+        FilePath(tex.environment.cache_dir)
+        if tex.environment.cache_dir is not None
         else FilePath(tempfile.gettempdir()) / "pdl-tex-v1"
     )
     root.mkdir(parents=True, exist_ok=True)
@@ -217,12 +222,18 @@ class TeX:
     source: str
     position: Position = (0, 0)
     size: float = 12
-    config: TeXConfig = TeXConfig()
+    config: TeXConfig | None = None
 
     def __post_init__(self) -> None:
         point(self.position)
         if not isfinite(self.size) or self.size <= 0:
             raise ValueError("TeX size must be positive and finite.")
+
+    @property
+    def environment(self) -> TeXConfig:
+        from pdl.renderer import current_renderer
+
+        return self.config or current_renderer().tex or TeXConfig()
 
     def latex_body(self) -> str:
         return (

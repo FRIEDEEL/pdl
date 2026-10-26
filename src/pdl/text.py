@@ -62,17 +62,45 @@ def font_context(fonts: tuple[Font, ...]) -> Generator[None, None, None]:
 
 
 @dataclass(frozen=True)
+class TextRun:
+    """A native text span with a resolved font and baseline position."""
+
+    text: str
+    font: Font
+    x: float
+    y: float
+
+
+@dataclass(frozen=True)
+class _GlyphPlacement:
+    file: str
+    index: int
+    gid: int
+    transform: Transform
+
+
+@dataclass(frozen=True)
 class TextLayout:
-    """Layout metrics relative to the first baseline, in millimeters."""
+    """Backend-independent measurements; outlines are generated only on request."""
 
     box: Bounds
-    ink: Bounds
     advances: tuple[float, ...]
     fonts_used: tuple[str, ...]
-    _outline: Path
+    runs: tuple[TextRun, ...]
+    _glyphs: tuple[_GlyphPlacement, ...]
+
+    @property
+    def ink(self) -> Bounds:
+        return geometry_bounds(self.to_path())
 
     def to_path(self) -> Path:
-        return self._outline.to_path()
+        """Explicitly opt into outline conversion rather than native text."""
+        path = Path()
+        for glyph in self._glyphs:
+            path.extend(
+                transform_path(glyph_path(glyph.file, glyph.index, glyph.gid), glyph.transform)
+            )
+        return path
 
 
 def _clusters(text: str) -> list[str]:
@@ -122,7 +150,8 @@ def _layout(
         font.scale = (face.upem, face.upem)
         fonts.append(font)
         scales.append(size * PT_TO_MM / face.upem)
-    path = Path()
+    glyphs: list[_GlyphPlacement] = []
+    native_runs: list[TextRun] = []
     widths: list[float] = []
     used: set[int] = set()
     lines = text.split("\n")
@@ -141,23 +170,23 @@ def _layout(
                 runs[-1] = (selected, runs[-1][1] + cluster)
             else:
                 runs.append((selected, cluster))
-        shaped = [(index, *_shape(fonts[index], run)) for index, run in runs]
+        shaped = [(index, run, *_shape(fonts[index], run)) for index, run in runs]
         width = sum(
-            sum(p.x_advance for p in positions) * scales[index] for index, _, positions in shaped
+            sum(p.x_advance for p in positions) * scales[index] for index, _, _, positions in shaped
         )
         widths.append(width)
         x = -width / 2 if align == "center" else -width if align == "right" else 0
         y = -row * size * PT_TO_MM * line_spacing
-        for index, infos, positions in shaped:
+        for index, content, infos, positions in shaped:
             used.add(index)
             scale = scales[index]
             file, collection, _, _ = files[index]
+            native_runs.append(TextRun(content, Font(file, collection), x, y))
             for info, position in zip(infos, positions, strict=True):
-                outline = glyph_path(file, collection, info.codepoint)
                 placement = Transform.translate(
                     x + position.x_offset * scale, y + position.y_offset * scale
                 ) @ Transform.scale(scale)
-                path.extend(transform_path(outline, placement))
+                glyphs.append(_GlyphPlacement(file, collection, info.codepoint, placement))
                 x += position.x_advance * scale
                 y += position.y_advance * scale
     selected_fonts = used or {0}
@@ -169,7 +198,11 @@ def _layout(
         left, descender - (len(lines) - 1) * size * PT_TO_MM * line_spacing, left + width, ascender
     )
     return TextLayout(
-        box, geometry_bounds(path), tuple(widths), tuple(files[i][0] for i in sorted(used)), path
+        box,
+        tuple(widths),
+        tuple(files[i][0] for i in sorted(used)),
+        tuple(native_runs),
+        tuple(glyphs),
     )
 
 
