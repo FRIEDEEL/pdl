@@ -16,6 +16,7 @@ from pdl import (
     Point,
     Rectangle,
     RendererConfig,
+    Style,
     Text,
     Transform,
     bounds,
@@ -130,6 +131,14 @@ def test_child_access_does_not_measure_or_discover_fonts() -> None:
     group = Group((Drawing(node),), Transform.translate(20, 30))
     connection = Connection(group.child(0).anchor("west"), (0, 30))
     assert isinstance(connection.start, AnchorRef)
+
+
+def test_child_instances_keep_inherited_and_explicit_paint() -> None:
+    inherited, explicit = Style(line_width=2), Style(line_width=3)
+    group = Group((Drawing(Rectangle((0, 0), 1, 1)), Drawing(Rectangle((2, 0), 1, 1), explicit)))
+    instance = Drawing(group, inherited)
+    assert instance.child(0).style is inherited
+    assert instance.child(1).style is explicit
 
 
 @dataclass

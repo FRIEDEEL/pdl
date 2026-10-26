@@ -43,7 +43,12 @@ class Drawing:
         """Address a Group child with this instance's accumulated placement."""
         if not isinstance(self.geometry, Group):
             raise TypeError("Only an explicitly defined Group has addressable children.")
-        return self.geometry.child(index).transformed(self.transform)
+        child = self.geometry.child(index).transformed(self.transform)
+        return Drawing(
+            child.geometry,
+            child.style if child.style is not None else self.style,
+            child.transform,
+        )
 
 
 @dataclass(frozen=True)
