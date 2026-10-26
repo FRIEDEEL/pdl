@@ -3,8 +3,9 @@
 from pdl.backends._format import number
 from pdl.backends.tikz_geometry import color, path_data
 from pdl.canvas import Canvas
-from pdl.paint import Style
+from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
+from pdl.text import Text
 from pdl.transforms import Transform, transform_path
 
 
@@ -12,9 +13,12 @@ def render_drawing(drawing: Drawing) -> str:
     geometry = drawing.geometry
     if isinstance(geometry, Composite):
         raise TypeError("Expected a geometry leaf.")
+    paint = drawing.style or (
+        Style(stroke=None, fill=BLACK) if isinstance(geometry, Text) else Style()
+    )
     if drawing.transform != Transform():
         geometry = transform_path(geometry, drawing.transform)
-    s = drawing.style or Style()
+    s = paint
     stroke = s.stroke if s.line_width > 0 else None
     options = [
         f"draw={color(stroke) if stroke is not None else 'none'}",

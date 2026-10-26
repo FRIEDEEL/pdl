@@ -9,6 +9,7 @@ from typing import Protocol, runtime_checkable
 from pdl.bounds import Anchor, Bounds, geometry_bounds
 from pdl.geometry import Geometry, Point
 from pdl.paint import Style
+from pdl.text import Text
 from pdl.transforms import Transform, transform_path
 
 
@@ -85,6 +86,10 @@ def bounds(graphic: Graphic) -> Bounds:
         geometry = drawing.geometry
         if isinstance(geometry, Composite):
             raise TypeError("Traversal must produce geometry leaves.")
-        box = geometry_bounds(transform_path(geometry, drawing.transform))
+        box = (
+            geometry.layout_bounds.transformed(drawing.transform)
+            if isinstance(geometry, Text)
+            else geometry_bounds(transform_path(geometry, drawing.transform))
+        )
         result = box if result is None else result.union(box)
     return result if result is not None else Bounds(0, 0, 0, 0)
