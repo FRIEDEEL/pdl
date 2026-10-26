@@ -2,7 +2,7 @@
 
 from pdl.backends._format import number
 from pdl.backends.svg_geometry import shape, style_attributes
-from pdl.backends.svg_text import render_tex
+from pdl.backends.svg_text import render_tex, render_text
 from pdl.canvas import Canvas
 from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
@@ -13,6 +13,8 @@ from pdl.transforms import Transform, placed_geometry
 
 def render_drawing(drawing: Drawing, prefix: str = "tex-") -> str:
     geometry = drawing.geometry
+    if isinstance(geometry, Text):
+        return render_text(geometry, drawing)
     if isinstance(geometry, TeX):
         return render_tex(geometry, drawing, prefix)
     if isinstance(geometry, Composite):
