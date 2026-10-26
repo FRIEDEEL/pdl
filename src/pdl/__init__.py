@@ -1,9 +1,9 @@
 """Static vector drawing through a backend-independent authoring API."""
 
-from pdl.bounds import Bounds
-from pdl.canvas import BLACK, Canvas, Color, Style
-from pdl.connections import Connection
-from pdl.geometry import (
+from pdl.components.connections import Connection
+from pdl.components.nodes import Node
+from pdl.geometry.bounds import Bounds
+from pdl.geometry.primitives import (
     Arc,
     Circle,
     Geometry,
@@ -14,12 +14,12 @@ from pdl.geometry import (
     Polyline,
     Rectangle,
 )
-from pdl.nodes import Node
-from pdl.renderer import RendererConfig
-from pdl.scene import Drawing, Group, bounds
-from pdl.tex import TeX, TeXConfig
-from pdl.text import Font, FontStack, Text
-from pdl.transforms import Transform
+from pdl.geometry.transforms import Transform
+from pdl.rendering.config import RendererConfig
+from pdl.scene.canvas import BLACK, Canvas, Color, Style
+from pdl.scene.composition import Drawing, Group, bounds
+from pdl.typography.plain import Font, FontStack, Text
+from pdl.typography.tex import TeX, TeXConfig
 
 __all__ = [
     "RendererConfig",

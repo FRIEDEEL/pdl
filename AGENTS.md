@@ -18,8 +18,11 @@
 
 ## Language
 
-- Use English for project documentation, code comments, docstrings, and commit
-  messages, except for `DEVLOG.md` as described below.
+- Keep English as the primary language for reader-facing documentation, with
+  corresponding Chinese translations derived from the English versions. Use
+  `README_zh.md` for the Chinese README; the main README is English.
+- Use English for code comments, docstrings, commit messages, and this file.
+  `DEVLOG.md` remains Chinese as described below.
 - Write `DEVLOG.md` in Chinese during the current solo development stage.
   Plan to transition it to English if the project adopts a collaborative
   workflow; agree on the timing and translation scope with the user first.
@@ -37,6 +40,17 @@
 - Follow the existing structure in established projects. Do not migrate
   project layouts without explicit instructions.
 
+## File Organization
+
+- Organize implementation modules into responsibility-based packages under
+  `src/pdl/`; keep only package initialization and typing markers at its root.
+- Group example sources by topic, with only a few examples per directory.
+- Mirror package module paths under `tests/unit/`, retaining `test_<module>.py`
+  filenames. Integration tests are organized by the external workflow.
+- Mirror example source directories under `examples/output/`: for example,
+  `examples/text/labels.py` writes `examples/output/text/labels.svg` and related
+  formats. Keep generated outputs out of Git.
+
 ## Dependency Management
 
 - Before adding a dependency, explain its purpose and whether it is needed at
@@ -48,11 +62,12 @@
 
 ## Testing
 
-- Use pytest for testing and place tests in `tests/`.
+- Use pytest. Put unit tests under `tests/unit/` and external-tool integration
+  tests under `tests/integration/`.
 - By default, mirror the package's module structure in the unit test directory,
   naming test files `test_<module>.py`.
 - For example, `src/package_name/io/reader.py` corresponds to
-  `tests/io/test_reader.py`.
+  `tests/unit/io/test_reader.py`.
 - Run relevant tests after changes and report the results.
 - Prioritize public behavior, edge cases, and regression coverage for fixed bugs.
 - Avoid tests that merely repeat implementation logic or depend unnecessarily
