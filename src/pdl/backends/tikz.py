@@ -8,7 +8,7 @@ from pdl.paint import BLACK, Style
 from pdl.scene import Composite, Drawing, walk
 from pdl.tex import TeX
 from pdl.text import Text
-from pdl.transforms import Transform, transform_path
+from pdl.transforms import Transform, placed_geometry
 
 
 def render_drawing(drawing: Drawing) -> str:
@@ -21,7 +21,7 @@ def render_drawing(drawing: Drawing) -> str:
         Style(stroke=None, fill=BLACK) if isinstance(geometry, Text) else Style()
     )
     if drawing.transform != Transform():
-        geometry = transform_path(geometry, drawing.transform)
+        geometry = placed_geometry(geometry, drawing.transform)
     s = paint
     stroke = s.stroke if s.line_width > 0 else None
     options = [
