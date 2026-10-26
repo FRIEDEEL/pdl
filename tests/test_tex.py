@@ -94,3 +94,24 @@ def test_compilation_failure_has_diagnostic(config: TeXConfig) -> None:
 def test_unsupported_engine_is_explicit() -> None:
     with pytest.raises(ValueError, match="only"):
         TeXConfig(engine="katex")
+
+
+def test_cache_tracks_declared_dependency_contents(config: TeXConfig, tmp_path: FilePath) -> None:
+    from dataclasses import replace
+
+    dependency = tmp_path / "dependency.txt"
+    dependency.write_text("version one")
+    configured = replace(config, dependencies=(dependency,))
+    tex = TeX("A", config=configured)
+    first = tex.layout
+    dependency.write_text("version two")
+    assert tex.layout == first
+    assert len(list(FilePath(config.cache_dir or "").glob("*.json"))) == 2
+
+
+def test_empty_tex_has_zero_layout(config: TeXConfig) -> None:
+    tex = TeX("", config=config)
+    assert tex.layout.width == tex.layout.height == tex.layout.depth == 0
+    canvas = Canvas(10, 10)
+    canvas.draw(tex)
+    ET.fromstring(canvas.render())
