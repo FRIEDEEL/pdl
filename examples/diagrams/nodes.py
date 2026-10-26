@@ -1,7 +1,7 @@
 """Content-sized nodes with explicit anchors, routes and arrowheads."""
 
 from examples._shared import BLUE, LABEL, PALE, export
-from pdl import Canvas, Connection, Node, RendererConfig, Style, TeX, Text
+from pdl import Canvas, Connection, Node, Style, TeX, Text
 from pdl.components.debug import debug_overlay
 
 SHOW_DEBUG = False
@@ -27,7 +27,7 @@ def example() -> Canvas:
         size=9,
         position=(8, 6),
     )
-    canvas = Canvas(180, 125, renderer=RendererConfig(fonts=("sans-serif",)))
+    canvas = Canvas(180, 125)
     canvas.draw(title, LABEL)
     for connection in (forward, down, feedback, measured):
         canvas.draw(connection)

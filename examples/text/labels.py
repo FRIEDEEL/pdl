@@ -24,11 +24,10 @@ def example() -> Canvas:
     note = Text("Green: layout box / baseline. Red: outer bounds / anchors.", latin, (8, 5), size=9)
     canvas = Canvas(180, 115, fonts=(cjk, chinese_font()))
     canvas.draw(title, LABEL)
-    with canvas.typography():
-        for text in (english, chinese, japanese, multiline):
-            canvas.draw(text, LABEL)
-            if SHOW_DEBUG:
-                canvas.draw(debug_overlay(text))
+    for text in (english, chinese, japanese, multiline):
+        canvas.draw(text, LABEL)
+        if SHOW_DEBUG:
+            canvas.draw(debug_overlay(text))
     fallback_caption = Text("JP -> CN fallback", latin, (110, 46), size=10)
     canvas.draw(fallback_caption, LABEL)
     canvas.draw(note, LABEL)

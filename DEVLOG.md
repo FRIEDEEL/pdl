@@ -246,3 +246,11 @@
 
 - 补充实例访问的样式语义：`Drawing.child()` 继承父实例样式，子对象的显式样式优先，与场景遍历一致。新增回归测试，避免将子实例单独绘制时丢失继承样式。
 - 验证：Ruff、格式检查、Pyright strict 通过；pytest 77 项通过。
+
+### 2026-10-26 22:43:30
+
+- 新增 `examples/relationships/anchors.py`：先建立对象与关系、默认渲染，再对同一 Canvas 分别采用 sans-serif／serif 导出；相对 Node 位置、端点和途经点均保留引用。实际比较 SVG 路径，确认换字体后端点坐标变化。
+- 新增 `examples/relationships/instances.py`：演示共享 Group 定义、内部局部关系、外部连接具体子端口、共享 Node 的独立放置与旋转锚点。
+- nodes／vacuum 使用默认字体完成首次渲染；文字调试示例无需在 authoring 阶段进入字体上下文。全部示例集中在定义对象后 draw。
+- 示例工具共生成并成功编译 8 个主示例、2 个字体变体及 1 个文章嵌入示例，输出目录镜像源码目录。实际查看 anchors、instances、vacuum 的 SVG 和 PDF，检查文字、端点、旋转组件连接与遮挡顺序；这些是人工检查，未建立像素基准。
+- 更新 Unreleased 的接口迁移及限制说明；不恢复此前暂停的 README／overview 草稿，也不操作现有文档 stash。

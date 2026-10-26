@@ -1,7 +1,7 @@
 """A small manually positioned vacuum topology with reusable valve symbols."""
 
 from examples._shared import BLUE, LABEL, PALE, export, valve
-from pdl import Canvas, Connection, Node, RendererConfig, Style, TeX, Text, Transform
+from pdl import Canvas, Connection, Node, Style, TeX, Text, Transform
 
 
 def example() -> Canvas:
@@ -41,7 +41,7 @@ def example() -> Canvas:
             position=(8, 8),
         ),
     )
-    canvas = Canvas(200, 143, renderer=RendererConfig(fonts=("sans-serif",)))
+    canvas = Canvas(200, 143)
     canvas.draw(title, LABEL)
     for connection in (main_pipe, backing_pipe, vent_pipe, gauge_pipe):
         canvas.draw(connection)
