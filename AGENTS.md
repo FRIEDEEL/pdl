@@ -3,10 +3,14 @@
 ## Communication and Change Authorization
 
 - Discuss work with the user in Chinese. Write this file in English.
-- Before modifying code, explain the proposed approach and its reasoning,
-  using only the minimum code snippets needed to make the proposal clear.
-- Wait for explicit authorization before modifying code. If the user has
-  already explicitly authorized the proposed changes, proceed within that scope.
+- The AI owns implementation, routine design choices, testing, documentation,
+  and local Git integration within the agreed project goals. Do not request
+  separate approval for each implementation step, commit, or feature merge.
+- The user reviews major architecture decisions, example code, and rendered
+  results. Present major architectural changes for agreement before implementing
+  them; deliver concrete examples and outputs for acceptance.
+- Explain significant approaches and trade-offs concisely, and ask when an
+  unresolved choice materially changes the architecture or agreed scope.
 - Read relevant files and inspect the project as needed to prepare a proposal.
 - Report what changed, which checks were run, and any unresolved issues.
 
@@ -121,6 +125,8 @@
   scaffolding and MVP development. Do not create a feature branch for every task.
 - When a feature branch is used, use `feat/*`, branching from and merging
   back into `dev`.
+- Use `feat/*` for bounded feature work after initial scaffolding; keep related
+  changes on the branch and integrate after the relevant checks pass.
 - Use `release/*` branches for release preparation, branching from `dev`
   and merging into both `main` and `dev` when the release is complete.
 - Use `hotfix/*` branches for urgent fixes to released code, branching from
@@ -179,8 +185,9 @@
   when merging branches.
 - Do not rebase, squash, amend commits, or otherwise rewrite existing history
   unless explicitly instructed.
-- The user has granted standing authorization to create commits for authorized
-  work in this project. Commit each feature or focused development step
-  separately, following the message and granularity rules above.
-- This standing authorization does not include push, merge, or release
-  publication. Perform those actions only when explicitly instructed.
+- The user has granted standing authorization to create branches, make commits,
+  and merge completed feature work into `dev` for authorized project work.
+  Commit each feature or focused development step separately, follow the
+  message and granularity rules above, and use `git merge --no-ff`.
+- This standing authorization does not include push or release publication.
+  Perform those actions only when explicitly instructed.
