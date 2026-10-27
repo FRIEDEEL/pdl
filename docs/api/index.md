@@ -35,5 +35,6 @@ geometry
 authoring
 coordinates
 flowcharts
+spatial
 text
 ```

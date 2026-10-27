@@ -10,6 +10,11 @@
 
 ### Added
 
+- 3D Cartesian frames and affine transforms, orthographic projection, planar
+  placement of 2D drawings, indexed polygonal solids and all five Platonic solids.
+  Directional flat shading maps intrinsic RGB color using oriented face normals;
+  centroid depth sorting produces SVG/TikZ vectors without face intersections.
+
 - Growing flowchart components: editable FlowNode, Decision, Terminal and FlowEdge,
   font-aware directional placement, merges and feedback, and isolated draw captures.
   Includes a bilingual guide and an SVG/TikZ/PDF example.

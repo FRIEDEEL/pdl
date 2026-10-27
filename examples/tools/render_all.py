@@ -17,6 +17,8 @@ from examples.geometry.gallery import gallery
 from examples.relationships.anchors import example as anchors
 from examples.relationships.anchors import export_variants
 from examples.relationships.instances import example as instances
+from examples.spatial.planes import example as planes
+from examples.spatial.platonic_solids import example as platonic_solids
 from examples.text.labels import example as text
 from examples.text.tex import example as tex
 from examples.text.tex import export_embedding
@@ -44,6 +46,8 @@ def main() -> None:
         anchors,
         instances,
         coordinates,
+        planes,
+        platonic_solids,
     ):
         canvas = build()
         source = inspect.getfile(build)
