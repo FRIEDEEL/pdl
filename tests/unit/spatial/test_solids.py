@@ -63,3 +63,14 @@ def test_invalid_faces_and_planes() -> None:
         regular_polyhedron("cube", radius=-1)
     with pytest.raises(ValueError):
         Polyhedron(points, ((0, 1, 2),), face_colors=(Color(1, 0, 0), Color(0, 0, 1)))
+
+
+def test_concave_planar_face_is_valid_but_crossing_loop_is_not() -> None:
+    points = tuple(Point3D(x, y, 0) for x, y in ((0, 0), (3, 0), (3, 1), (1, 1), (1, 3), (0, 3)))
+    solid = Polyhedron(points, ((0, 1, 2, 3, 4, 5),))
+    assert len(solid.faces[0]) == 6
+    with pytest.raises(ValueError, match="self-intersect"):
+        Polyhedron(points, ((0, 2, 5, 1, 4),))
+    repeated = (*points, Point3D(0, 0, 0))
+    with pytest.raises(ValueError):
+        Polyhedron(repeated, ((0, 6, 1, 2),))
