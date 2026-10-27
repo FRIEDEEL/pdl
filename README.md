@@ -1,8 +1,28 @@
 # pdl — Python Drawing Library
 
-A small, typed Python library for static vector drawings. Stage 1 provides
-basic geometry, compound paths, solid fill/stroke and SVG/TikZ output without
-runtime dependencies. Python 3.12 or later is required.
+A typed Python library for static vector drawings: geometry, paths, text,
+LaTeX formulas, connected nodes, reusable groups, and affine coordinate systems,
+with SVG and TikZ output. Python 3.12 or later is required.
+
+[中文说明](README_zh.md) · [English tutorial](docs/tutorial/en/index.md) ·
+[中文教程](docs/tutorial/zh/index.md) · [API reference](docs/api/index.md)
+
+## Read the documentation
+
+Build the local documentation site from the repository root:
+
+```sh
+uv sync --group docs
+uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
+```
+
+Open `docs/_build/html/index.html` in a browser. The build generates all tutorial
+images and includes code directly from runnable examples. The full manual
+requires a usable system sans-serif font, XeLaTeX, dvisvgm, and the LaTeX
+standalone, amsmath, and TikZ packages. See the [build guide](docs/building.md).
+The site is local; no public hosting is configured.
+
+## A small drawing
 
 ```python
 from pdl import Canvas, Circle, Color, Path, Style
@@ -27,8 +47,8 @@ canvas.save("drawing.tex", backend="tikz")
   joins (miter limit 10). Colors use RGB channels between 0 and 1.
 - Objects render in insertion order. Native shape identity is retained until
   backend dispatch; unsupported geometry falls back through `to_path()`.
-- Paths are mutable builders. The canvas reads them at export time; use
-  `path.to_path()` to take an independent snapshot before adding it.
+- Paths are mutable builders. A draw call captures their current commands;
+  later edits require another draw call. `path.to_path()` makes an independent copy.
 - Paths support absolute `move_to`, `line_to`, `quadratic_to`, `cubic_to`,
   `arc` and `close`. Quadratic curves have one control point, cubic curves two.
 - `close()` closes the current subpath and returns the current point to its
@@ -78,21 +98,25 @@ Use pyenv to select Python, then:
 
 ```sh
 uv sync
-uv run python examples/gallery.py
-pdflatex -interaction=nonstopmode -halt-on-error -output-directory examples/output examples/output/gallery.tex
+uv run python -m examples.geometry.gallery
+uv run python -m examples.tutorial.render_all
 uv run ruff check .
 uv run ruff format --check .
 uv run pyright
 uv run pytest
 ```
 
-The gallery writes SVG and a standalone TikZ document to `examples/output`.
+The gallery writes SVG and a standalone TikZ document under
+`examples/output/geometry/`. Tutorial outputs mirror their sources under
+`examples/output/tutorial/`. The full tutorial runner also compiles its TeX examples.
 TikZ compilation requires an external TeX installation with TikZ and standalone;
 it is not a Python runtime dependency. Tests check geometry, arc conversion,
 path semantics, XML structure, native dispatch, fallback and real TeX compilation.
 The compilation test skips explicitly when `pdflatex` is unavailable. Rendering
 examples should also be visually reviewed; no pixel baseline suite is provided.
 
-Stage 1 excludes text, images, layers/groups, transforms on arbitrary objects,
-anchors, dependency expressions, automatic layout, backend-specific option
-passthrough, animation and 3D. Public interfaces are provisional before release.
+Layer management, embedded images, opacity, gradients, automatic layout/routing,
+arbitrary backend-specific options, animation, and 3D are not implemented.
+Public interfaces are provisional before release. For authoring capture, anchors,
+transforms, and viewport policies, follow the tutorial and
+[coordinate guide](docs/coordinates.md).
