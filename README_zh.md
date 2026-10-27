@@ -122,3 +122,12 @@ contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保�
 保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/25-depth-order.md)。
 
 多面体切分与模式边界见[相交面与可见性教程](docs/tutorial/zh/26-visibility.md)。
+
+## 从组件搭建显微镜
+
+运行 `uv run python -m examples.spatial.microscope`，导出整机与组件拆分图的
+SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数和具名嵌套
+组合构建底座、支架、载物台、聚光器与光学组件。整机位置在 `make_microscope`
+中调整，玻片细节见 `make_stage`，物镜和目镜见 `make_optics`。
+示例内的 `Assembly` 是局部组合配方，不是公共 Group3D API。
+圆形部件使用多面体近似，完整场景先用 BSP 处理遮挡，再生成二维绘图对象。

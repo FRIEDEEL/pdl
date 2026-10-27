@@ -138,3 +138,14 @@ contain/cover/stretch fitting. SVG embeds bytes; keep the generated asset folder
 beside exported TikZ source. [Gradients](docs/tutorial/en/20-gradients.md) use
 normalized local shape bounds. Native text/TeX remain solid-color only; isolated
 group opacity and layer groups are outside this stage.
+
+## A component-built microscope
+
+Run `uv run python -m examples.spatial.microscope` to export an assembled
+microscope and an exploded component study as SVG, TikZ, and PDF.
+The [source](examples/spatial/microscope.py) builds the base, stand, stage,
+condenser, and optics with parameterized functions and named nested assemblies.
+Edit `make_microscope` for placement, `make_stage` for slide details, and
+`make_optics` for objectives and eyepieces. The local `Assembly` recipe is an
+example helper, not a public Group3D API. Round parts are faceted polyhedra;
+the complete scene uses BSP visibility before becoming a 2D drawing.

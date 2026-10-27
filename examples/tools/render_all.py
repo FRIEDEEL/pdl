@@ -20,6 +20,7 @@ from examples.relationships.instances import example as instances
 from examples.spatial.curved_solids import example as curved_solids
 from examples.spatial.curved_solids import views as curved_views
 from examples.spatial.d10 import example as d10
+from examples.spatial.microscope import example as microscope
 from examples.spatial.planes import example as planes
 from examples.spatial.platonic_solids import example as platonic_solids
 from examples.spatial.visibility import example as visibility
@@ -55,6 +56,7 @@ def main() -> None:
         curved_solids,
         d10,
         visibility,
+        microscope,
     ):
         canvas = build()
         source = inspect.getfile(build)

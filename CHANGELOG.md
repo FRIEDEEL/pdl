@@ -17,6 +17,9 @@
 
 ### Added
 
+- A parameterized microscope example with named nested component recipes,
+  assembled/exploded views, and BSP visibility for all polygonal parts.
+
 - BSP visibility is now the default for polygon-only Scene3D scenes without face
   artwork, supporting intersecting faces, cycles, concave loops and per-face opacity
   in both cameras. New split edges are not stroked. Projection stays 2D Authoring.
