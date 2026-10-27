@@ -2,7 +2,8 @@
 
 A typed Python library for static vector drawings: geometry, paths, text,
 LaTeX formulas, connected nodes, reusable groups, and affine coordinate systems,
-with SVG and TikZ output. Python 3.12 or later is required.
+with SVG and TikZ output. Editable Groups, overlapping Gather selections,
+ordered layers, PNG/JPEG embedding, opacity, and linear/radial fills are included. Python 3.12 or later is required.
 
 [中文说明](README_zh.md) · [English tutorial](docs/tutorial/en/index.md) ·
 [中文教程](docs/tutorial/zh/index.md) · [API reference](docs/api/index.md)
@@ -45,7 +46,7 @@ canvas.save("drawing.tex", backend="tikz")
   geometry. `Style` describes paint; `Canvas.draw` appends a drawing.
 - The default style is black stroke, width 1 mm, no fill, butt caps and miter
   joins (miter limit 10). Colors use RGB channels between 0 and 1.
-- Objects render in insertion order. Native shape identity is retained until
+- Layers paint bottom-to-top; objects within a layer render in insertion order. Native shape identity is retained until
   backend dispatch; unsupported geometry falls back through `to_path()`.
 - Paths are mutable builders. A draw call captures their current commands;
   later edits require another draw call. `path.to_path()` makes an independent copy.
@@ -115,8 +116,22 @@ path semantics, XML structure, native dispatch, fallback and real TeX compilatio
 The compilation test skips explicitly when `pdflatex` is unavailable. Rendering
 examples should also be visually reviewed; no pixel baseline suite is provided.
 
-Layer management, embedded images, opacity, gradients, automatic layout/routing,
-arbitrary backend-specific options, animation, and 3D are not implemented.
+Layer groups, isolated group compositing, automatic layout/routing, arbitrary
+backend-specific options, animation, and 3D are not implemented.
 Public interfaces are provisional before release. For authoring capture, anchors,
 transforms, and viewport policies, follow the tutorial and
 [coordinate guide](docs/coordinates.md).
+
+
+## Combinations, layers, and artwork
+
+A Group is one single-parent spatial unit. Gather is a flat operation set and
+can cross layers. Assign Entity/Group instances with `set_layer(int_or_layer)`;
+Layer itself controls coverage only. See tutorial chapters
+[16–18](docs/tutorial/en/16-editable-groups.md).
+
+[Images](docs/tutorial/en/19-images.md) use explicit millimeter viewports and
+contain/cover/stretch fitting. SVG embeds bytes; keep the generated asset folder
+beside exported TikZ source. [Gradients](docs/tutorial/en/20-gradients.md) use
+normalized local shape bounds. Native text/TeX remain solid-color only; isolated
+group opacity and layer groups are outside this stage.

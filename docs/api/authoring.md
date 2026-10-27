@@ -1,6 +1,8 @@
 # Placement, groups, and references
 
-Entity methods edit a handle; Drawing and Group describe reusable placement. References and draws capture Entity state before later edits.
+Entity and Group methods edit authoring instances. Drawing describes independent
+placement. Group owns a single-parent local structure; Gather is a flat operation
+set that may cross layers. References and draws capture state before later edits.
 
 ## Entity
 
@@ -60,4 +62,12 @@ Entity methods edit a handle; Drawing and Group describe reusable placement. Ref
 
 ```{eval-rst}
 .. autofunction:: pdl.bounds
+```
+
+## Gather
+
+```{eval-rst}
+.. autoclass:: pdl.Gather
+   :members:
+   :member-order: bysource
 ```

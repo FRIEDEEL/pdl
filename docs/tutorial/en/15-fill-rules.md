@@ -38,3 +38,5 @@ API: {py:meth}`pdl.Path.extend`, {py:class}`pdl.Style`.
 ---
 
 [Previous: TeX rendering](14-tex-rendering.md)
+
+[Next / 下一章: Editable groups](16-editable-groups.md)

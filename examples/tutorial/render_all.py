@@ -34,6 +34,12 @@ MODULES = (
     "advanced.resolved",
     "advanced.fill_rules",
     "advanced.tex_pipeline",
+    "layout.editable_groups",
+    "layout.gathers",
+    "layout.layers",
+    "media.images",
+    "paint.gradients",
+    "paint.opacity",
 )
 
 

@@ -27,6 +27,11 @@
 13-rendering
 14-tex-rendering
 15-fill-rules
+16-editable-groups
+17-gathers
+18-layers
+19-images
+20-gradients
 ```
 
 [English version](../en/index.md) · [API 接口文档](../../api/index.md)

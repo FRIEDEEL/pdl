@@ -313,3 +313,16 @@
 - 实际逐张查看新增二十一张 SVG 及两张 TikZ PDF。浏览器检查中文页面、API 方法跳转、搜索及深色主题，给透明 SVG 加白底并放大小画布的展示尺寸，避免黑色轮廓在深色背景下消失。这里是人工视觉检查，没有建立像素基准。
 - 更新中英文 README、构建维护说明与 AGENTS 的长期教程编写规则。参考 Manim 的教学节奏和 PGF/TikZ 的图形解释；draw／stroke 别名、filldraw 便捷入口仍为待设计事项，本次没有实现这些接口，也没有扩展 Layer、图片、透明度或渐变功能。
 - 最终验证：Sphinx -E -a -W --keep-going 完整构建无警告，输出四十六个 HTML 页面；检查全部本地资源、链接和 fragment（4387 项），确认公开接口入口完整、后续教程片段不含输出处理。Ruff、格式检查、Pyright strict 通过，pytest 108 项通过，git diff --check 通过。阶段成果交用户验收，不操作 push 或发布。
+
+
+### 2026-10-27 20:23:11
+
+- 用户确认并授权实施 Group／Gather／Layer：Group 保留容器与局部坐标语义，实例只有一个直接父级；Gather 为可重叠、不可嵌套的身份操作集合，加入其他 Gather 时复制展开成员。组内目标提升到最外层 Group 并提示，每次操作重新归一化及去重。
+- Layer 本阶段只处理上下关系，不实现图层组、空间变换或整体合成透明度。Canvas 使用稳定 Layer 身份与有序列表，支持相邻插层和移层；整数表示索引，首次提交解析绑定。set_layer 影响后续 draw，旧记录保留 Layer 身份；调整层序会改变旧记录的遮挡顺序。同层按提交顺序。
+- 跨层组合默认提升到最高成员层，也可显式指定；内部按原层序及传入顺序排列。Group add／remove／dismiss 保留世界位置与有效样式，解散成员保留当前层。Gather 可跨 Layer，Layer.to_gather 收集当前归属的顶层实例而非旧绘制快照。独立 Layer 实例不共享全局成员，已归属 Canvas 的 Layer 不跨 Canvas 复用。
+- 保留不可变 GroupDescription 作为捕获与后端描述；既有 Drawing 组件实例仍支持，新增可编辑 Group 捕获后不追溯改变旧 draw／anchor。Gather 目标 Group 解散后要求重新建立选择。重定位需要逆矩阵，奇异父变换明确报错。
+- 用户进一步授权完成本部分教程与 API reference，并自主推进图像、填充和渐变。实现 PNG／JPEG 文件字节捕获、contain／cover／stretch、任意仿射放置及裁剪；SVG 内嵌图片，Canvas.save TikZ 导出相对路径资源目录，移动后实际编译验证通过。render 的 TikZ 源码引用临时缓存资源。
+- 新增 RGB ColorStop、LinearGradient、RadialGradient 填充，以叶子形状局部几何边界归一化，随变换移动；SVG 原生渐变，TikZ 为 PDF 函数渐变。支持多色标、端点延展、既有 fill-rule 与 per-leaf opacity。原生 Text／TeX 仍限纯色；不提供透明色标、描边渐变、图层组或整组合成效果。无新增 Python 运行时或开发依赖。
+- 新增中英文教程第 16–20 章和六个独立示例，正文使用 literalinclude；更新 API reference、README 与 CHANGELOG。实际浏览 Sphinx 页面，逐张检查六张新 SVG，并比较旋转渐变、径向渐变、图片的 SVG 与 XeLaTeX PDF；图片源加入圆环区分 cover 与 stretch。未建立像素基准测试。
+- 检查：Ruff、格式检查、Pyright strict 通过；pytest 130 项通过，包括真实 TeX 编译、可移动图片资源及字体上下文回归。Sphinx -W 构建通过；全部九个主示例、字体变体和嵌入文档完成实际 PDF 编译。uv build 和解包 wheel 隔离导入／新功能双后端冒烟验证通过。
+- 实现按步骤提交；合入 dev 后仍执行最终检查。未 push、发布或打标签，阶段验收交由用户。

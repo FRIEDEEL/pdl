@@ -29,6 +29,11 @@ XeLaTeX and dvisvgm; see chapter 5 before running the full set.
 13-rendering
 14-tex-rendering
 15-fill-rules
+16-editable-groups
+17-gathers
+18-layers
+19-images
+20-gradients
 ```
 
 [中文版](../zh/index.md) · [API reference](../../api/index.md)
