@@ -7,7 +7,16 @@ from typing import Literal
 
 @dataclass(frozen=True)
 class Color:
-    """An RGB color with channels in the inclusive range zero to one."""
+    """An RGB color with channels between zero and one, inclusive.
+
+    Args:
+        red: Red channel; 0 means absent, 1 means full intensity.
+        green: Green channel.
+        blue: Blue channel.
+
+    Raises:
+        ValueError: A channel is nonfinite or outside the allowed range.
+    """
 
     red: float
     green: float
@@ -23,7 +32,24 @@ BLACK = Color(0, 0, 0)
 
 @dataclass(frozen=True)
 class Style:
-    """Explicit fill and stroke properties, with no backend defaults."""
+    """Solid fill and stroke settings shared by both output backends.
+
+    Args:
+        stroke: Outline color, or ``None`` to omit the outline. Defaults to black.
+        fill: Interior color, or ``None`` to leave the interior unpainted.
+        line_width: Nonnegative stroke width in Canvas millimeters; zero suppresses stroke.
+        line_cap: Open line ends: ``butt``, ``round``, or ``square``.
+        line_join: Corners: ``miter``, ``round``, or ``bevel``. Miter limit is 10.
+        fill_rule: ``nonzero`` winding or ``evenodd`` crossing rule for interiors.
+
+    Fill is painted before stroke. A style overrides inherited paint as a whole,
+    not field by field. Native Text and TeX require fill-only paint: explicitly
+    set ``stroke=None`` when supplying their style. Omitting their style uses
+    black fill. TikZ aliases, opacity, and gradients are not implemented yet.
+
+    Raises:
+        ValueError: Width is negative/nonfinite or a named option is unsupported.
+    """
 
     stroke: Color | None = BLACK
     fill: Color | None = None

@@ -13,10 +13,24 @@ from pdl.scene.spaces import SpacePoint
 
 @dataclass(frozen=True)
 class Connection:
-    """An explicitly routed polyline with optional filled triangle arrowheads.
+    """A manually routed polyline with optional filled triangular arrowheads.
 
-    Coordinates and object anchors can be mixed. Anchor coordinates are
-    evaluated at export time; fixed via points do not imply automatic routing.
+    Args:
+        start: First endpoint, as coordinates or an anchor/space reference.
+        end: Final endpoint.
+        via: Intermediate points in route order. No automatic routing is performed.
+        arrow_start: Draw an arrowhead at the start; false by default.
+        arrow_end: Draw an arrowhead at the end; true by default.
+        arrow_size: Positive nominal arrow length in millimeters. Short segments
+            limit it to one third of the adjacent segment's length.
+        style: Line paint; arrowheads use its stroke color.
+
+    References are evaluated when measured/rendered. Dependencies do not add
+    their target objects to the canvas. Consecutive duplicate points are removed.
+
+    Raises:
+        ValueError: Arrow size is invalid or fewer than two distinct consecutive
+            points remain when the route is evaluated.
     """
 
     start: PointSource

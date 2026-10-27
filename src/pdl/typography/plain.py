@@ -25,7 +25,19 @@ PT_TO_MM = 25.4 / 72.27
 
 @dataclass(frozen=True)
 class Font:
-    """An explicit static TTF/OTF font, optionally indexed within a collection."""
+    """An explicit static font file, optionally indexed within a collection.
+
+    Args:
+        file: Existing TTF, OTF, or TTC file path.
+        index: Nonnegative face index for a font collection, default zero.
+
+    Raises:
+        FileNotFoundError: The file does not exist.
+        ValueError: The collection index is negative.
+
+    This constructor does not resolve family names. Use RendererConfig font
+    candidates for discovery by installed family name.
+    """
 
     file: str | FilePath
     index: int = 0
@@ -39,7 +51,17 @@ class Font:
 
 @dataclass(frozen=True)
 class FontStack:
-    """An ordered font candidate list, searched per combining sequence."""
+    """An ordered fallback list searched per combining sequence.
+
+    Args:
+        fonts: Nonempty tuple of explicit Font objects, in preference order.
+
+    Raises:
+        ValueError: The font list is empty.
+
+    Every requested combining sequence must be supported by a candidate font;
+    missing coverage is reported rather than silently dropping characters.
+    """
 
     fonts: tuple[Font, ...]
 
@@ -210,15 +232,27 @@ def _layout(
 
 @dataclass(frozen=True)
 class Text:
-    """Literal horizontal text at a first-line baseline position.
+    """Literal Unicode text at a first-line baseline reference.
 
     Args:
-        text: Literal Unicode content; newline starts an explicit new line.
-        font: An explicit font file, with no automatic fallback.
-        position: First baseline reference point in millimeters.
-        size: Font size in TeX points (1/72.27 inch).
-        align: Alignment of every line around the baseline reference.
-        line_spacing: Baseline distance as a multiple of font size.
+        text: Literal content; newline begins an explicit new line. No automatic wrapping.
+        font: Explicit Font or FontStack. ``None`` uses renderer defaults.
+        position: First baseline reference in local millimeters, not a bounds center.
+        size: Positive font size in TeX points (1/72.27 inch).
+        align: Each line's alignment about the reference: left, center, or right.
+        line_spacing: Positive baseline distance as a multiple of font size.
+
+    Text does not interpret LaTeX syntax. Native Text paint must be fill-only;
+    when passing a Style, set ``stroke=None``. Without an explicit style, text
+    uses black fill. SVG references installed fonts; native TikZ uses LaTeX.
+    Their rendering and metrics can differ slightly.
+
+    Direct layout access needs explicit fonts or an active canvas typography
+    context. Canvas rendering establishes that context and discovers default
+    fonts when needed.
+
+    Raises:
+        ValueError: Size, line spacing, alignment, or coordinates are invalid.
     """
 
     text: str

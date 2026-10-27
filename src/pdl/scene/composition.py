@@ -26,7 +26,16 @@ type Graphic = Geometry | Composite
 
 @dataclass(frozen=True)
 class Drawing:
-    """A graphic with optional explicit paint and a local transform."""
+    """An object with optional instance paint and local affine placement.
+
+    Args:
+        geometry: Shape, text, or composite definition to place.
+        style: Whole-style override; ``None`` allows inherited or object defaults.
+        transform: Local-to-parent matrix, identity by default.
+
+    This frozen record does not freeze arbitrary user-owned mutable objects.
+    Canvas.draw captures built-in mutable descriptions when recording it.
+    """
 
     geometry: Graphic
     style: Style | None = None
@@ -37,6 +46,7 @@ class Drawing:
         return AnchorRef(self, name)
 
     def transformed(self, transform: Transform) -> Drawing:
+        """Return a new Drawing with the matrix applied outside its current placement."""
         return Drawing(self.geometry, self.style, transform @ self.transform)
 
     def child(self, index: int) -> Drawing:
@@ -53,10 +63,16 @@ class Drawing:
 
 @dataclass(frozen=True)
 class Group:
-    """An immutable reusable ordered composite with local coordinates.
+    """An ordered reusable assembly of Drawing records.
 
-    Child styles override inherited styles as a whole. Reusing a group does
-    not mutate it; mutable child paths remain shared until explicitly copied.
+    Args:
+        children: Drawings in paint order, expressed in group-local coordinates.
+        transform: Group-local to parent matrix, identity by default.
+
+    The Group record is immutable, but child paths can remain mutable until
+    captured by Canvas.draw. Explicit child styles override inherited styles
+    as a whole. Group transforms move members together without recomputing spacing.
+    Its anchor refers to axis-aligned group bounds; use child anchors for ports.
     """
 
     children: tuple[Drawing, ...]
@@ -69,6 +85,7 @@ class Group:
         )
 
     def transformed(self, transform: Transform) -> Group:
+        """Return a new Group with an outer matrix, leaving this definition unchanged."""
         return Group(self.children, transform @ self.transform)
 
     def child(self, index: int) -> Drawing:
@@ -77,6 +94,10 @@ class Group:
 
     @property
     def bounds(self) -> Bounds:
+        """Measure authoring layout bounds under the current typography context.
+
+        For canvas-configured measurements, prefer ``canvas.query().bounds(...)``.
+        """
         return bounds(self)
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
@@ -107,6 +128,14 @@ def walk(
 
 
 def bounds(graphic: Graphic | Drawing) -> Bounds:
-    """Return axis-aligned geometry/layout bounds, excluding stroke."""
+    """Measure authoring axis-aligned geometry/layout bounds without stroke.
+
+    Args:
+        graphic: Shape, text, composite, or placed Drawing.
+
+    Returns:
+        Bounds before Canvas viewport adaptation. Typography uses the current
+        context; prefer ``canvas.query().bounds`` when canvas fonts/mappings matter.
+    """
     with layout_session() as context:
         return context.bounds(graphic)

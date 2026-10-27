@@ -19,13 +19,17 @@ from pdl.typography.tex import TeXConfig
 
 @dataclass(frozen=True)
 class RendererConfig:
-    """Upper-level font candidates and optional shared LaTeX environment.
+    """Default font candidates and a shared LaTeX environment.
 
-    Font strings are file paths, TeX-discoverable filenames, or fontconfig
-    family names. A Text.font override takes precedence over these defaults.
-    Native SVG text references the discovered family; fonts must be installed
-    on the viewing machine. An empty stack uses a discovered system sans-serif
-    font when needed. Backend font metrics may differ slightly.
+    Args:
+        fonts: Ordered Font objects or strings. Strings can be existing paths,
+            TeX-discoverable filenames, or installed fontconfig family names.
+            An empty tuple requests a system sans-serif font when text needs one.
+        tex: Shared TeXConfig, or ``None`` for the standard default environment.
+
+    An explicit Text.font overrides these defaults. SVG native text references
+    installed font families rather than embedding files; viewing requires suitable
+    fonts. Native SVG and LaTeX metrics may differ slightly.
     """
 
     fonts: tuple[Font | str, ...] = ()

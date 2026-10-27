@@ -57,9 +57,11 @@ class ResolvedGraphic:
         return capture(self._drawings)
 
     def bounds(self) -> Bounds:
+        """Return fixed axis-aligned layout bounds, excluding stroke."""
         return bounds(Group(self.decompose()))
 
     def anchor(self, name: Anchor = "center") -> Point:
+        """Return a numerical shape anchor, or bounds anchor for multiple drawings."""
         with layout_session() as context:
             if len(self._drawings) == 1:
                 return context.point(AnchorRef(self._drawings[0], name))
@@ -73,7 +75,16 @@ class Query:
         self.canvas = canvas
 
     def point(self, source: PointSource, *, in_space: CoordinateSystem | None = None) -> Point:
-        """Return canvas coordinates by default, or an explicit authoring frame."""
+        """Evaluate a point under this canvas's font and coordinate settings.
+
+        Args:
+            source: Coordinate pair, Point, SpacePoint, or deferred AnchorRef.
+            in_space: Target authoring frame. ``None`` uses final Canvas coordinates.
+
+        Returns:
+            A fixed numerical Point. The operation does not add objects to the canvas.
+            Point queries use only the base mapping when the paint list is empty.
+        """
         with self.canvas.evaluation(), layout_session() as context:
             result = context.point(source)
             if in_space is not None:
@@ -81,6 +92,14 @@ class Query:
             return self.canvas.viewport().output_transform.apply(result)
 
     def vector(self, source: SpaceVector, *, in_space: CoordinateSystem | None = None) -> Vector:
+        """Measure a frame-qualified displacement in Canvas or authoring coordinates.
+
+        Args:
+            source: Vector carrying its source frame.
+            in_space: Target authoring frame, or ``None`` for final Canvas coordinates.
+
+        Translation never contributes to the result.
+        """
         with self.canvas.evaluation():
             result = source.resolve(WORLD if in_space is None else in_space)
             if in_space is None:
@@ -90,6 +109,16 @@ class Query:
     def bounds(
         self, graphic: Graphic | Drawing, *, in_space: CoordinateSystem | None = None
     ) -> Bounds:
+        """Measure axis-aligned layout/geometry bounds, excluding stroke.
+
+        Args:
+            graphic: Object or placed Drawing to measure, without drawing it.
+            in_space: Authoring frame; ``None`` returns final Canvas coordinates.
+
+        Returns:
+            Bounds using current font metrics. With fit/auto-size, the paint list
+            defines the viewport; an empty list uses the requested object's bounds.
+        """
         with self.canvas.evaluation():
             root = graphic if isinstance(graphic, Drawing) else Drawing(graphic)
             resolved = resolve_geometry(root)
@@ -101,7 +130,18 @@ class Query:
             return bounds(Drawing(Group(resolved.decompose()), transform=transform))
 
     def from_canvas(self, position: Position, *, in_space: CoordinateSystem = WORLD) -> Point:
-        """Convert a Canvas numerical snapshot back to authoring coordinates."""
+        """Convert a Canvas position back to a fixed authoring point.
+
+        Args:
+            position: Numerical point in final Canvas millimeters.
+            in_space: Destination authoring frame, default WORLD.
+
+        Returns:
+            A numerical point, not a restored dependency or anchor reference.
+
+        Raises:
+            ValueError: A required inverse transform is singular.
+        """
         with self.canvas.evaluation():
             mapping = self.canvas.viewport().output_transform
             return (in_space.to_world().inverse() @ mapping.inverse()).apply(position)

@@ -20,10 +20,21 @@ from pdl.typography.tex import TeX
 
 @dataclass(frozen=True)
 class Node:
-    """A rectangle or circle sized around measured Text/TeX content.
+    """A text label inside an automatically sized rectangle or circle.
 
-    Anchors describe the shape boundary, without stroke expansion. Label
-    positioning uses its layout box rather than its visible ink contours.
+    Args:
+        label: Text or TeX content; measured when needed, not at construction.
+        position: Shape center as coordinates or a deferred position reference.
+        shape: ``rectangle`` or ``circle``.
+        padding: Horizontal and vertical padding in millimeters, on each side.
+        min_width: Nonnegative minimum width in millimeters.
+        min_height: Nonnegative minimum height in millimeters.
+        style: Shape paint, default black outline of width 0.4 mm.
+        text_style: Fill-only label paint, default black.
+
+    Anchors lie on the shape boundary before stroke expansion. Circle sizing
+    contains the padded label box. Labels are centered using layout boxes,
+    which can differ from visible glyph contours.
     """
 
     label: Text | TeX
@@ -47,10 +58,15 @@ class Node:
 
     @property
     def bounds(self) -> Bounds:
+        """Measure the node's authoring shape bounds using the current font context."""
         with layout_session() as context:
             return context.node_bounds(self)
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
+        """Describe a center or compass point on the shape boundary, excluding stroke.
+
+        The returned AnchorRef is measured with the eventual font configuration.
+        """
         return AnchorRef(self, name)
 
     def decompose(self) -> tuple[Drawing, ...]:

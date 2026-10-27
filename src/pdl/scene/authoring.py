@@ -102,10 +102,16 @@ class Placement:
 
 
 class Entity:
-    """Editable placement of reusable geometry; captures never follow later edits.
+    """A mutable handle for placing geometry and assigning instance paint.
 
-    Geometry values remain reusable. This handle owns placement and optional
-    instance paint. move_to positions the transformed local bounds center.
+    Args:
+        geometry: Reusable shape or composite; built-in mutable state is captured.
+        style: Optional instance style.
+        space: Parent authoring frame; ordinary move_to pairs use this frame.
+
+    Placement methods mutate this handle and return it for chaining. Anchor,
+    space, and draw captures never follow later edits. Move a Group when an
+    assembly should transform as a whole.
     """
 
     def __init__(
@@ -116,33 +122,88 @@ class Entity:
     @property
     def space(self) -> CoordinateSystem:
         # Exposes the instance frame, including deferred placement.
+        """Capture this instance's local frame without measuring its geometry.
+
+        The frame origin comes from the original geometry, not its bounds center.
+        Later edits to the Entity do not update this captured frame.
+        """
         return InstanceSpace(self.snapshot())
 
     def snapshot(self) -> Placement:
+        """Return the current placement description, without fixing font metrics."""
         return capture(self._state)
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
+        """Capture an anchor of the current state for later evaluation.
+
+        Args:
+            name: Center or compass anchor, for example ``east`` or ``north west``.
+
+        Returns:
+            A deferred reference. Later edits to this Entity do not update it.
+            Local shape anchors are transformed with the instance; they need not
+            coincide with anchors of the final axis-aligned bounds.
+        """
         return AnchorRef(self.snapshot(), name)
 
     def move_to(self, position: PointSource) -> Self:
+        """Place the transformed local bounds center at a target.
+
+        Args:
+            position: Pair in the parent frame, explicit SpacePoint, or AnchorRef.
+
+        Returns:
+            This modified Entity. Position/font dependencies remain unevaluated.
+        """
         self._state = Placement(self._state.drawing, self._state.space, capture(position))
         return self
 
     def transform(self, transform: Transform) -> Self:
         # Placement-level transforms also transform a previously assigned position.
+        """Apply a matrix outside the existing placement in authoring world.
+
+        Args:
+            transform: Additional affine transform, including any existing move_to target.
+
+        Returns:
+            This modified Entity; the underlying numerical shape is not rewritten.
+        """
         self._state = Placement(Drawing(self.snapshot(), transform=transform))
         return self
 
     def translate(self, x: float, y: float) -> Self:
+        """Move by x and y millimeters in authoring world; return this Entity."""
         return self.transform(Transform.translate(x, y))
 
     def rotate(self, angle: float, *, center: Position = (0, 0)) -> Self:
+        """Rotate in degrees about a world point; return this Entity.
+
+        Args:
+            angle: Counterclockwise-positive angle in degrees.
+            center: World pivot, defaulting to the world origin, not the object center.
+        """
         return self.transform(Transform.rotate(angle).around(center))
 
     def scale(self, x: float, y: float | None = None, *, center: Position = (0, 0)) -> Self:
+        """Scale about a world point; return this Entity.
+
+        Args:
+            x: Horizontal scale factor.
+            y: Vertical scale factor; ``None`` uses x for uniform scaling.
+            center: World pivot, defaulting to the world origin.
+
+        Negative factors reflect; zero factors allow degenerate forward geometry.
+        Stroke widths remain in Canvas millimeters.
+        """
         return self.transform(Transform.scale(x, y).around(center))
 
     def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
+        """Mirror about a world line; return this Entity.
+
+        Args:
+            angle: Line direction in counterclockwise-positive degrees from the x axis.
+            origin: A world point on the mirror line.
+        """
         return self.transform(Transform.reflect(angle, origin))
 
     def decompose(self) -> tuple[Drawing, ...]:
