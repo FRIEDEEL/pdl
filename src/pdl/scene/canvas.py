@@ -12,9 +12,10 @@ from pdl.geometry.bounds import Bounds
 from pdl.geometry.transforms import Transform
 from pdl.rendering.config import RendererConfig, rendering
 from pdl.rendering.tikz.compiler import TikZMode, compile_pdf
-from pdl.scene.authoring import capture
+from pdl.scene.authoring import Entity, capture
 from pdl.scene.composition import Drawing, Graphic
 from pdl.scene.composition import bounds as scene_bounds
+from pdl.scene.layers import Layer, LayerStack
 from pdl.scene.paint import BLACK as BLACK
 from pdl.scene.paint import Color as Color
 from pdl.scene.paint import Style as Style
@@ -76,10 +77,20 @@ class Canvas:
         self.height = height
         self.renderer = renderer or RendererConfig(fonts=fonts)
         self._drawings: list[Drawing] = []
+        self.layers = LayerStack()
+        self._drawing_layers: list[Layer] = []
 
     @property
     def drawings(self) -> tuple[Drawing, ...]:
-        return tuple(self._drawings)
+        if not self._drawing_layers:
+            return tuple(self._drawings)
+        return tuple(
+            d
+            for _, d in sorted(
+                zip(self._drawing_layers, self._drawings, strict=True),
+                key=lambda record: self.layers.index(record[0]),
+            )
+        )
 
     def map(self, space: CoordinateSystem, transform: Transform) -> None:
         """Override a frame's local-to-parent matrix for this canvas.
@@ -145,7 +156,20 @@ class Canvas:
         require another draw call. Font-dependent positions are measured later.
         Referencing an object does not draw it automatically.
         """
+        from pdl.scene.composition import Group
+        from pdl.scene.gather import Gather
+
+        if isinstance(geometry, (Layer, Gather)):
+            raise TypeError("Canvas.draw requires a graphic, not a Layer or Gather.")
+        target = geometry.geometry if isinstance(geometry, Drawing) else geometry
+        if isinstance(target, (Entity, Group)) and target.root is not target:
+            raise ValueError("Draw the outermost Group, not an individual grouped member.")
+        layer = target.layer if isinstance(target, (Entity, Group)) else 0
+        selected = self.layers[layer] if isinstance(layer, int) else self.layers.adopt(layer)
+        if isinstance(target, (Entity, Group)):
+            target.set_layer(selected)
         geometry = capture(geometry)
+        self._drawing_layers.append(selected)
         if isinstance(geometry, Drawing):
             if style is not None:
                 geometry = Drawing(geometry.geometry, style, geometry.transform)
@@ -217,7 +241,7 @@ class Canvas:
 
     def viewport(self, source: tuple[Drawing, ...] | None = None) -> Canvas:
         """Resolve authoring mappings, then choose the final output viewport."""
-        from pdl.scene.composition import Group
+        from pdl.scene.composition import GroupDescription as Group
 
         roots = self.drawings if source is None else source
         drawings = resolve_geometry(Group(roots)).decompose() if roots else ()
