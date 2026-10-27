@@ -40,6 +40,9 @@ MODULES = (
     "media.images",
     "paint.gradients",
     "paint.opacity",
+    "spatial.projection",
+    "spatial.plane_text",
+    "spatial.d10",
 )
 
 

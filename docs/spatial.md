@@ -5,6 +5,25 @@ Define geometry in right-handed 3D coordinates, then project it into an ordinary
 right-hand rule. SVG and TikZ share the same projected polygons and face colors.
 There are no additional runtime dependencies.
 
+## The authoring boundary
+
+`scene.project()` explicitly returns a `ProjectedScene`, an ordinary 2D authoring
+composite. Projection captures built-in mutable descriptions and fixes camera,
+light, geometry and painter order. It does not measure text or resolve 2D layout.
+Add legends, guides and connections afterward; Canvas resolves that combined 2D
+authoring description into Resolved before SVG/TikZ output.
+
+`projected.vertex(object_index, vertex_index)`, `face_center(object_index,
+face_index)` and `point(world_point)` return fixed **local 2D millimeter points**.
+Indices retain input order despite face sorting. They are not visibility queries
+or live references to a moved instance. Group the projected drawing and its 2D
+annotations to transform them together. Change the camera by creating a new
+projection; previous projections remain unchanged. `projected.anchor()` provides
+ordinary deferred bounds anchors. Non-polyhedron entries have no vertex/face data.
+
+Direct `canvas.draw(scene)` remains a compatibility shorthand for the same
+projection path; new code should make the projection boundary explicit.
+
 ## Solids, camera and light
 
 ```python
@@ -25,14 +44,14 @@ scene = Scene3D(
     light=DirectionalLight(direction=Vector3D(-1, 1, -2), ambient=0.22),
 )
 canvas = Canvas(60, 60, mode="fit", padding=5)
-canvas.draw(scene)
+canvas.draw(scene.project())
 canvas.save("solid.svg")
 ```
 
 `regular_polyhedron` supports `tetrahedron`, `cube`, `octahedron`, `dodecahedron`
 and `icosahedron`. All use a positive **circumradius**, not an edge length.
 `Polyhedron(vertices, faces)` accepts custom indexed faces. Each face must be a
-simple convex planar polygon, counterclockwise when viewed from outside. Winding
+simple planar polygon, counterclockwise when viewed from outside. Winding
 controls the surface normal. Topology and intersections between faces are not checked.
 Use `face_colors` to provide one intrinsic color per face. `transformed()` returns
 a new solid and preserves outward winding under reflections; normals are computed
@@ -103,6 +122,33 @@ whose world location is converted through nested frames.
 
 ![Plane placement](../examples/output/spatial/planes.svg)
 
+## Plane-local face artwork and a D10 example
+
+`solid.face_plane(i)` returns a unit chart centered at the average of that face's
+vertices. Its local v points toward world +z projected into the face; horizontal
+faces use their first edge as u. `solid.with_face_artwork(i, graphic, style=None,
+transform=Transform())` returns a new solid with that face's 2D artwork replaced.
+Text, paths and Groups are allowed; no raster texture is required.
+
+Artwork is captured at projection, stays paired with its face during sorting,
+and uses the complete plane affine transform. Text measurement still happens
+in the later 2D evaluation. Face artwork is one-sided, omitted when back-facing
+or edge-on, and not automatically shaded or clipped to the face boundary. Keep
+it within the face; use explicit text paint. Geometry transforms transport its
+physical placement, including scaling and reflection.
+
+The [D10 example](../examples/spatial/d10.py) constructs a pentagonal
+trapezohedron from 12 vertices and 10 planar kite loops. It generates centered
+number artwork for faces 1-10, projects two opposite views, then adds an ordinary
+2D annotation. D10 is an example, not a new library primitive or canonical
+numbering convention. No half-space constructor or general boolean union is
+introduced here.
+
+![D10 face artwork and 2D legend](../examples/output/spatial/d10.svg)
+
+See tutorial chapters [21](tutorial/en/21-project-3d.md),
+[22](tutorial/en/22-plane-artwork.md) and [23](tutorial/en/23-d10.md).
+
 ## Smooth cylinders and spheres
 
 `Cylinder(base=Point3D(...), radius=10, height=25, axis=Vector3D(0, 0, 1))`
@@ -110,7 +156,8 @@ defines a closed circular cylinder. The base is a disk center; height is positiv
 and the nonzero axis points toward the top (its magnitude is ignored).
 `Sphere(center=Point3D(...), radius=10)` defines a sphere. Both accept intrinsic
 `color`, silhouette `stroke` (or `None`) and Canvas-millimeter `line_width`.
-Dimensions must be finite and positive. Add either object to `Scene3D.objects`.
+Dimensions must be finite and positive. Add either object to `Scene3D.objects`,
+then call `project()` before composing the resulting 2D drawing.
 Orient a cylinder with its axis; general affine ellipsoids are not supported.
 
 These objects use **smooth vector gradients, not surface tessellation**:

@@ -115,3 +115,12 @@ All 3D positions use right-handed millimeter coordinates.
    :undoc-members:
    :member-order: bysource
 ```
+
+## ProjectedScene
+
+```{eval-rst}
+.. autoclass:: pdl.ProjectedScene
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```
