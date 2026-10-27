@@ -6,8 +6,6 @@
 ## 给轮廓换个颜色
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -15,16 +13,6 @@ blue = Color(0.15, 0.35, 0.75)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=blue, line_width=0.5))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "stroke.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/stroke.py
 ```
 
 ![stroke](../../../examples/output/tutorial/basics/stroke.svg)
@@ -44,8 +32,6 @@ uv run python examples/tutorial/basics/stroke.py
 保留蓝色描边，在圆里面填上浅蓝色：
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -54,16 +40,6 @@ light_blue = Color(0.75, 0.85, 1.0)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=blue, fill=light_blue, line_width=0.5))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "fill.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/fill.py
 ```
 
 ![fill](../../../examples/output/tutorial/basics/fill.svg)
@@ -78,8 +54,6 @@ uv run python examples/tutorial/basics/fill.py
 如果只想要一个实心圆，把 `stroke` 设为 `None`：
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -87,16 +61,6 @@ light_blue = Color(0.75, 0.85, 1.0)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=None, fill=light_blue))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "fill_only.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/fill_only.py
 ```
 
 ![fill only](../../../examples/output/tutorial/basics/fill_only.svg)
@@ -112,8 +76,6 @@ uv run python examples/tutorial/basics/fill_only.py
 多边形和矩形也使用相同的样式选项。下面给上一章的三个图形分别设置不同的外观：
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Polygon, Rectangle, Style
 
 triangle = Polygon(((10, 10), (30, 10), (20, 30)))
@@ -128,16 +90,6 @@ canvas = Canvas(105, 40)
 canvas.draw(triangle, blue)
 canvas.draw(rectangle, orange)
 canvas.draw(circle, green)
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "colored_shapes.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/colored_shapes.py
 ```
 
 ![colored shapes](../../../examples/output/tutorial/basics/colored_shapes.svg)
