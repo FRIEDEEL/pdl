@@ -1,0 +1,52 @@
+"""Two intersecting faces, with a centroid reference beside BSP visibility."""
+
+from dataclasses import replace
+
+from pdl import (
+    Canvas,
+    Color,
+    Drawing,
+    PerspectiveCamera,
+    Point3D,
+    Polyhedron,
+    Scene3D,
+    Style,
+    Text,
+    Transform,
+)
+
+# tutorial-start
+camera = PerspectiveCamera(0, 0, distance=100, focal_length=100)
+red_panel = Polyhedron(
+    (Point3D(-20, -30, -20), Point3D(20, 30, -20), Point3D(20, 30, 20), Point3D(-20, -30, 20)),
+    ((0, 1, 2, 3),),
+    color=Color(0.9, 0.35, 0.24),
+    line_width=0.25,
+)
+blue_panel = Polyhedron(
+    (Point3D(20, -30, -20), Point3D(-20, 30, -20), Point3D(-20, 30, 20), Point3D(20, -30, 20)),
+    ((0, 1, 2, 3),),
+    color=Color(0.15, 0.57, 0.78),
+    line_width=0.25,
+)
+scene = Scene3D((red_panel, blue_panel), camera, light=None)
+projected = scene.project()  # auto selects BSP for polygon-only scenes
+reference = replace(scene, visibility="centroid").project()
+assert projected.visibility == "bsp"
+assert set(projected.source_faces) == {(0, 0), (1, 0)}
+
+canvas = Canvas(180, 95)
+canvas.draw(Drawing(reference, transform=Transform.translate(45, 45)))
+canvas.draw(Drawing(projected, transform=Transform.translate(135, 45)))
+ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
+for x, title in ((12, "Centroid reference"), (103, "BSP: split and order")):
+    canvas.draw(Text(title, position=(x, 85), size=12), ink)
+canvas.draw(
+    Text("Same faces / perspective / no extra cut-edge strokes", position=(25, 8), size=10), ink
+)
+# tutorial-end
+
+if __name__ == "__main__":
+    from examples._shared import export
+
+    export(canvas, __file__, tikz_mode="pdf")

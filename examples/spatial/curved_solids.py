@@ -42,12 +42,14 @@ def example() -> Canvas:
         x = 35 + i * 52
         panels.append(
             Drawing(
-                Scene3D((sphere,), CAMERA, light).project(), transform=Transform.translate(x, 90)
+                Scene3D((sphere,), CAMERA, light, visibility="centroid").project(),
+                transform=Transform.translate(x, 90),
             )
         )
         panels.append(
             Drawing(
-                Scene3D((cylinder,), CAMERA, light).project(), transform=Transform.translate(x, 38)
+                Scene3D((cylinder,), CAMERA, light, visibility="centroid").project(),
+                transform=Transform.translate(x, 38),
             )
         )
         labels.append(Text(label, font=font, position=(x - 17, 115), size=11))
@@ -94,7 +96,8 @@ def views() -> Canvas:
         obj = tilted if i == 3 else cylinder
         panels.append(
             Drawing(
-                Scene3D((obj,), camera).project(), transform=Transform.translate(32 + i * 53, 39)
+                Scene3D((obj,), camera, visibility="centroid").project(),
+                transform=Transform.translate(32 + i * 53, 39),
             )
         )
         labels.append(Text(label, font=font, position=(15 + i * 53, 10), size=10))

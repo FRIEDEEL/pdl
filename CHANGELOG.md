@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+
+- **Breaking behavior:** default polygon projection can produce multiple children
+  per source face. Use ProjectedScene.source_faces for correspondence and use
+  sort_faces=False for source-order manual lists; visibility="centroid" restores
+  the former approximate sorting. Original vertex/face-center query indices stay stable.
+
 ### Fixed
 
 - Flowchart cardinal-port connections now default to orthogonal elbows. Removed
@@ -9,6 +16,15 @@
   Explicit waypoints remain authoritative; `route="straight"` opts into direct lines.
 
 ### Added
+
+- BSP visibility is now the default for polygon-only Scene3D scenes without face
+  artwork, supporting intersecting faces, cycles, concave loops and per-face opacity
+  in both cameras. New split edges are not stroked. Projection stays 2D Authoring.
+- Scene3D.visibility selects auto/bsp/centroid; unsupported auto scenes warn and
+  use whole-scene centroid ordering. Explicit bsp rejects unsupported artwork or
+  curved solids. sort_faces=False still preserves manual whole-face order.
+- BSP tolerance/fragment safeguards, ProjectedScene.visibility/source_faces, and
+  bilingual visibility tutorials with centroid-reference SVG/TikZ examples.
 
 - PerspectiveCamera for polygon solids and planar vector artwork, with explicit
   near-plane validation and perspective-aware projected point queries.

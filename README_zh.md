@@ -118,5 +118,7 @@ contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保�
 [渐变](docs/tutorial/zh/20-gradients.md)使用形状局部边界归一化坐标。
 原生文字／TeX 仍限纯色；本阶段不含图层组与整组合成透明度。
 
-三维多面体支持正交与[透视投影](docs/tutorial/zh/24-perspective.md)，按面中心深度近似排序；
+三维多面体支持正交与[透视投影](docs/tutorial/zh/24-perspective.md)，纯多面体场景默认用 BSP 切分处理相交与循环遮挡（不含面内图案），另有显式近似模式；
 保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/25-depth-order.md)。
+
+多面体切分与模式边界见[相交面与可见性教程](docs/tutorial/zh/26-visibility.md)。

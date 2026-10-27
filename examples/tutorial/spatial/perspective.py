@@ -30,12 +30,14 @@ artwork = Group(
 )
 ortho = OrthographicCamera(0, 0)
 camera = PerspectiveCamera(0, 0, distance=55, focal_length=55)
-reference = Scene3D((plane.place(artwork),), ortho).project()
-projected = Scene3D((plane.place(artwork),), camera).project()
+reference = Scene3D((plane.place(artwork),), ortho, visibility="centroid").project()
+projected = Scene3D((plane.place(artwork),), camera, visibility="centroid").project()
 
 die = numbered_die()
-die_ortho = Scene3D((die,), OrthographicCamera(28, 22)).project()
-die_perspective = Scene3D((die,), PerspectiveCamera(28, 22, distance=90, focal_length=90)).project()
+die_ortho = Scene3D((die,), OrthographicCamera(28, 22), visibility="centroid").project()
+die_perspective = Scene3D(
+    (die,), PerspectiveCamera(28, 22, distance=90, focal_length=90), visibility="centroid"
+).project()
 
 canvas = Canvas(160, 145)
 for x, panel in ((40, reference), (120, projected)):

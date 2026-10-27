@@ -194,21 +194,39 @@ comparisons and camera/axis checks in SVG, TikZ and PDF.
 :language: python
 ```
 
-## Occlusion limits
+## Polygon visibility and approximate modes
 
-Within one `Scene3D`, faces from all solids are sorted together by centroid depth,
-far to near, with stable input order on ties. Planar drawings participate using
-their explicit depth references. Separate scenes follow Canvas drawing order.
+`Scene3D(visibility="auto")` uses BSP for scenes of Polyhedron objects without
+face artwork. Simple concave loops are triangulated as necessary; crossing faces
+and visibility cycles are split and painted far-to-near in both cameras. New cut
+edges have no strokes. Opacity is ordinary per-fragment compositing, including
+back faces; it does not create boolean solids or simulate refraction. Coplanar
+ties use source object/face input order, with later faces on top.
 
-This painter algorithm does not split intersecting faces or resolve cyclic
-occlusion. Overlapping depth intervals can produce incorrect order. No automatic
-hidden-edge dashes, exact transparency solver, backface culling or geometric
-clipping is provided. Faces are assumed not to intersect. Polyhedron.opacity
-controls per-face transparency while retaining back faces and their artwork.
-For manual ordering, set `sort_faces=False` and arrange objects/faces yourself,
-or use `projected.reordered(order)` to permute the current complete drawing list.
-Neither override resolves cyclic occlusion.
+`visibility="bsp"` explicitly requires this supported scene. Curved solids, free
+Plane3D placements and face artwork raise an error. In auto these select centroid
+ordering for the **entire scene**, with a warning. Specify `visibility="centroid"`
+to acknowledge the approximation. Faces sort by vertex-average depth; curved
+solids use centers, and planar drawings use their explicit depth reference. This
+mode cannot generally resolve intersections or cycles. Separate scenes always
+follow ordinary Canvas order.
 
+`projected.visibility` reports `bsp`, `centroid` or `manual`.
+`projected.source_faces` maps every child to its original `(object, face)` index,
+or None for non-polyhedra. BSP can repeat a source face across several children;
+source vertex and face-center queries retain original indices. `reordered()`
+permutes the mapping too and marks the result manual. `sort_faces=False` bypasses
+all sorting/splitting and preserves the original complete object/face order.
+
+BSP uses an absolute finite positive `bsp_tolerance=1e-8` mm plane tolerance,
+not exact predicates. `max_fragments=100000` includes triangulation; this budget
+and an internal tree-depth limit of 500 raise ValueError on exhaustion, without
+fallback. Supporting planes can split disjoint finite faces and increase output
+size. Near-plane crossings still fail explicitly. Automatic hidden-edge dashes,
+face-artwork clipping and analytic curved-surface visibility are not provided.
+
+See [Intersections and visibility](tutorial/en/26-visibility.md) for runnable
+examples and the 3D splitting → 2D Authoring flow.
 
 ## Perspective
 

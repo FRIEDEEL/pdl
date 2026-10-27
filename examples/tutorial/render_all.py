@@ -46,6 +46,7 @@ MODULES = (
     "spatial.d10",
     "spatial.perspective",
     "spatial.depth_order",
+    "spatial.visibility",
 )
 
 

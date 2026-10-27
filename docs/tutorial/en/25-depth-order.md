@@ -1,9 +1,10 @@
 # 25. Transparency and depth order
 
-Depth sorting is an approximation for diagrams. Both orthographic and perspective
-scenes retain all polygon faces, including back faces. The upper comparison keeps
-an opaque cube beside the transparent result; its rear edges become visible.
-The lower comparison shows why transparent overlap depends on paint order.
+Polygon-only scenes now use BSP splitting by default; the next chapter explains
+intersections and cyclic visibility. Both cameras retain back faces. The upper
+comparison keeps an opaque cube beside the transparent result; its rear edges
+become visible. The lower free-plane artwork comparison explicitly selects
+approximate centroid sorting to demonstrate paint-order effects.
 
 ```{literalinclude} ../../../examples/tutorial/spatial/depth_order.py
 :language: python
@@ -17,12 +18,11 @@ The lower comparison shows why transparent overlap depends on paint order.
 
 ## Automatic order
 
-Within a Scene3D, each face is sorted by the average of its vertices along the
-camera axis, far to near; ties preserve input order. Its face artwork travels
-with it as one item, retaining its own internal drawing order. A Plane3D placement
-uses its `depth_point` reference (local `(0, 0)` by default), so choose a suitable
-local center for off-center artwork. Sorting does not compare Euclidean distance,
-projected overlap regions, or individual sightline intersections.
+Pure polyhedra without artwork use BSP by default, including transparent faces.
+For the free Plane3D drawings here, `visibility="centroid"` explicitly chooses
+approximate depth ordering by the `depth_point` reference (local `(0, 0)` by
+default). Face artwork in that mode travels with its face as one whole item.
+The axis depth is not Euclidean distance to the camera.
 
 `Polyhedron.opacity` defaults to 1 and accepts values in `[0, 1]`. It applies
 independently to each face's fill and stroke. This is ordinary compositing,
@@ -41,23 +41,22 @@ retains it on the right, so blue is painted on top.
 
 For an explicit global override, use `projected.reordered(order)`. The tuple must
 be a permutation containing every current child index exactly once; index 0 is
-painted first. Each child is one complete face plus its artwork, or one other
-scene object. Starting with `sort_faces=False` makes the indices follow source
+painted first. In manual mode each child is one complete face plus its artwork, or one other
+scene object. BSP snapshots instead contain fragments with `source_faces` mappings. Starting with `sort_faces=False` makes the indices follow source
 object/face order. Point and face-center queries keep their original source
 indices after reordering. The `restored` snapshot in the source demonstrates
 reversing the two manual items without changing their geometry.
 
-## Known failure cases
+## Scope boundaries
 
-Faces are assumed not to intersect. Overlapping depth intervals can still cause
-incorrect center sorting even without intersections. Cyclic occlusion has no
-correct whole-face paint order; manual reordering cannot solve that case either.
-No cycle detection, splitting, local clipping or exact transparency solver is
-performed. Separate projected scenes follow ordinary Canvas/Layer order.
-Smooth spheres/cylinders remain orthographic-only and sort as whole objects;
-the polygon-face back-face and opacity rules here do not extend their APIs.
+Approximate centroid ordering can fail even for disjoint faces. Manual reordering
+cannot solve whole-face visibility cycles. BSP handles supported polygon scenes
+by splitting them; see [Intersections and visibility](26-visibility.md) for the
+algorithm, tolerances and limits. Separate scenes follow ordinary Canvas/Layer
+order. Curved solids remain orthographic-only; curved surfaces, free planar
+artwork and face artwork require approximate or manual order.
 
 Try changing the orange opacity from 0.55 to 1, then reversing the manual objects.
 The same geometry produces a different overlap because the paint order changed.
 
-[Previous: Perspective](24-perspective.md)
+[Previous: Perspective](24-perspective.md) · [Next: Intersections and visibility](26-visibility.md)

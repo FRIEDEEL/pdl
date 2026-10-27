@@ -38,6 +38,7 @@ groups-layers-gathers
 23-d10
 24-perspective
 25-depth-order
+26-visibility
 ```
 
 [English version](../en/index.md) · [API 接口文档](../../api/index.md)

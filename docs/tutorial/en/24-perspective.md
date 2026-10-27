@@ -40,7 +40,7 @@ projected_x = focal_length * x / axial_distance
 projected_y = focal_length * y / axial_distance
 ```
 
-The larger `d` is, the closer the point is. Sorting uses this axial depth, not
+The larger `d` is, the closer the point is. Centroid mode uses this axial depth, not
 Euclidean distance to the eye and not the light direction. `camera.eye` gives
 the world eye position. `projected.point(...)`, `vertex(...)` and `face_center(...)`
 use this same projection; indices still refer to the source geometry.
@@ -72,7 +72,8 @@ Cylinder require OrthographicCamera and raise an error with PerspectiveCamera.
 All vertices, artwork endpoints and Bezier controls must lie strictly beyond the
 near plane. Invalid polyhedron points fail during projection; deferred artwork
 can fail during bounds evaluation or export. There is no automatic near/far
-clipping, face splitting, intersection solver or exact visibility computation.
+clipping. The artwork examples explicitly select approximate centroid sorting;
+BSP splitting for polygon-only scenes is covered in [chapter 26](26-visibility.md).
 
 Try changing `distance` and `focal_length` from 55 to 110 together. The plane
 approaches its orthographic reference while keeping its target-plane scale.
