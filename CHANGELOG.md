@@ -10,6 +10,14 @@
 
 ### Added
 
+- Explicit `Scene3D.project()` snapshots into ordinary 2D Authoring, with source
+  vertex/face-center correspondence and deferred bounds anchors for 2D legends.
+- Plane-local vector face artwork, transported with polyhedron transforms and
+  sorted with its face. Includes a numbered D10 example and three bilingual
+  tutorial steps with actual SVG/PDF output.
+- Simple concave planar face loops; self-crossing, touching and zero-length
+  face edges are rejected. Whole-shell closure remains a separate concern.
+
 - Smooth 3D cylinders and spheres with portable SVG/TikZ/PDF vector gradients.
   Cylinders sample directional Lambert shading; spheres use an explicit radial
   lighting approximation. Includes light-direction and limiting-view examples.

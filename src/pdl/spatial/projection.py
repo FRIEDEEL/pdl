@@ -5,11 +5,13 @@ from math import cos, isfinite, radians, sin
 
 from pdl.geometry.primitives import Point, Polygon
 from pdl.geometry.transforms import Transform
-from pdl.scene.composition import Drawing
+from pdl.scene.authoring import capture
+from pdl.scene.composition import Drawing, GroupDescription
 from pdl.scene.paint import Color, Style
 from pdl.spatial.coordinates import Point3D, Vector3D
 from pdl.spatial.curves import Cylinder, Sphere, project_cylinder, project_sphere
-from pdl.spatial.solids import Polyhedron, Surface3D, centroid, face_normal
+from pdl.spatial.projected import ProjectedScene
+from pdl.spatial.solids import Plane3D, Polyhedron, Surface3D, centroid, face_normal
 
 
 @dataclass(frozen=True)
@@ -96,8 +98,21 @@ class Scene3D:
     light: DirectionalLight | None = DirectionalLight()
     sort_faces: bool = True
 
+    def project(self) -> ProjectedScene:
+        """Capture a 2D authoring snapshot without measuring text or rendering.
+
+        Projection fixes camera, geometry, lighting and painter order for this
+        snapshot. Add 2D legends and references afterward, then let Canvas
+        resolve the complete 2D description. Re-project to change the view.
+        """
+        source = capture(self)
+        return source._project()
+
     def decompose(self) -> tuple[Drawing, ...]:
-        """Return projected vectors with flat face colors or smooth curve gradients."""
+        """Compatibility shorthand; prefer explicitly drawing self.project()."""
+        return self.project().decompose()
+
+    def _project(self) -> ProjectedScene:
         items: list[tuple[float, Drawing]] = []
         for obj in self.objects:
             if isinstance(obj, Polyhedron):
@@ -115,6 +130,12 @@ class Scene3D:
                             line_join="round",
                         ),
                     )
+                    artwork = None if obj.face_artwork is None else obj.face_artwork[i]
+                    normal = face_normal(points)
+                    if artwork is not None and normal.dot(self.camera.toward_viewer) > 1e-10:
+                        surface = obj.face_plane(i)
+                        overlay = artwork.transformed(self._plane_matrix(surface))
+                        drawing = Drawing(GroupDescription((drawing, overlay)))
                     items.append((self.camera.depth(centroid(points)), drawing))
             elif isinstance(obj, (Sphere, Cylinder)):
                 drawing = (
@@ -124,18 +145,46 @@ class Scene3D:
                 )
                 items.append((self.camera.depth(obj.center), drawing))
             else:
-                origin = self.camera.project(obj.plane.origin)
-                u = obj.plane.u
-                v = obj.plane.v
-                matrix = Transform(
-                    u.dot(self.camera.right),
-                    u.dot(self.camera.up),
-                    v.dot(self.camera.right),
-                    v.dot(self.camera.up),
-                    origin.x,
-                    origin.y,
+                items.append(
+                    (
+                        self.camera.depth(obj.depth_point),
+                        obj.drawing.transformed(self._plane_matrix(obj.plane)),
+                    )
                 )
-                items.append((self.camera.depth(obj.depth_point), obj.drawing.transformed(matrix)))
         if self.sort_faces:
             items.sort(key=lambda item: item[0])
-        return tuple(drawing for _, drawing in items)
+        vertices = tuple(
+            tuple(self.camera.project(p) for p in obj.vertices)
+            if isinstance(obj, Polyhedron)
+            else ()
+            for obj in self.objects
+        )
+        centers = tuple(
+            tuple(
+                self.camera.project(centroid(tuple(obj.vertices[i] for i in face)))
+                for face in obj.faces
+            )
+            if isinstance(obj, Polyhedron)
+            else ()
+            for obj in self.objects
+        )
+        right, up = self.camera.right, self.camera.up
+        return ProjectedScene(
+            tuple(drawing for _, drawing in items),
+            vertices,
+            centers,
+            self.camera.target,
+            (right.x, right.y, right.z),
+            (up.x, up.y, up.z),
+        )
+
+    def _plane_matrix(self, plane: Plane3D) -> Transform:
+        origin = self.camera.project(plane.origin)
+        return Transform(
+            plane.u.dot(self.camera.right),
+            plane.u.dot(self.camera.up),
+            plane.v.dot(self.camera.right),
+            plane.v.dot(self.camera.up),
+            origin.x,
+            origin.y,
+        )

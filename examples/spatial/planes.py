@@ -56,7 +56,7 @@ def example() -> Canvas:
     leader = Line((expected.x + 4, expected.y), (27, -6))
     title = Text("2D artwork on a 3D plane", font=latin_font(), position=(-30, 30), size=14)
     canvas = Canvas(120, 85, mode="fit", padding=8)
-    canvas.draw(scene)
+    canvas.draw(scene.project())
     canvas.draw(leader, Style(stroke=Color(0.35, 0.35, 0.35), line_width=0.2))
     canvas.draw(annotation, Style(stroke=None, fill=Color(0.2, 0.2, 0.2)))
     canvas.draw(title, Style(stroke=None, fill=Color(0.2, 0.2, 0.2)))

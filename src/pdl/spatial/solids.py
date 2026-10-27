@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import combinations, product
 from math import atan2, isfinite, sqrt
 from typing import Literal
 
+from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing, Graphic
 from pdl.scene.paint import BLACK, Color, Style
 from pdl.spatial.coordinates import Point3D, Transform3D, Vector3D
@@ -27,6 +28,43 @@ def face_normal(points: tuple[Point3D, ...]) -> Vector3D:
     for i in range(1, len(points) - 1):
         total = total + (points[i] - points[0]).cross(points[i + 1] - points[0])
     return total.normalized()
+
+
+def _validate_simple_loop(points: tuple[Point3D, ...], normal: Vector3D, tolerance: float) -> None:
+    """Reject zero-length edges, retracing corners and nonadjacent crossings."""
+    size = max((p - points[0]).length for p in points)
+    area_tolerance = tolerance * size
+    count = len(points)
+    for i, a in enumerate(points):
+        b = points[(i + 1) % count]
+        if (b - a).length <= tolerance:
+            raise ValueError("Face edges must have nonzero length.")
+        previous = points[i - 1] - a
+        following = b - a
+        if previous.cross(following).length <= area_tolerance and previous.dot(following) > 0:
+            raise ValueError("Face edges must not retrace a corner.")
+        for j in range(i + 1, count):
+            if j == i + 1 or (i == 0 and j == count - 1):
+                continue
+            c, d = points[j], points[(j + 1) % count]
+            # Oriented half-plane tests plus bounding boxes handle touching
+            # and collinear overlap as well as proper crossings.
+            ab_c = (b - a).cross(c - a).dot(normal)
+            ab_d = (b - a).cross(d - a).dot(normal)
+            cd_a = (d - c).cross(a - c).dot(normal)
+            cd_b = (d - c).cross(b - c).dot(normal)
+            opposite_ab = min(ab_c, ab_d) <= area_tolerance and max(ab_c, ab_d) >= -area_tolerance
+            opposite_cd = min(cd_a, cd_b) <= area_tolerance and max(cd_a, cd_b) >= -area_tolerance
+            overlaps = all(
+                max(min(x1, x2), min(x3, x4)) <= min(max(x1, x2), max(x3, x4)) + tolerance
+                for x1, x2, x3, x4 in (
+                    (a.x, b.x, c.x, d.x),
+                    (a.y, b.y, c.y, d.y),
+                    (a.z, b.z, c.z, d.z),
+                )
+            )
+            if opposite_ab and opposite_cd and overlaps:
+                raise ValueError("Face loops must not self-intersect or touch themselves.")
 
 
 @dataclass(frozen=True)
@@ -88,12 +126,13 @@ class Surface3D:
 
 @dataclass(frozen=True)
 class Polyhedron:
-    """An indexed solid with simple convex planar polygon faces.
+    """An indexed polyhedron with simple planar polygon face loops.
 
     Vertices are in millimeters. Face indices wind counterclockwise viewed
     from outside; supplied winding is preserved and determines lighting.
-    Intersections, manifold topology and whole-solid convexity are not checked.
-    Faces must be convex and nondegenerate. Face colors override color by index.
+    Inter-face intersections, manifold topology and whole-solid convexity are
+    not checked. Faces may be concave, but must be simple and nondegenerate.
+    Holes are not supported. Face colors override color by index.
     Transforms return a new solid; normals are recomputed from transformed faces.
     """
 
@@ -103,6 +142,7 @@ class Polyhedron:
     face_colors: tuple[Color, ...] | None = None
     stroke: Color | None = BLACK
     line_width: float = 0.25
+    face_artwork: tuple[Drawing | None, ...] | None = None
 
     def __post_init__(self) -> None:
         if not self.vertices or not self.faces:
@@ -110,6 +150,8 @@ class Polyhedron:
         Style(stroke=self.stroke, line_width=self.line_width)
         if self.face_colors is not None and len(self.face_colors) != len(self.faces):
             raise ValueError("Provide exactly one color per face.")
+        if self.face_artwork is not None and len(self.face_artwork) != len(self.faces):
+            raise ValueError("Provide exactly one artwork entry per face.")
         for face in self.faces:
             if len(face) < 3 or len(set(face)) != len(face):
                 raise ValueError("Faces need at least three distinct indices.")
@@ -121,23 +163,86 @@ class Polyhedron:
             tolerance = 1e-9 * size
             if any(abs((p - points[0]).dot(normal)) > tolerance for p in points):
                 raise ValueError("Face vertices must be coplanar.")
-            # Every vertex must lie on the inner side of every directed edge.
-            for a, b in zip(points, points[1:] + points[:1]):
-                if any((b - a).cross(p - a).dot(normal) < -tolerance * size for p in points):
-                    raise ValueError("Faces must be convex and consistently ordered.")
+            _validate_simple_loop(points, normal, tolerance)
+
+    def face_plane(self, index: int) -> Plane3D:
+        """Return a centered unit chart for a face, with v toward world +z.
+
+        The origin is the vertex average, not the area centroid. Projected +z
+        gives the local up direction; horizontal faces fall back to their first
+        edge as u. Artwork coordinates use millimeters in this chart. Indices
+        refer to the supplied face order, regardless of painter sorting.
+        """
+        if not 0 <= index < len(self.faces):
+            raise IndexError("Face index is outside the face array.")
+        points = tuple(self.vertices[i] for i in self.faces[index])
+        normal = face_normal(points)
+        up = Vector3D(0, 0, 1)
+        tangent = up + normal * -up.dot(normal)
+        if tangent.length > 1e-10:
+            v = tangent.normalized()
+            u = v.cross(normal)
+        else:
+            u = (points[1] - points[0]).normalized()
+            v = normal.cross(u)
+        return Plane3D(centroid(points), u, v)
+
+    def with_face_artwork(
+        self,
+        index: int,
+        graphic: Graphic,
+        style: Style | None = None,
+        *,
+        transform: Transform = Transform(),
+    ) -> Polyhedron:
+        """Return a solid with 2D artwork attached to one face's local chart.
+
+        Artwork replaces the previous entry for this face. It is not clipped
+        or lit automatically, so keep it within the face boundary. Native
+        text follows the full plane affine transform. Back-facing/edge-on
+        artwork is omitted; opaque faces still use the ordinary depth sort.
+        Mutable built-ins are captured when Scene3D.project is called.
+        """
+        self.face_plane(index)
+        artwork = list(self.face_artwork or (None,) * len(self.faces))
+        artwork[index] = Drawing(graphic, style, transform)
+        return replace(self, face_artwork=tuple(artwork))
 
     def transformed(self, transform: Transform3D) -> Polyhedron:
-        """Apply an affine transform, preserving outward winding under reflection."""
+        """Transform geometry, transporting existing artwork charts with it.
+
+        Outward winding is preserved under reflection. Artwork's new local
+        matrix retains its original physical placement, including nonuniform
+        scaling, instead of resetting to the new face's unit chart.
+        """
         determinant = transform.x.dot(transform.y.cross(transform.z))
         faces = tuple(tuple(reversed(f)) for f in self.faces) if determinant < 0 else self.faces
-        return Polyhedron(
-            tuple(transform.apply(p) for p in self.vertices),
-            faces,
-            self.color,
-            self.face_colors,
-            self.stroke,
-            self.line_width,
+        result = replace(
+            self,
+            vertices=tuple(transform.apply(p) for p in self.vertices),
+            faces=faces,
+            face_artwork=None,
         )
+        if self.face_artwork is None:
+            return result
+        artwork: list[Drawing | None] = []
+        for i, drawing in enumerate(self.face_artwork):
+            if drawing is None:
+                artwork.append(None)
+                continue
+            old = self.face_plane(i).transformed(transform)
+            new = result.face_plane(i)
+            offset = old.origin - new.origin
+            matrix = Transform(
+                old.u.dot(new.u),
+                old.u.dot(new.v),
+                old.v.dot(new.u),
+                old.v.dot(new.v),
+                offset.dot(new.u),
+                offset.dot(new.v),
+            )
+            artwork.append(drawing.transformed(matrix))
+        return replace(result, face_artwork=tuple(artwork))
 
 
 type PlatonicKind = Literal["tetrahedron", "cube", "octahedron", "dodecahedron", "icosahedron"]

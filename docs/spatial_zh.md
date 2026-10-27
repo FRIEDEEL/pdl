@@ -3,6 +3,21 @@
 在右手三维坐标系中定义图形，再投影到普通二维 `Canvas`。长度单位是毫米，
 旋转角度使用度数和右手定则。SVG 与 TikZ 共用投影后的多边形和面颜色，无新增运行时依赖。
 
+## Authoring 投影边界
+
+`scene.project()` 显式返回 `ProjectedScene`，它是普通二维 Authoring 组合对象。
+投影捕获内置可变描述，固定本次相机、光照、几何和深度顺序，但不测量文字、不执行二维布局。
+在结果上组合 legend、辅助线、引线，再交由 Canvas 将整套二维 Authoring 求值到 Resolved，
+最后输出 SVG／TikZ。
+
+`projected.vertex(对象索引, 顶点索引)`、`face_center(对象索引, 面索引)` 和
+`point(世界三维点)` 返回固定的**局部二维毫米坐标**；索引保持原始输入顺序，不随面排序改变。
+它们不是可见性查询，也不是跟随已移动实例的引用。把投影与标注放进同一个 Group，便可一起
+变换。改变视角时重新 project，旧结果不变。`projected.anchor()` 提供普通延迟边界锚点。
+非多面体对象没有顶点／面数据。
+
+旧的 `canvas.draw(scene)` 保留为相同投影路径的兼容简写；新代码推荐显式 project。
+
 ## 多面体、相机与光源
 
 ```python
@@ -23,7 +38,7 @@ scene = Scene3D(
     light=DirectionalLight(direction=Vector3D(-1, 1, -2), ambient=0.22),
 )
 canvas = Canvas(60, 60, mode="fit", padding=5)
-canvas.draw(scene)
+canvas.draw(scene.project())
 canvas.save("solid.svg")
 ```
 
@@ -31,7 +46,7 @@ canvas.save("solid.svg")
 `cube`（正六面体）、`octahedron`（正八面体）、`dodecahedron`（正十二面体）、
 `icosahedron`（正二十面体）。`radius` 是正的**外接球半径**，不是边长。
 
-自定义 `Polyhedron(vertices, faces)` 使用顶点和面索引。每个面必须是简单、凸、共面的
+自定义 `Polyhedron(vertices, faces)` 使用顶点和面索引。每个面必须是简单、共面的
 多边形，顶点从外侧看按逆时针排列，绕序决定法向。不检查整体拓扑或面之间的相交。
 `face_colors` 可以逐面指定固有色。`transformed()` 返回新多面体，镜像时保持向外绕序，
 变换后的顶点用于重新计算法向，因此支持非均匀缩放。
@@ -90,6 +105,26 @@ face_rgb = intrinsic_rgb * intensity
 ```
 
 ![Plane placement](../examples/output/spatial/planes.svg)
+
+## 面内图案与 D10 示例
+
+`solid.face_plane(i)` 返回以该面顶点平均位置为原点的单位坐标图。局部 v 朝向世界 +z
+在面内的投影，水平面则用第一条边作为 u。
+`solid.with_face_artwork(i, graphic, style=None, transform=Transform())`
+返回替换了第 i 面图案的新多面体。图案可以是 Text、Path 或 Group，不要求栅格贴图。
+
+图案在 project 时捕获，与对应面一起排序，使用完整平面仿射变换；文字测量仍留在后续二维
+求值阶段。图案是单面的，背向观察者或侧立时省略；不自动受光，不裁切到面边界，需要控制在
+面内部并显式指定文字样式。整体三维变换会传递图案的位置，包括缩放与镜像。
+
+[D10 示例](../examples/spatial/d10.py) 用 12 个顶点和 10 个平面风筝形 loop 构造五方偏方面体，
+生成 1–10 的居中数字图案，再投影成两个相反视角，并添加二维标注。D10 只是示例，
+不增加专用库图元，也不规定骰子编号惯例。本轮不增加半空间构造器或一般布尔合并。
+
+![D10 面图案与二维标注](../examples/output/spatial/d10.svg)
+
+对应教程：[21](tutorial/zh/21-project-3d.md)、[22](tutorial/zh/22-plane-artwork.md)、
+[23](tutorial/zh/23-d10.md)。
 
 ## 光滑圆柱与球面
 
