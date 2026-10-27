@@ -25,11 +25,22 @@ SVG_NS = "http://www.w3.org/2000/svg"
 
 @dataclass(frozen=True)
 class TeXConfig:
-    """A shared, document-level TeX environment.
+    """A document-level environment shared by TeX measurement and native output.
 
-    Only XeLaTeX is implemented in Stage 2. Dependencies are explicit external
-    files whose contents invalidate the cache. Include custom font files here
-    when they may change. Increment cache_salt after external TeX package edits.
+    Args:
+        engine: Fragment measurement executable; only ``xelatex`` is supported.
+        packages: Package names without options; ``amsmath`` is included by default.
+        preamble: Raw LaTeX declarations, including packages requiring options.
+        dependencies: External files whose content must participate in cache keys.
+        cache_dir: Measurement cache location; ``None`` uses a temporary-root cache.
+        cache_salt: Explicit cache invalidation token for external changes.
+
+    Native TikZ content in one document must agree on this environment. Cache keys
+    include source and tool versions but do not discover every external package
+    or font change; list relevant files and update cache_salt as appropriate.
+
+    Raises:
+        ValueError: Engine is unsupported or a package name contains complex syntax.
     """
 
     engine: str = "xelatex"
@@ -213,10 +224,19 @@ def _read_layout(serialized: str) -> TeXLayout:
 
 @dataclass(frozen=True)
 class TeX:
-    """Explicit TeX content; include math delimiters when math mode is intended.
+    """LaTeX source typeset at a baseline position.
 
-    The position is a baseline reference in millimeters, and size is in TeX
-    points. Config is shared by measurement and native TikZ document output.
+    Args:
+        source: LaTeX content; include ``$...$`` or other delimiters for math.
+            Python raw strings preserve backslashes conveniently.
+        position: Left baseline reference in local millimeters.
+        size: Positive font size in TeX points (1/72.27 inch).
+        config: Explicit TeX environment, or the renderer's default environment.
+
+    Measurement requires XeLaTeX and dvisvgm, even when requesting TikZ source
+    without a final PDF. SVG embeds a converted fragment; TikZ retains native
+    LaTeX source. Shared native documents require compatible TeXConfig values.
+    Supply only fill paint, with ``stroke=None``, when setting a style.
     """
 
     source: str

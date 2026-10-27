@@ -21,19 +21,8 @@ sans-serif 字体，因此不同电脑上的字形可能略有不同。如果提
 把下面的代码保存为 `examples/tutorial/basics/hello_world.py`，
 也可以直接打开仓库中已有的这个文件。用代码下方的命令运行。
 
-```python
-from pathlib import Path
-
-from pdl import Canvas, Node, Text
-
-hello = Node(Text("Hello world"), position=(30, 15))
-
-canvas = Canvas(60, 30)
-canvas.draw(hello)
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "hello_world.svg")
+```{literalinclude} ../../../examples/tutorial/basics/hello_world.py
+:language: python
 ```
 
 运行（在仓库根目录）：

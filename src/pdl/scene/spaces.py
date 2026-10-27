@@ -26,16 +26,25 @@ class CoordinateSystem:
         return self
 
     def child(self, transform: Transform = Transform(), *, name: str = "local") -> CoordinateSystem:
+        """Create a child frame without modifying this frame.
+
+        Args:
+            transform: Child-to-parent affine matrix.
+            name: Human-readable name for diagnostics; names do not identify frames.
+        """
         return CoordinateSystem(self, transform, name)
 
     def to_world(self) -> Transform:
+        """Return the local-to-world matrix under current canvas mappings."""
         local = space_mappings.get().get(self, self.transform)
         return local if self.parent is None else self.parent.to_world() @ local
 
     def point(self, x: float, y: float) -> SpacePoint:
+        """Describe a point with x/y coordinates in this frame, in millimeters."""
         return SpacePoint(self, Point(x, y))
 
     def vector(self, x: float, y: float) -> SpaceVector:
+        """Describe a displacement in this frame; translation does not affect it."""
         return SpaceVector(self, Vector(x, y))
 
 
@@ -51,6 +60,11 @@ class SpacePoint:
     value: Point
 
     def resolve(self, target: CoordinateSystem = WORLD) -> Point:
+        """Convert to an authoring target frame; default is WORLD.
+
+        Raises:
+            ValueError: The target frame has a singular world transform.
+        """
         return (target.to_world().inverse() @ self.space.to_world()).apply(self.value)
 
 
@@ -62,6 +76,11 @@ class SpaceVector:
     value: Vector
 
     def resolve(self, target: CoordinateSystem = WORLD) -> Vector:
+        """Convert a displacement to an authoring frame, ignoring translations.
+
+        Raises:
+            ValueError: The target frame has a singular world transform.
+        """
         return (target.to_world().inverse() @ self.space.to_world()).apply_vector(self.value)
 
 

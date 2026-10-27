@@ -77,7 +77,15 @@ class Geometry(Protocol):
 
 
 class Path:
-    """A mutable sequence of absolute path operations, without paint."""
+    """A mutable builder for absolute line, curve, and arc commands.
+
+    Call ``move_to`` before adding lines or Bezier curves. Builder methods
+    modify this path and return it for chaining. ``Canvas.draw`` captures a
+    copy; later edits do not change a previously recorded drawing.
+
+    A fill implicitly closes open subpaths, but their strokes remain open.
+    Call ``close`` when the closing edge should also be stroked.
+    """
 
     def __init__(self) -> None:
         self._commands: list[Command] = []
@@ -89,6 +97,14 @@ class Path:
         return tuple(self._commands)
 
     def move_to(self, end: Position) -> Self:
+        """Start a new subpath without drawing a connecting line.
+
+        Args:
+            end: New current point in local millimeters.
+
+        Returns:
+            This path for chaining.
+        """
         self._current = self._start = point(end)
         self._commands.append(Move(self._current))
         return self
@@ -99,24 +115,70 @@ class Path:
         return self._current
 
     def line_to(self, end: Position) -> Self:
+        """Add a straight segment from the current point.
+
+        Args:
+            end: Segment endpoint in local millimeters.
+
+        Returns:
+            This path for chaining.
+
+        Raises:
+            ValueError: No subpath has been started with ``move_to``.
+        """
         self._require_current()
         self._current = point(end)
         self._commands.append(Segment(self._current))
         return self
 
     def quadratic_to(self, control: Position, end: Position) -> Self:
+        """Add a quadratic Bezier curve with one control point.
+
+        Args:
+            control: Point controlling the endpoint tangents.
+            end: Curve endpoint. Coordinates are local millimeters.
+
+        Returns:
+            This path for chaining.
+
+        Raises:
+            ValueError: No subpath has been started.
+        """
         self._require_current()
         self._current = point(end)
         self._commands.append(Quadratic(point(control), self._current))
         return self
 
     def cubic_to(self, control1: Position, control2: Position, end: Position) -> Self:
+        """Add a cubic Bezier curve with two control points.
+
+        Args:
+            control1: Control point determining the initial tangent.
+            control2: Control point determining the final tangent.
+            end: Curve endpoint. All coordinates are local millimeters.
+
+        Returns:
+            This path for chaining.
+
+        Raises:
+            ValueError: No subpath has been started.
+        """
         self._require_current()
         self._current = point(end)
         self._commands.append(Cubic(point(control1), point(control2), self._current))
         return self
 
     def close(self) -> Self:
+        """Close the current subpath with a straight edge.
+
+        The current point returns to the subpath's starting point.
+
+        Returns:
+            This path for chaining.
+
+        Raises:
+            ValueError: No subpath has been started.
+        """
         self._require_current()
         self._commands.append(Close())
         self._current = self._start
@@ -151,6 +213,7 @@ class Path:
         return self
 
     def to_path(self) -> Path:
+        """Return an independent copy of this path's commands and current point."""
         result = Path()
         result._commands = self._commands.copy()
         result._current, result._start = self._current, self._start
@@ -159,6 +222,13 @@ class Path:
 
 @dataclass(frozen=True)
 class Line:
+    """A straight segment between two local positions in millimeters.
+
+    Args:
+        start: First endpoint.
+        end: Second endpoint.
+    """
+
     start: Position
     end: Position
 
@@ -168,6 +238,14 @@ class Line:
 
 @dataclass(frozen=True)
 class Polyline:
+    """An open chain joining the supplied points in order.
+
+    Args:
+        points: Local positions in millimeters. An empty tuple draws nothing.
+
+    Fill closes the chain implicitly; stroke does not.
+    """
+
     points: tuple[Position, ...]
 
     def to_path(self) -> Path:
@@ -181,6 +259,12 @@ class Polyline:
 
 @dataclass(frozen=True)
 class Polygon(Polyline):
+    """A closed chain joining the supplied vertices in order.
+
+    Args:
+        points: Local vertices in millimeters. The last connects to the first.
+    """
+
     def to_path(self) -> Path:
         path = super().to_path()
         return path.close() if self.points else path
@@ -188,6 +272,17 @@ class Polygon(Polyline):
 
 @dataclass(frozen=True)
 class Rectangle:
+    """An axis-aligned rectangle positioned by its lower-left corner.
+
+    Args:
+        origin: Lower-left corner in local millimeters.
+        width: Nonnegative horizontal extent in millimeters.
+        height: Nonnegative vertical extent in millimeters.
+
+    Raises:
+        ValueError: A dimension is negative or nonfinite, or the origin is nonfinite.
+    """
+
     origin: Position
     width: float
     height: float
@@ -211,7 +306,20 @@ class Rectangle:
 
 @dataclass(frozen=True)
 class Arc:
-    """An elliptical arc; angles are degrees, positive counterclockwise."""
+    """An elliptical arc with counterclockwise-positive degree angles.
+
+    Args:
+        center: Ellipse center in local millimeters.
+        radius_x: Positive local x radius in millimeters.
+        radius_y: Positive local y radius in millimeters.
+        start_angle: Starting ellipse parameter angle in degrees.
+        sweep_angle: Signed span, at most 360 degrees in magnitude.
+        rotation: Rotation of the ellipse axes in degrees.
+
+    The parameter angle belongs to the unrotated ellipse, not the polar angle
+    of the final point. Native output preserves arcs when supported;
+    ``to_path`` approximates them with cubic Bezier segments.
+    """
 
     center: Position
     radius_x: float
@@ -311,6 +419,7 @@ class Arc:
         return Point(p.x + c * x - s * y, p.y + s * x + c * y)
 
     def at(self, angle: float) -> Point:
+        """Return the ellipse point at a parameter angle in degrees."""
         a = radians(angle)
         return self._transform(self.radius_x * cos(a), self.radius_y * sin(a))
 
@@ -339,6 +448,16 @@ class Arc:
 
 @dataclass(frozen=True)
 class Circle:
+    """A circle described by its center and radius.
+
+    Args:
+        center: Local center in millimeters.
+        radius: Positive radius in millimeters.
+
+    Raises:
+        ValueError: The radius is nonpositive/nonfinite, or the center is nonfinite.
+    """
+
     center: Position
     radius: float
 

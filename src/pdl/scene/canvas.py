@@ -24,11 +24,25 @@ from pdl.typography.plain import Font
 
 
 class Canvas:
-    """An ordered drawing document with explicit viewport adaptation.
+    """An ordered drawing area with millimeter coordinates and SVG/TikZ output.
 
-    Coordinates are Cartesian millimeters. draw captures authoring state,
-    render resolves dependencies, and later records paint above earlier ones.
-    The default clip policy retains the fixed bottom-left-origin viewport.
+    Args:
+        width: Canvas width in millimeters; required except in ``auto_size`` mode.
+        height: Canvas height in millimeters; required except in ``auto_size`` mode.
+        fonts: Explicit default fonts, used if ``renderer`` is not supplied.
+        mode: ``clip`` keeps a fixed viewport; ``fit`` scales and centers content;
+            ``auto_size`` preserves scale and derives dimensions from content.
+        padding: Nonnegative millimeter margin for fit/auto-size.
+        backend: Default output adapter: ``svg`` or ``tikz``.
+        renderer: Font and TeX policy; takes precedence over ``fonts``.
+
+    The origin is at the lower-left, x points right, and y points up. Later
+    ``draw`` records paint over earlier ones. Text scales with geometry, but
+    stroke widths remain in final Canvas millimeters. Fitting uses layout bounds
+    and conservative stroke margins rather than exact painted contours.
+
+    Raises:
+        ValueError: Dimensions, padding, or viewport mode are invalid.
     """
 
     def __init__(
@@ -68,7 +82,14 @@ class Canvas:
         return tuple(self._drawings)
 
     def map(self, space: CoordinateSystem, transform: Transform) -> None:
-        """Set a frame's local-to-parent mapping for this canvas."""
+        """Override a frame's local-to-parent matrix for this canvas.
+
+        Args:
+            space: Authoring frame. ``WORLD`` sets the world-to-Canvas base mapping.
+            transform: Replacement matrix, not an additional composed transform.
+
+        The frame itself and other canvases are not changed.
+        """
         if space is WORLD:
             self._world_transform = transform
         else:
@@ -85,10 +106,26 @@ class Canvas:
             space_mappings.reset(token)
 
     def query(self) -> Query:
+        """Return a query helper using this canvas's current fonts and mappings.
+
+        Queries measure values without adding anything to the drawing list.
+        """
         return Query(self)
 
     def resolve(self, graphic: Graphic | Drawing) -> ResolvedGraphic:
-        """Return a detached numerical snapshot in final canvas coordinates."""
+        """Measure an object and return a detached snapshot in Canvas coordinates.
+
+        Args:
+            graphic: Object or placed Drawing to resolve; it is not added to the canvas.
+
+        Returns:
+            Fixed geometry, placements, and typography metrics. Native shape/text
+            identities are retained when possible. Native text output still needs fonts
+            or TeX resources; this is not a self-contained image file.
+
+        With fit/auto-size, the paint list determines the viewport. If it is empty,
+        the requested object supplies the fitting bounds.
+        """
         with self.evaluation():
             root = capture(graphic if isinstance(graphic, Drawing) else Drawing(graphic))
             result = resolve_geometry(root)
@@ -98,7 +135,16 @@ class Canvas:
             )
 
     def draw(self, geometry: Graphic | Drawing, style: Style | None = None) -> None:
-        """Capture authoring state without measuring fonts or flattening geometry."""
+        """Add an object to the end of the paint order without rendering it.
+
+        Args:
+            geometry: Shape, text, composite, Entity, or explicitly placed Drawing.
+            style: Optional paint override for this draw record.
+
+        Built-in mutable paths and Entity states are captured now; later edits
+        require another draw call. Font-dependent positions are measured later.
+        Referencing an object does not draw it automatically.
+        """
         geometry = capture(geometry)
         if isinstance(geometry, Drawing):
             if style is not None:
@@ -114,7 +160,15 @@ class Canvas:
         )
 
     def bounds(self, graphic: Graphic | Drawing) -> Bounds:
-        """Measure geometry or layout using this canvas's font policy."""
+        """Return layout/geometry bounds in final Canvas coordinates, excluding stroke.
+
+        Args:
+            graphic: Object to measure; it need not have been drawn.
+
+        Returns:
+            Axis-aligned bounds. For authoring coordinates instead, use
+            ``canvas.query().bounds(graphic, in_space=WORLD)``.
+        """
         return self.query().bounds(graphic)
 
     def render(
@@ -125,10 +179,24 @@ class Canvas:
         fonts: tuple[Font, ...] | None = None,
         renderer: RendererConfig | None = None,
     ) -> str:
-        """Export with optional ordered defaults for Text without an explicit font.
+        """Return SVG or TikZ source without writing a file.
 
-        Content sizes and anchor references are evaluated for this invocation.
-        Changing export fonts also recomputes dependent connection endpoints.
+        Args:
+            backend: Output adapter; ``None`` uses the canvas default.
+            standalone: Include a complete TikZ document when true; ignored by SVG.
+            fonts: Per-call font override when ``renderer`` is absent.
+            renderer: Per-call font/TeX configuration, taking precedence over ``fonts``.
+
+        Returns:
+            SVG XML or TeX source. Each call reevaluates dependencies and typography.
+
+        Raises:
+            ValueError: The adapter or paint/configuration is unsupported.
+            FileNotFoundError: Required fonts or TeX measurement tools are missing.
+            RuntimeError: TeX measurement fails.
+
+        Even source-only TikZ output measures Text/TeX first; rendering a TeX object
+        can therefore invoke external tools. This method does not compile a final PDF.
         """
         from pdl.rendering.svg.document import render as svg_render
         from pdl.rendering.tikz.document import render as tikz_render
@@ -221,11 +289,29 @@ class Canvas:
         keep_intermediates: bool = False,
         engine: str = "xelatex",
     ) -> None:
-        """Save source and optionally compile TikZ to a sibling PDF.
+        """Write source and optionally compile a TikZ PDF beside it.
 
-        TikZ modes are auto (compile if available), tex (source only), and
-        pdf (require compilation). Intermediate files are discarded by default.
-        Existing auxiliary files from earlier runs are not removed.
+        Args:
+            filename: Source destination; parent directories must already exist.
+                Use ``.svg`` for SVG and ``.tex`` for TikZ. The suffix does not select
+                the backend.
+            backend: Adapter override, or the canvas default.
+            fonts: Per-call font override when ``renderer`` is absent.
+            renderer: Per-call font/TeX configuration.
+            tikz_mode: ``auto`` compiles if the engine exists; ``tex`` saves only source;
+                ``pdf`` requires successful PDF compilation. Ignored by SVG.
+            keep_intermediates: Keep TeX auxiliary files beside source when true.
+            engine: Executable used for final PDF compilation, default ``xelatex``.
+                TeX fragment measurement is configured separately by ``TeXConfig``.
+
+        Missing compilers are tolerated only in auto mode. An available compiler
+        that fails always raises an error. By default compilation uses a temporary
+        folder and copies back the PDF without deleting existing auxiliary files.
+
+        Raises:
+            FileNotFoundError: The output parent or a required tool/font is missing.
+            RuntimeError: External compilation or TeX measurement fails.
+            ValueError: A rendering option or TikZ mode is invalid.
         """
         if tikz_mode not in ("auto", "tex", "pdf"):
             raise ValueError(f"Unknown TikZ output mode: {tikz_mode}")

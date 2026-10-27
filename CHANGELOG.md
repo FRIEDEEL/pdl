@@ -4,6 +4,13 @@
 
 ### Added
 
+- A local Sphinx/MyST documentation site with Furo, Google-style docstring
+  extraction, and a reference for all public exports. Build dependencies live
+  in the optional `docs` group; tutorial assets are generated during the build.
+- English and Chinese tutorials on paint order, text/TeX, transforms, authoring
+  frames, anchors, groups, paths, queries, viewports, resolution, and fill rules,
+  with runnable examples and rendered comparisons.
+
 - English and Chinese step-by-step tutorials covering a Hello world node,
   basic shapes, coordinate guides, strokes and fills, with seven runnable SVG examples.
 

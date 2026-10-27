@@ -40,6 +40,7 @@ class Transform:
         return self.a, self.b, self.c, self.d, self.e, self.f
 
     def apply(self, position: Position) -> Point:
+        """Transform a point, including translation; return a new Point."""
         p = point(position)
         return Point(self.a * p.x + self.c * p.y + self.e, self.b * p.x + self.d * p.y + self.f)
 
@@ -92,15 +93,18 @@ class Transform:
 
     @classmethod
     def translate(cls, x: float, y: float) -> Transform:
+        """Create a translation by x/y millimeters."""
         return cls(e=x, f=y)
 
     @classmethod
     def rotate(cls, angle: float) -> Transform:
+        """Create a counterclockwise rotation about the origin, in degrees."""
         c, s = cos(radians(angle)), sin(radians(angle))
         return cls(c, s, -s, c)
 
     @classmethod
     def scale(cls, x: float, y: float | None = None) -> Transform:
+        """Create x/y scaling; omitted y gives uniform scaling."""
         return cls(a=x, d=x if y is None else y)
 
 

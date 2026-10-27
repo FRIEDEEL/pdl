@@ -5,14 +5,10 @@
 
 ## 给轮廓换个颜色
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-blue = Color(0.15, 0.35, 0.75)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=blue, line_width=0.5))
+```{literalinclude} ../../../examples/tutorial/basics/stroke.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![stroke](../../../examples/output/tutorial/basics/stroke.svg)
@@ -31,15 +27,10 @@ canvas.draw(circle, Style(stroke=blue, line_width=0.5))
 
 保留蓝色描边，在圆里面填上浅蓝色：
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-blue = Color(0.15, 0.35, 0.75)
-light_blue = Color(0.75, 0.85, 1.0)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=blue, fill=light_blue, line_width=0.5))
+```{literalinclude} ../../../examples/tutorial/basics/fill.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![fill](../../../examples/output/tutorial/basics/fill.svg)
@@ -53,14 +44,10 @@ canvas.draw(circle, Style(stroke=blue, fill=light_blue, line_width=0.5))
 
 如果只想要一个实心圆，把 `stroke` 设为 `None`：
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-light_blue = Color(0.75, 0.85, 1.0)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=None, fill=light_blue))
+```{literalinclude} ../../../examples/tutorial/basics/fill_only.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![fill only](../../../examples/output/tutorial/basics/fill_only.svg)
@@ -75,21 +62,10 @@ canvas.draw(circle, Style(stroke=None, fill=light_blue))
 
 多边形和矩形也使用相同的样式选项。下面给上一章的三个图形分别设置不同的外观：
 
-```python
-from pdl import Canvas, Circle, Color, Polygon, Rectangle, Style
-
-triangle = Polygon(((10, 10), (30, 10), (20, 30)))
-rectangle = Rectangle((40, 10), width=25, height=20)
-circle = Circle((85, 20), radius=10)
-
-blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.5)
-orange = Style(fill=Color(1.0, 0.75, 0.4), line_width=0.5)
-green = Style(stroke=None, fill=Color(0.4, 0.75, 0.55))
-
-canvas = Canvas(105, 40)
-canvas.draw(triangle, blue)
-canvas.draw(rectangle, orange)
-canvas.draw(circle, green)
+```{literalinclude} ../../../examples/tutorial/basics/colored_shapes.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![colored shapes](../../../examples/output/tutorial/basics/colored_shapes.svg)
@@ -106,6 +82,6 @@ canvas.draw(circle, green)
 然后把 `fill` 改成 `None`，圆就重新变成只有轮廓的样子。
 
 到这里，你已经能放置基本图形，并设置描边和填充。
-绘制顺序、文字和变换会在后续章节展开；本次教程先写到这里。
+下一章让两个图形重叠，看看绘制顺序怎样影响遮挡。
 
-[上一章：基本图形](02-shapes.md) · [教程目录](index.md)
+[上一章：基本图形](02-shapes.md) · [下一章：谁挡住谁](04-drawing-order.md)

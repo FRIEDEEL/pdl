@@ -5,17 +5,10 @@ Now we will draw shapes directly, without any text inside them.
 
 ## A triangle, a rectangle, and a circle
 
-```python
-from pdl import Canvas, Circle, Polygon, Rectangle
-
-triangle = Polygon(((10, 10), (30, 10), (20, 30)))
-rectangle = Rectangle((40, 10), width=25, height=20)
-circle = Circle((85, 20), radius=10)
-
-canvas = Canvas(105, 40)
-canvas.draw(triangle)
-canvas.draw(rectangle)
-canvas.draw(circle)
+```{literalinclude} ../../../examples/tutorial/basics/shapes.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![shapes](../../../examples/output/tutorial/basics/shapes.svg)
@@ -47,26 +40,10 @@ Let's put just one circle on a smaller canvas. The light gray lines below
 connect its center to the x and y axes. The label `(20, 15)` means 20 mm right
 and 15 mm up from the origin, not from the edge of the circle.
 
-```python
-from pdl import Canvas, Circle, Color, Line, Style, Text
-
-circle = Circle((20, 15), radius=5)
-
-canvas = Canvas(45, 35)
-canvas.draw(circle)
-
-# Optional guides: the actual origin is the lower-left corner of the canvas.
-guide = Style(stroke=Color(0.65, 0.65, 0.65), line_width=0.2)
-canvas.draw(Line((0, 0), (40, 0)), guide)
-canvas.draw(Line((0, 0), (0, 30)), guide)
-canvas.draw(Line((20, 0), (20, 15)), guide)
-canvas.draw(Line((0, 15), (20, 15)), guide)
-canvas.draw(Text("0", position=(1, 1), size=8))
-canvas.draw(Text("x", position=(41, 1), size=8))
-canvas.draw(Text("y", position=(1, 30), size=8))
-canvas.draw(Text("20", position=(21, 1), size=8))
-canvas.draw(Text("15", position=(1, 16), size=8))
-canvas.draw(Text("(20, 15)", position=(26, 15), size=8))
+```{literalinclude} ../../../examples/tutorial/basics/coordinates.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![coordinates](../../../examples/output/tutorial/basics/coordinates.svg)

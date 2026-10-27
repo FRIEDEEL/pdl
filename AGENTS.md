@@ -112,6 +112,31 @@
   uv run pytest
   ```
 
+## Reader Documentation
+
+- Use Sphinx with MyST for the documentation site, autodoc for public API
+  signatures/docstrings, and Napoleon for Google-style docstrings.
+- Maintain English tutorials under `docs/tutorial/en/` and corresponding Chinese
+  versions under `docs/tutorial/zh/`. The shared API reference uses English
+  source docstrings; do not present it as a translated Chinese reference.
+- Teach drawing step by step, introducing only a few new concepts per example.
+  Use Manim Community tutorials for teaching rhythm and the PGF/TikZ manual
+  for graphical explanations and terminology. Do not imply unsupported TikZ
+  syntax or features are available in pdl.
+- Pair each tutorial step with runnable source under `examples/tutorial/` and
+  its actual rendered output. Use axes, guide lines, control points, or
+  before/after comparisons when they help explain the current topic.
+- Explain file saving in Hello world. Later body snippets show drawing code
+  only; keep path handling and export plumbing in the linked full examples.
+  Include source with `literalinclude` rather than maintaining copied snippets.
+- Introduce common drawing operations before rendering internals. Teach basic
+  Path construction before advanced subpaths, fill rules, and backend lowering.
+- Document units, coordinate meanings, defaults, mutation/capture behavior, and
+  material limitations in API docstrings, with short examples where useful.
+- Build with `uv run --group docs sphinx-build -W --keep-going -b html docs
+  docs/_build/html`. The build generates tutorial images; inspect the actual
+  output as well as checking build warnings. Keep generated artifacts out of Git.
+
 ## Development Log
 
 - Use `DEVLOG.md` to record project motivation, ideas, design discussions,
