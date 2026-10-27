@@ -137,14 +137,3 @@ contain/cover/stretch fitting. SVG embeds bytes; keep the generated asset folder
 beside exported TikZ source. [Gradients](docs/tutorial/en/20-gradients.md) use
 normalized local shape bounds. Native text/TeX remain solid-color only; isolated
 group opacity and layer groups are outside this stage.
-
-## Microscope design study
-
-Run `uv run python -m examples.spatial.microscope` to generate an assembled and
-exploded microscope poster in `examples/output/spatial/` (SVG, TikZ and PDF;
-PDF export requires TeX). The source is [microscope.py](examples/spatial/microscope.py).
-Fifteen named `Part` objects own local solids, assembly origins and explosion
-offsets; both views share the same geometry. Labels are added after projection
-and reference the named parts. Colors and camera settings are at the top of the
-script. Dimensions are illustrative, not manufacturing specifications; optics,
-transparent glass, stage apertures and mechanical internals are simplified.

@@ -120,12 +120,3 @@ contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保�
 
 三维多面体支持正交与[透视投影](docs/tutorial/zh/24-perspective.md)，按面中心深度近似排序；
 保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/25-depth-order.md)。
-
-## 显微镜设计示例
-
-运行 `uv run python -m examples.spatial.microscope`，在
-`examples/output/spatial/` 生成装配态与展开态对照海报（SVG、TikZ 和 PDF；
-PDF 导出需要 TeX）。源码见 [microscope.py](examples/spatial/microscope.py)。
-十五个命名 `Part` 对象分别管理局部实体、装配原点和展开位移，两幅图共用同一套几何。
-标注在投影后添加，通过部件名称定位；配色和相机集中在脚本顶部。
-尺寸仅用于示意，不是制造规格；光学、透明玻璃、载物台通光孔及机械内部均作简化。
