@@ -8,6 +8,7 @@ from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing
 from pdl.scene.paint import Color, Style
 from pdl.spatial.coordinates import Point3D, Vector3D
+from pdl.spatial.curves import Cylinder, Sphere, project_cylinder, project_sphere
 from pdl.spatial.solids import Polyhedron, Surface3D, centroid, face_normal
 
 
@@ -86,16 +87,17 @@ class Scene3D:
     splitting, intersection resolution, hidden-line extraction or backface
     culling is performed. Painter ordering can fail for overlapping depth
     intervals or cyclic occlusion. ``sort_faces=False`` preserves supplied
-    object/face order for manual control. Separate scenes follow Canvas order.
+    object/face order for manual control. Spheres and cylinders sort as whole
+    objects by center depth. Separate scenes follow Canvas order.
     """
 
-    objects: tuple[Polyhedron | Surface3D, ...]
+    objects: tuple[Polyhedron | Surface3D | Sphere | Cylinder, ...]
     camera: OrthographicCamera = OrthographicCamera()
     light: DirectionalLight | None = DirectionalLight()
     sort_faces: bool = True
 
     def decompose(self) -> tuple[Drawing, ...]:
-        """Return projected vector drawings with per-face solid colors."""
+        """Return projected vectors with flat face colors or smooth curve gradients."""
         items: list[tuple[float, Drawing]] = []
         for obj in self.objects:
             if isinstance(obj, Polyhedron):
@@ -114,6 +116,13 @@ class Scene3D:
                         ),
                     )
                     items.append((self.camera.depth(centroid(points)), drawing))
+            elif isinstance(obj, (Sphere, Cylinder)):
+                drawing = (
+                    project_sphere(obj, self.camera, self.light)
+                    if isinstance(obj, Sphere)
+                    else project_cylinder(obj, self.camera, self.light)
+                )
+                items.append((self.camera.depth(obj.center), drawing))
             else:
                 origin = self.camera.project(obj.plane.origin)
                 u = obj.plane.u
