@@ -23,3 +23,5 @@ Gather 收集已有操作单位，不改变它们所属的 Group 或 Layer。它
 因此先选中、后组合也不会重复变换。members 可以查看实际目标。目标 Group 解散后应重新建立选择。
 
 试试把 marker 加入 second，它就会依次接受两条命令，各执行一次。
+
+[单独比较 Group、Layer 与 Gather 的语义](groups-layers-gathers.md)

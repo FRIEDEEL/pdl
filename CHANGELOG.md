@@ -10,6 +10,9 @@
 
 ### Added
 
+- A bilingual Group/Layer/Gather comparison chapter with a shared-member
+  example showing how overlapping selections change one another's arrangement.
+
 - Layer.upper/lower read current adjacent layers without creating them; missing
   neighbors, including on unattached layers, return None.
 

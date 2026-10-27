@@ -393,3 +393,10 @@
 - 破坏性调整：insert_before／after 与 move_before／after 删除，分别改为 insert_below／above 与 move_below／above，无兼容别名。同步迁移测试和示例，在 Git 提交中标明 breaking change。
 - 中英文图层教程补充相邻层、缺失邻居和无活动层计数器的说明；自动 API reference 已生成新接口。实际检查教程层序图，绘制结果不变。
 - Ruff、格式检查、Pyright strict 通过；pytest 184 项通过（新增边界、动态邻居、移层及外来层错误测试），Sphinx -W 构建成功。按授权分步提交并合入 dev，不推送或发布。
+
+### 2026-10-28 01:58:03
+
+- 用户要求将 Group／Layer／Gather 的区别独立成章，重点说明同一实例可属于多个 Gather，以及共享成员的命令会改变其他集合内部的排列。新增英文源教程 groups-layers-gathers.md 与对应中文版本，置于图层章之后，原 Gather／Layer 章增加交叉链接。
+- 精确定义：Gather 保存成员身份，不保存局部坐标或关系约束；单次命令仍对所有选中单位应用共同世界空间变换，共享目标在不同命令中分别接受操作。同一命令去重。Group 保留局部结构，Gather 选组内元素会提升到最外层 Group；但显式编辑组合成员仍能改变其内部关系，不能称为刚体约束。
+- 新增 examples/tutorial/layout/shared_gathers.py，g1={A,B} 与 g2={B,C} 共享同一 B。上图仅执行 g1 上移，下图依次执行两条命令，灰色原位作为对比。实际生成并查看 SVG 与 XeLaTeX PDF，解释两组相对排列如何互相改变。示例加入文档生成流程，不改动库实现。
+- Ruff、格式检查、Pyright strict 通过；pytest 184 项通过；Sphinx -W 构建成功，实际核对章节跳转锚点。生成图不入 Git，原未跟踪 PREFERENCES.md 保持不动。按授权提交并合入 dev，不推送或发布。

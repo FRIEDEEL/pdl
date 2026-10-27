@@ -66,3 +66,5 @@ Try moving foreground below background before saving.
 
 Use Gather to preserve the sandwich; use Group when the selected parts should
 become one indivisible spatial and coverage unit.
+
+[Compare Group, Layer, and Gather](groups-layers-gathers.md)
