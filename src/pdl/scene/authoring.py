@@ -35,8 +35,11 @@ def _capture[T](value: T, memo: dict[int, object]) -> T:
     memo[id(value)] = value
     if isinstance(value, CoordinateSystem):
         return value
+    from pdl.components.flowchart import FlowNode
     from pdl.scene.composition import Group
 
+    if isinstance(value, FlowNode):
+        return cast(T, value.snapshot())
     if isinstance(value, Group):
         return cast(T, value.snapshot())
     if isinstance(value, Entity):
