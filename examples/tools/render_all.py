@@ -17,6 +17,8 @@ from examples.geometry.gallery import gallery
 from examples.relationships.anchors import example as anchors
 from examples.relationships.anchors import export_variants
 from examples.relationships.instances import example as instances
+from examples.spatial.curved_solids import example as curved_solids
+from examples.spatial.curved_solids import views as curved_views
 from examples.spatial.planes import example as planes
 from examples.spatial.platonic_solids import example as platonic_solids
 from examples.text.labels import example as text
@@ -48,6 +50,7 @@ def main() -> None:
         coordinates,
         planes,
         platonic_solids,
+        curved_solids,
     ):
         canvas = build()
         source = inspect.getfile(build)
@@ -59,6 +62,11 @@ def main() -> None:
             for variant in export_variants(canvas):
                 compile_tikz(variant)
         print(f"Generated outputs at {base}", flush=True)
+    curves_base = output_base(inspect.getfile(curved_solids)).with_name("curved_solids-views")
+    curved_canvas = curved_views()
+    curved_canvas.save(curves_base.with_suffix(".svg"))
+    curved_canvas.save(curves_base.with_suffix(".tex"), backend="tikz", tikz_mode="tex")
+    compile_tikz(curves_base)
     embedded = output_base(inspect.getfile(tex)).parent / "tex-embedded.tex"
     compile_tikz(embedded)
 

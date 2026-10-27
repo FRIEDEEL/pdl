@@ -97,3 +97,21 @@ All 3D positions use right-handed millimeter coordinates.
 ```{eval-rst}
 .. autofunction:: pdl.regular_polyhedron
 ```
+
+## Cylinder
+
+```{eval-rst}
+.. autoclass:: pdl.Cylinder
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```
+
+## Sphere
+
+```{eval-rst}
+.. autoclass:: pdl.Sphere
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```

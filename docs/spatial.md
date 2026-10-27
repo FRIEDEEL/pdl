@@ -103,6 +103,49 @@ whose world location is converted through nested frames.
 
 ![Plane placement](../examples/output/spatial/planes.svg)
 
+## Smooth cylinders and spheres
+
+`Cylinder(base=Point3D(...), radius=10, height=25, axis=Vector3D(0, 0, 1))`
+defines a closed circular cylinder. The base is a disk center; height is positive,
+and the nonzero axis points toward the top (its magnitude is ignored).
+`Sphere(center=Point3D(...), radius=10)` defines a sphere. Both accept intrinsic
+`color`, silhouette `stroke` (or `None`) and Canvas-millimeter `line_width`.
+Dimensions must be finite and positive. Add either object to `Scene3D.objects`.
+Orient a cylinder with its axis; general affine ellipsoids are not supported.
+
+These objects use **smooth vector gradients, not surface tessellation**:
+
+- Cylinder: the visible side is one curved patch. Its 33 linear-gradient stops
+  sample the world-normal Lambert formula across the projected width, remaining
+  constant along the axis. The facing cap is a solid-color ellipse. Along-axis
+  views show only the facing disk; exact side views omit the edge-on cap.
+- Sphere: one circle uses a radial-gradient approximation. In camera coordinates,
+  let `(sx, sy, sz)` be the unit direction toward the source and
+  `l = sqrt(sx² + sy²)`. The normalized gradient center is
+  `(0.5 + 0.35*sx, 0.5 + 0.35*sy)` and radius is `0.5 + 0.15*l`.
+  Peak diffuse strength is 1 for `sz >= 0`, otherwise `l`. Between the bright
+  center and ambient boundary, 33 stops sample `(1 + cos(pi*t))/2`, giving
+  a smooth falloff. This is a visual approximation, **not pointwise Lambert
+  lighting**. Direct backlight produces ambient-only color.
+
+`light=None` produces intrinsic solid fills. SVG uses native `linearGradient`
+and `radialGradient`; TikZ/PDF uses the existing functional-shading adapter with
+identical stops, transforms and direct RGB interpolation. Curved boundaries use
+cubic Bezier arcs; no raster fill, SVG lighting filter or gradient mesh is needed.
+Spheres/cylinders sort atomically by their center depth, without interleaving their
+surfaces with other objects. Intersection and cyclic-occlusion limits still apply.
+
+Run `uv run python -m examples.spatial.curved_solids` to generate light-direction
+comparisons and camera/axis checks in SVG, TikZ and PDF.
+
+![Smooth curved solids](../examples/output/spatial/curved_solids.svg)
+
+![Cylinder camera checks](../examples/output/spatial/curved_solids-views.svg)
+
+```{literalinclude} ../examples/spatial/curved_solids.py
+:language: python
+```
+
 ## Occlusion limits
 
 Within one `Scene3D`, faces from all solids are sorted together by centroid depth,

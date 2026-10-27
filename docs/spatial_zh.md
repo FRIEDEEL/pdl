@@ -91,6 +91,43 @@ face_rgb = intrinsic_rgb * intensity
 
 ![Plane placement](../examples/output/spatial/planes.svg)
 
+## 光滑圆柱与球面
+
+`Cylinder(base=Point3D(...), radius=10, height=25, axis=Vector3D(0, 0, 1))`
+定义封闭圆柱，base 是底面圆心，height 是正的轴向高度，非零 axis 从底面指向顶面，
+向量长度不影响结果。`Sphere(center=Point3D(...), radius=10)` 定义球体。
+两者都接受固有色 `color`、轮廓色 `stroke`（可设为 `None`）和 Canvas 毫米线宽
+`line_width`。尺寸必须有限且为正，直接加入 `Scene3D.objects` 即可。
+圆柱通过 axis 定向，暂不支持一般仿射变换后的椭球。
+
+两者采用**连续矢量渐变，不使用曲面分片**：
+
+- 圆柱侧面是一个曲边区域，沿投影宽度取 33 个色标，按真实世界法向计算 Lambert
+  亮度，再用线性渐变插值，沿轴向保持同色。朝向观察者的端面是单色椭圆；
+  沿轴观察时只画端面圆，纯侧视时不画退化端面。
+- 球面是一个圆，填充径向渐变。设相机坐标中的朝向光源单位向量为 `(sx, sy, sz)`，
+  `l = sqrt(sx² + sy²)`。归一化渐变中心为
+  `(0.5 + 0.35*sx, 0.5 + 0.35*sy)`，半径为 `0.5 + 0.15*l`；
+  `sz >= 0` 时漫反射峰值为 1，否则为 l。亮区到环境光边界用 33 个色标采样
+  `(1 + cos(pi*t))/2`，得到平缓过渡。这是**视觉近似，不逐点满足 Lambert 公式**。
+  光源正处于背面时只保留环境光。
+
+`light=None` 时使用固有色纯色填充。SVG 使用原生线性／径向渐变，TikZ／PDF
+复用已有函数式 shading，使用相同色标、变换和直接 RGB 插值。曲边通过三次贝塞尔
+圆弧近似，不需要栅格填充、SVG 光照滤镜或渐变网格。
+球和圆柱都按中心深度整体排序，不与其他物体的表面交错排序；面相交与循环遮挡限制仍然适用。
+
+运行 `uv run python -m examples.spatial.curved_solids`，生成不同光方向和圆柱特殊视角的
+SVG、TikZ 与 PDF 对比图。
+
+![光滑曲面](../examples/output/spatial/curved_solids.svg)
+
+![圆柱视角检查](../examples/output/spatial/curved_solids-views.svg)
+
+```{literalinclude} ../examples/spatial/curved_solids.py
+:language: python
+```
+
 ## 遮挡边界
 
 同一个 `Scene3D` 中，所有多面体的面统一按面中心深度从远到近排序，同深度保持输入顺序。
