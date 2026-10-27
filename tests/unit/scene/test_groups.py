@@ -78,3 +78,10 @@ def test_member_move_to_and_explicit_paint_in_transformed_parent() -> None:
     assert child.snapshot().placed().style is explicit
     group.dismiss()
     assert child.snapshot().placed().style is explicit
+
+
+def test_transformed_description_child_keeps_group_default_paint() -> None:
+    red = Style(fill=Color(1, 0, 0))
+    group = Group((Drawing(Circle((0, 0), 1)),), style=red)
+    placed = Drawing(group.transformed(Transform.translate(10, 0)))
+    assert placed.child(0).style is red

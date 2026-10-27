@@ -115,7 +115,10 @@ class GroupDescription:
 
     def child(self, index: int) -> Drawing:
         """Address a child in this group's parent coordinate space."""
-        return self.children[index].transformed(self.transform)
+        child = self.children[index].transformed(self.transform)
+        return Drawing(
+            child.geometry, child.style if child.style is not None else self.style, child.transform
+        )
 
     @property
     def bounds(self) -> Bounds:
