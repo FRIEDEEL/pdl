@@ -51,3 +51,5 @@ layer.to_gather() 收集当前顶层成员以执行空间操作，包含已分�
 3. 改用 Group 组合底板和盖板后，二者整体提升到最高成员层，底板会盖住中间物件的下缘。
 
 想保持三明治结构并共同操作，用 Gather；想将选中部分变成不可穿插的整体，用 Group。
+
+[单独比较 Group、Layer 与 Gather 的语义](groups-layers-gathers.md)

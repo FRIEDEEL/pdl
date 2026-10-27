@@ -29,3 +29,5 @@ cannot transform a child twice. Use `members` to inspect the actual targets.
 Recreate selections targeting a dismissed Group.
 
 Try adding `marker` to `second`; it will receive both commands exactly once each.
+
+[Compare Group, Layer, and Gather](groups-layers-gathers.md)

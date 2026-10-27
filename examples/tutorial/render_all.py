@@ -37,6 +37,7 @@ MODULES = (
     "layout.editable_groups",
     "layout.gathers",
     "layout.layers",
+    "layout.shared_gathers",
     "media.images",
     "paint.gradients",
     "paint.opacity",

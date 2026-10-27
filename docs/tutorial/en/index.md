@@ -32,6 +32,7 @@ XeLaTeX and dvisvgm; see chapter 5 before running the full set.
 16-editable-groups
 17-gathers
 18-layers
+groups-layers-gathers
 19-images
 20-gradients
 21-project-3d
