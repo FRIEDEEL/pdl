@@ -16,6 +16,16 @@
 - Automatic default fonts for initial renders and examples comparing font
   choices on the same authoring objects.
 
+- Mutable `Entity` authoring handles with captured anchor/space descriptions,
+  independent draw records, and in-place placement transformations.
+- Nested Cartesian coordinate systems, canvas-specific mappings, explicit
+  space points/vectors, inverse transforms, pivoted transforms, shear and reflection.
+- Canvas-bound queries, fixed resolved snapshots retaining native object identity,
+  text ink bounds, and Canvas-to-authoring point conversion.
+- `fit`, `auto_size`, and default `clip` viewport policies with padding, plus a
+  square/triangle/circle example demonstrating captured and renewed attachments.
+- Analytic affine circle/elliptical-arc bounds and explicit empty bounds.
+
 ### Changed
 
 - **Breaking:** `Node.anchor()` and `Group.anchor()` return `AnchorRef` instead
@@ -26,6 +36,12 @@
   using that invocation's font configuration. Paint order remains unchanged.
 - Backends select supported native objects before general decomposition.
 
+- **Breaking:** drawing a mutable built-in `Path` now captures its commands;
+  later edits require another `draw` call. Immutable geometry retains identity.
+- `Canvas.bounds()` now returns final Canvas coordinates by default; request
+  `canvas.query().bounds(object, in_space=WORLD)` for authoring world coordinates.
+- Rendering now resolves dependencies through a common stage before adapter dispatch.
+
 ### Limitations
 
 - Generic arc lowering and rotated TikZ arcs use cubic approximation.
@@ -33,3 +49,7 @@
   backend-specific options remain outside this stage.
 - Native SVG and LaTeX text metrics may differ slightly. Default font coverage
   depends on the installed fonts; explicit font stacks remain available.
+- Fitted viewports reserve conservative stroke margins rather than exact painted
+  bounds. Text scales with geometry; stroke widths stay in Canvas millimeters.
+- Custom composites must provide immutable descriptions. Nonlinear frames,
+  curve lengths, closest-point queries and general intersections are deferred.

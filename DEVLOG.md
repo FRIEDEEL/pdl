@@ -261,3 +261,19 @@
 - 合并结果上的 Ruff、格式检查、Pyright strict 全部通过，pytest 77 项全部通过。`uv build` 成功；解包 wheel 后从包内独立导入，验证新增模块和延迟锚点的 SVG／TikZ 输出。
 - 当前边界：支持锚点引用与固定偏移、Node 相对位置、Connection 端点／途经点及放置实例引用；不实现完整符号表达式、自动布局或自动布线。画布尺寸仍定义视口，不隐式缩放物件。TikZ 原生文字仍由 LaTeX 字体引擎处理，允许与 SVG 存在细微度量差异。
 - `release/0.1.0` 保持原 Stage 2 提交；未推送、发布或打标签。此前文档草稿 stash 原样保留。
+
+### 2026-10-27 18:25:00
+
+- 用户确认本阶段实现通用二维几何／坐标基础设施，取消动漫角色矢量重建，改用正方形、三角形、圆的依赖及变换验收示例。
+- 架构共识：Authoring 保存描述与未求值关系；Resolved 保存本次确定结果；后端是输出适配器。Resolved 保留高级形状、确定矩阵、Node 与已测量文字，不强制统一烘焙为 Path。
+- 引用语义调整：默认是“延迟求值的描述捕获”，不是持续跟随可变对象。Entity.anchor／space 捕获当前描述；随后修改 A 不改变 B 已捕获的 A 状态。draw 捕获本次状态；同一 Entity 后续变换再 draw 得到独立记录。整体联动用 Group。
+- 数值几何类型继续复用；新增 Entity 放置句柄提供原地 move_to／transform／translate／rotate／scale／reflect。move_to 定位变换后局部边界中心；后加变换在 Authoring 世界空间作用于已有放置，未改写数值几何。
+- 新增不可变描述 Placement 及捕获流程：共享不可变数据，对内置可变 Path／Entity 递归捕获，保留共享状态。自定义 Composite 必须提供不可变描述，不宣称可冻结任意用户对象。
+- 坐标链为局部／子空间 → Authoring 世界 → Canvas。新增 CoordinateSystem、SpacePoint、SpaceVector、WORLD，支持子空间、Canvas 独立映射、捕获的实例空间、点／向量转换和显式空间偏移。普通坐标仍可直接使用；不引入非线性坐标系。
+- Transform 补充逆、行列式、向量变换、绕点变换、剪切、直线镜像。不可逆转换明确报错；正向退化几何仍允许。圆与椭圆弧的仿射边界采用解析极值；空 Bounds 不再把原点加入非空内容。
+- 公共求值从现有 LayoutContext 演进，按依赖求值、按 draw 顺序绘制，求值依赖不自动绘制目标。确定结果复用数值形状；MeasuredText／MeasuredTeX 保持既有类型身份并固定测量结果，Node 保留原生输出机会。
+- Canvas 增加 resolve／query，以及 fit、auto_size、clip。query 默认返回最终 Canvas 数值，可指定 Authoring 空间；from_canvas 将数值转换回固定 Authoring 坐标，不恢复依赖。无绘制列表的 bounds／resolve 使用被查询对象适配，点查询只使用基础映射。
+- fit 等比例居中，auto_size 保持比例并调整输出尺寸，clip 延续固定视口；支持 padding。文字随几何缩放，线宽维持 Canvas 毫米。适配使用排版边界与保守描边余量，不宣称精确绘制轮廓；内置坐标暂不依赖视口宽高，故没有内置画布尺寸循环。
+- 新增 examples/coordinates/relationships.py：旧状态捕获、移动旋转正方形后重新挂接圆、原始三件组件镜像／旋转、字体依赖 Node，提供三种视口输出。实际查看 SVG 渲染和 XeLaTeX PDF，修复旧锚点过早求值及标签遮挡；无像素基准。
+- 新增英文专题 docs/coordinates.md 及对应中文说明，保留此前暂停的 README 草稿和 stash，不恢复改写。
+- 检查记录：Ruff、格式检查、Pyright strict 通过；pytest 103 项通过；uv build 成功。全部 9 个主示例生成并编译，既有字体变体及文章嵌入示例亦成功。合并后还需最终检查，阶段验收交由用户。
