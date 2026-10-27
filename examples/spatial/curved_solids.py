@@ -41,10 +41,14 @@ def example() -> Canvas:
     for i, (label, light) in enumerate(lights):
         x = 35 + i * 52
         panels.append(
-            Drawing(Scene3D((sphere,), CAMERA, light), transform=Transform.translate(x, 90))
+            Drawing(
+                Scene3D((sphere,), CAMERA, light).project(), transform=Transform.translate(x, 90)
+            )
         )
         panels.append(
-            Drawing(Scene3D((cylinder,), CAMERA, light), transform=Transform.translate(x, 38))
+            Drawing(
+                Scene3D((cylinder,), CAMERA, light).project(), transform=Transform.translate(x, 38)
+            )
         )
         labels.append(Text(label, font=font, position=(x - 17, 115), size=11))
     title = Text("Smooth curved solids", font=font, position=(8, 140), size=20)
@@ -89,7 +93,9 @@ def views() -> Canvas:
     for i, (label, camera) in enumerate(cameras):
         obj = tilted if i == 3 else cylinder
         panels.append(
-            Drawing(Scene3D((obj,), camera), transform=Transform.translate(32 + i * 53, 39))
+            Drawing(
+                Scene3D((obj,), camera).project(), transform=Transform.translate(32 + i * 53, 39)
+            )
         )
         labels.append(Text(label, font=font, position=(15 + i * 53, 10), size=10))
     title = Text("Cylinder camera and axis checks", font=font, position=(8, 72), size=16)

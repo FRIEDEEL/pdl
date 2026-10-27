@@ -45,7 +45,7 @@ def example() -> Canvas:
         center = 26 + i * 49
         solid = regular_polyhedron(kind, radius=20, color=BASE_COLOR)
         solid = solid.transformed(Transform3D.rotate(12, Vector3D(0, 0, 1)))
-        scene = Scene3D((solid,), camera=CAMERA, light=LIGHT)
+        scene = Scene3D((solid,), camera=CAMERA, light=LIGHT).project()
         scenes.append(Drawing(scene, transform=Transform.translate(center, 46)))
         labels.append(Text(name, font=font, position=(center - 19, 17), size=11))
         details.append(
