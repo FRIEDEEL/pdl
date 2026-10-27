@@ -1,0 +1,6 @@
+*
+!.gitignore
+!visibility/
+!visibility/*.py
+!visibility/*.md
+visibility/output/
