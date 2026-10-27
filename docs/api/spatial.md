@@ -124,3 +124,12 @@ All 3D positions use right-handed millimeter coordinates.
    :undoc-members:
    :member-order: bysource
 ```
+
+## PerspectiveCamera
+
+```{eval-rst}
+.. autoclass:: pdl.PerspectiveCamera
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```

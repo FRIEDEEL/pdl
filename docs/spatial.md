@@ -104,8 +104,9 @@ constructing scene geometry.
 `Plane3D(origin, u, v)` embeds local `(x, y)` as `origin + x*u + y*v`. Independent
 basis vectors may be nonorthogonal or nonunit. The plane normal is normalized
 `u.cross(v)`. The infinite plane is not itself drawn: `plane.place(graphic, style)`
-puts finite 2D geometry, groups or labels into it. Projection is an affine mapping,
-so circles become ellipses and text follows the plane. Canvas captures built-in
+puts finite 2D geometry, groups or labels into it. Orthographic projection is an affine mapping,
+so circles become ellipses and native text follows the plane. Perspective
+projection instead outlines and maps plane content as vector paths. Canvas captures built-in
 mutable paths/entities inside the scene at `draw`, as in 2D drawings.
 
 Planar artwork retains its own styles. For a lit panel, choose its fill explicitly
@@ -132,8 +133,8 @@ Text, paths and Groups are allowed; no raster texture is required.
 
 Artwork is captured at projection, stays paired with its face during sorting,
 and uses the complete plane affine transform. Text measurement still happens
-in the later 2D evaluation. Face artwork is one-sided, omitted when back-facing
-or edge-on, and not automatically shaded or clipped to the face boundary. Keep
+in the later 2D evaluation. Back-facing artwork is retained and mirrored; edge-on artwork may collapse.
+Artwork is not automatically shaded or clipped to the face boundary. Keep
 it within the face; use explicit text paint. Geometry transforms transport its
 physical placement, including scaling and reflection.
 
@@ -201,6 +202,27 @@ their explicit depth references. Separate scenes follow Canvas drawing order.
 
 This painter algorithm does not split intersecting faces or resolve cyclic
 occlusion. Overlapping depth intervals can produce incorrect order. No automatic
-hidden-edge dashes, transparency solver, perspective, backface culling or geometric
-clipping is provided. Closed opaque convex solids are the intended first use.
-For manual ordering, set `sort_faces=False` and arrange objects/faces yourself.
+hidden-edge dashes, exact transparency solver, backface culling or geometric
+clipping is provided. Faces are assumed not to intersect. Polyhedron.opacity
+controls per-face transparency while retaining back faces and their artwork.
+For manual ordering, set `sort_faces=False` and arrange objects/faces yourself,
+or use `projected.reordered(order)` to permute the current complete drawing list.
+Neither override resolves cyclic occlusion.
+
+
+## Perspective
+
+`PerspectiveCamera` shares the orthographic angles and target. `distance=100`
+places the eye along toward_viewer; `focal_length=100` controls image scale;
+`near=0.1` rejects points too close to or behind the eye. All are millimeters,
+finite and positive, with near < distance. Equal distance/focal_length preserve
+scale on the target plane. Polyhedra and solid-filled path-compatible planar
+artwork are supported; Sphere/Cylinder remain orthographic-only. Perspective
+plane text becomes vector outlines in the later Canvas context; curves use
+adaptive polylines with 0.02 mm local projection tolerance. Constant-width
+strokes are retained. No near-plane cutting, gradients or embedded images on
+perspective planes are supported. Add ordinary 2D legends after projection.
+
+See [Perspective](tutorial/en/24-perspective.md) and
+[Transparency and depth order](tutorial/en/25-depth-order.md) for runnable
+comparisons, camera parameters, manual order and the exact scope limits.

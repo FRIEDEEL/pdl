@@ -32,7 +32,8 @@ The bottom captions are added after projection and stay face-on. The artwork's
 Node suppresses its box with `Style(stroke=None)`, retaining centered text only.
 Keep artwork within the intended boundary yourself; clipping is not provided.
 When a plane is exactly edge-on, its chart collapses; native text is omitted rather
-than expanded into readable face-on labels. There is no perspective projection.
+than expanded into readable face-on labels. For perspective mapping and vector text outlines, continue to
+[chapter 24](24-perspective.md).
 
 Try changing the tilt from 55 to 20 degrees. The chart becomes less compressed,
 while its independently drawn caption keeps the same shape.

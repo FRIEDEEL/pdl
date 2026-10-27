@@ -133,6 +133,8 @@ class Polyhedron:
     Inter-face intersections, manifold topology and whole-solid convexity are
     not checked. Faces may be concave, but must be simple and nondegenerate.
     Holes are not supported. Face colors override color by index.
+    opacity (default 1) applies independently to each face fill and stroke;
+    attached artwork retains its own style and opacity. Back faces are retained.
     Transforms return a new solid; normals are recomputed from transformed faces.
     """
 
@@ -143,11 +145,12 @@ class Polyhedron:
     stroke: Color | None = BLACK
     line_width: float = 0.25
     face_artwork: tuple[Drawing | None, ...] | None = None
+    opacity: float = 1
 
     def __post_init__(self) -> None:
         if not self.vertices or not self.faces:
             raise ValueError("A polyhedron needs vertices and faces.")
-        Style(stroke=self.stroke, line_width=self.line_width)
+        Style(stroke=self.stroke, line_width=self.line_width, opacity=self.opacity)
         if self.face_colors is not None and len(self.face_colors) != len(self.faces):
             raise ValueError("Provide exactly one color per face.")
         if self.face_artwork is not None and len(self.face_artwork) != len(self.faces):
@@ -198,9 +201,10 @@ class Polyhedron:
         """Return a solid with 2D artwork attached to one face's local chart.
 
         Artwork replaces the previous entry for this face. It is not clipped
-        or lit automatically, so keep it within the face boundary. Native
-        text follows the full plane affine transform. Back-facing/edge-on
-        artwork is omitted; opaque faces still use the ordinary depth sort.
+        or lit automatically, so keep it within the face boundary. Text follows
+        the plane transform (outlined under perspective).
+        Back-facing artwork is retained and mirrored; opaque and transparent
+        faces use the same approximate center-depth sort.
         Mutable built-ins are captured when Scene3D.project is called.
         """
         self.face_plane(index)

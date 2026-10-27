@@ -36,6 +36,8 @@ groups-layers-gathers
 21-project-3d
 22-plane-artwork
 23-d10
+24-perspective
+25-depth-order
 ```
 
 [English version](../en/index.md) · [API 接口文档](../../api/index.md)

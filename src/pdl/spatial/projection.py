@@ -1,4 +1,4 @@
-"""Orthographic cameras, directional flat shading and painter ordering."""
+"""Cameras, directional flat shading and approximate painter ordering."""
 
 from dataclasses import dataclass
 from math import cos, isfinite, radians, sin
@@ -81,6 +81,50 @@ class OrthographicCamera:
 
 
 @dataclass(frozen=True)
+class PerspectiveCamera(OrthographicCamera):
+    """Pinhole camera looking at target with the same angle convention as orthographic.
+
+    Args:
+        distance: Eye-to-target distance in millimeters, default 100.
+        focal_length: Eye-to-image-plane distance in millimeters, default 100.
+        near: Minimum permitted eye-space distance in millimeters, default 0.1.
+
+    The eye is target + distance*toward_viewer. The target maps to (0, 0);
+    its plane has scale focal_length/distance. Larger depth is closer, as for
+    OrthographicCamera; it is axial depth, not Euclidean distance to the eye.
+    Points at or behind near raise ValueError; geometry is never clipped.
+    Only polygon solids and path-compatible planar artwork are supported.
+    """
+
+    distance: float = 100
+    focal_length: float = 100
+    near: float = 0.1
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if not all(isfinite(v) and v > 0 for v in (self.distance, self.focal_length, self.near)):
+            raise ValueError("Perspective distances must be finite and positive.")
+        if self.near >= self.distance:
+            raise ValueError("Near distance must be smaller than eye-to-target distance.")
+
+    @property
+    def eye(self) -> Point3D:
+        """World position of the pinhole."""
+        return self.target + self.toward_viewer * self.distance
+
+    def project(self, point: Point3D) -> Point:
+        """Project a point; reject points at or behind the near plane."""
+        axial = self.distance - self.depth(point)
+        if axial <= self.near:
+            raise ValueError(
+                "Perspective geometry must lie beyond the near plane; clipping is unsupported."
+            )
+        flat = super().project(point)
+        scale = self.focal_length / axial
+        return Point(flat.x * scale, flat.y * scale)
+
+
+@dataclass(frozen=True)
 class Scene3D:
     """Project solids and planar drawings into an ordinary 2D composite.
 
@@ -94,7 +138,7 @@ class Scene3D:
     """
 
     objects: tuple[Polyhedron | Surface3D | Sphere | Cylinder, ...]
-    camera: OrthographicCamera = OrthographicCamera()
+    camera: OrthographicCamera | PerspectiveCamera = OrthographicCamera()
     light: DirectionalLight | None = DirectionalLight()
     sort_faces: bool = True
 
@@ -128,16 +172,18 @@ class Scene3D:
                             stroke=obj.stroke,
                             line_width=obj.line_width,
                             line_join="round",
+                            opacity=obj.opacity,
                         ),
                     )
                     artwork = None if obj.face_artwork is None else obj.face_artwork[i]
-                    normal = face_normal(points)
-                    if artwork is not None and normal.dot(self.camera.toward_viewer) > 1e-10:
+                    if artwork is not None:
                         surface = obj.face_plane(i)
-                        overlay = artwork.transformed(self._plane_matrix(surface))
+                        overlay = self._plane_drawing(surface, artwork)
                         drawing = Drawing(GroupDescription((drawing, overlay)))
                     items.append((self.camera.depth(centroid(points)), drawing))
             elif isinstance(obj, (Sphere, Cylinder)):
+                if isinstance(self.camera, PerspectiveCamera):
+                    raise ValueError("Sphere and Cylinder currently require OrthographicCamera.")
                 drawing = (
                     project_sphere(obj, self.camera, self.light)
                     if isinstance(obj, Sphere)
@@ -148,7 +194,7 @@ class Scene3D:
                 items.append(
                     (
                         self.camera.depth(obj.depth_point),
-                        obj.drawing.transformed(self._plane_matrix(obj.plane)),
+                        self._plane_drawing(obj.plane, obj.drawing),
                     )
                 )
         if self.sort_faces:
@@ -176,7 +222,17 @@ class Scene3D:
             self.camera.target,
             (right.x, right.y, right.z),
             (up.x, up.y, up.z),
+            self.camera.distance if isinstance(self.camera, PerspectiveCamera) else None,
+            self.camera.focal_length if isinstance(self.camera, PerspectiveCamera) else 100,
+            self.camera.near if isinstance(self.camera, PerspectiveCamera) else 0.1,
         )
+
+    def _plane_drawing(self, plane: Plane3D, drawing: Drawing) -> Drawing:
+        if isinstance(self.camera, PerspectiveCamera):
+            from pdl.spatial.planar import PerspectiveArtwork
+
+            return Drawing(PerspectiveArtwork(plane, drawing, self.camera))
+        return drawing.transformed(self._plane_matrix(plane))
 
     def _plane_matrix(self, plane: Plane3D) -> Transform:
         origin = self.camera.project(plane.origin)
