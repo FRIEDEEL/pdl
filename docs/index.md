@@ -25,6 +25,8 @@ tutorial/zh/index
 api/index
 coordinates
 coordinates_zh
+flowcharts
+flowcharts_zh
 tikz-output
 tikz-output_zh
 ```
@@ -35,7 +37,8 @@ The current library supports shapes, paths, ordinary text, TeX, nodes,
 connectors, groups, affine transforms, authoring frames, and viewport fitting.
 Editable groups, flat overlapping Gathers, ordered layers, PNG/JPEG images,
 per-leaf opacity, and linear/radial gradient fills are supported. Layer groups,
-isolated compositing, automatic layout, and automatic routing are not implemented. Public interfaces remain provisional.
+isolated compositing, general automatic graph layout, and automatic routing are not implemented.
+Growing flowcharts support boundary-spaced directional placement and editable connections. Public interfaces remain provisional.
 
 [Build and maintain these docs](building.md).
 

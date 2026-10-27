@@ -34,5 +34,6 @@ drawing
 geometry
 authoring
 coordinates
+flowcharts
 text
 ```

@@ -39,6 +39,12 @@ def generate_examples(app: Sphinx) -> None:
         check=True,
     )
 
+    subprocess.run(
+        [sys.executable, "-m", "examples.flowcharts.growing"],
+        cwd=ROOT,
+        check=True,
+    )
+
 
 def setup(app: Sphinx) -> None:
     """Register deterministic, local example generation for every build."""
