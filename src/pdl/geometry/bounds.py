@@ -3,10 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import sqrt
+from math import atan2, cos, degrees, hypot, radians, sin, sqrt
 from typing import Literal
 
-from pdl.geometry.primitives import Close, Cubic, Geometry, Move, Point, Quadratic, Segment
+from pdl.geometry.primitives import (
+    Arc,
+    Circle,
+    Close,
+    Cubic,
+    Geometry,
+    Move,
+    Point,
+    Quadratic,
+    Segment,
+)
 from pdl.geometry.transforms import Transform
 
 type Anchor = Literal[
@@ -30,6 +40,12 @@ class Bounds:
     bottom: float
     right: float
     top: float
+    is_empty: bool = False
+
+    @classmethod
+    def empty(cls) -> Bounds:
+        """Represent absence of geometry, distinct from a point at the origin."""
+        return cls(0, 0, 0, 0, is_empty=True)
 
     @property
     def width(self) -> float:
@@ -40,6 +56,10 @@ class Bounds:
         return self.top - self.bottom
 
     def union(self, other: Bounds) -> Bounds:
+        if self.is_empty:
+            return other
+        if other.is_empty:
+            return self
         return Bounds(
             min(self.left, other.left),
             min(self.bottom, other.bottom),
@@ -48,11 +68,15 @@ class Bounds:
         )
 
     def expanded(self, amount: float) -> Bounds:
+        if self.is_empty:
+            return self
         return Bounds(
             self.left - amount, self.bottom - amount, self.right + amount, self.top + amount
         )
 
     def transformed(self, transform: Transform) -> Bounds:
+        if self.is_empty:
+            return self
         points = [
             transform.apply(p)
             for p in (
@@ -65,6 +89,8 @@ class Bounds:
         return from_points(points)
 
     def anchor(self, name: Anchor = "center") -> Point:
+        if self.is_empty:
+            raise ValueError("Empty geometry has no anchor.")
         if name not in (
             "center",
             "north",
@@ -93,7 +119,7 @@ class Bounds:
 
 def from_points(points: list[Point]) -> Bounds:
     if not points:
-        return Bounds(0, 0, 0, 0)
+        return Bounds.empty()
     return Bounds(
         min(p.x for p in points),
         min(p.y for p in points),
@@ -118,6 +144,8 @@ def geometry_bounds(geometry: Geometry) -> Bounds:
     Arc lowering follows the documented cubic approximation from Stage 1.
     Move-only paths use their move positions; empty paths use the origin.
     """
+    if isinstance(geometry, (Circle, Arc)):
+        return transformed_bounds(geometry, Transform())
     points: list[Point] = []
     current = start = Point(0, 0)
     for command in geometry.to_path().commands:
@@ -168,3 +196,39 @@ def geometry_bounds(geometry: Geometry) -> Bounds:
             case Close():
                 current = start
     return from_points(points)
+
+
+def transformed_bounds(geometry: Geometry, transform: Transform) -> Bounds:
+    """Find tight affine bounds without approximating circular/elliptical geometry."""
+    from pdl.geometry.transforms import transform_path
+
+    if isinstance(geometry, Circle):
+        center = transform.apply(geometry.center)
+        dx = geometry.radius * hypot(transform.a, transform.c)
+        dy = geometry.radius * hypot(transform.b, transform.d)
+        return Bounds(center.x - dx, center.y - dy, center.x + dx, center.y + dy)
+    if isinstance(geometry, Arc):
+        angle = radians(geometry.rotation)
+        ux, uy = geometry.radius_x * cos(angle), geometry.radius_x * sin(angle)
+        vx, vy = -geometry.radius_y * sin(angle), geometry.radius_y * cos(angle)
+        u = Point(transform.a * ux + transform.c * uy, transform.b * ux + transform.d * uy)
+        v = Point(transform.a * vx + transform.c * vy, transform.b * vx + transform.d * vy)
+        center = transform.apply(geometry.center)
+        start, sweep = geometry.start_angle, geometry.sweep_angle
+        angles = [start, start + sweep]
+        for x, y in ((u.x, v.x), (u.y, v.y)):
+            extremum = degrees(atan2(y, x))
+            for candidate in (extremum, extremum + 180):
+                distance = (candidate - start) % 360 if sweep >= 0 else (start - candidate) % 360
+                if distance <= abs(sweep):
+                    angles.append(candidate)
+        return from_points(
+            [
+                Point(
+                    center.x + u.x * cos(radians(t)) + v.x * sin(radians(t)),
+                    center.y + u.y * cos(radians(t)) + v.y * sin(radians(t)),
+                )
+                for t in angles
+            ]
+        )
+    return geometry_bounds(transform_path(geometry, transform))

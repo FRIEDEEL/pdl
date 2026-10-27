@@ -15,6 +15,7 @@ from pdl.geometry.primitives import (
     Position,
     Quadratic,
     Segment,
+    Vector,
     point,
 )
 
@@ -51,6 +52,43 @@ class Transform:
             self.a * other.e + self.c * other.f + self.e,
             self.b * other.e + self.d * other.f + self.f,
         )
+
+    def apply_vector(self, vector: Vector) -> Vector:
+        """Transform a displacement without applying translation."""
+        return Vector(self.a * vector.x + self.c * vector.y, self.b * vector.x + self.d * vector.y)
+
+    @property
+    def determinant(self) -> float:
+        return self.a * self.d - self.b * self.c
+
+    def inverse(self) -> Transform:
+        """Return the inverse; singular coordinate spaces have no inverse."""
+        det = self.determinant
+        if det == 0:
+            raise ValueError("Cannot invert a singular coordinate transform.")
+        return Transform(
+            self.d / det,
+            -self.b / det,
+            -self.c / det,
+            self.a / det,
+            (self.c * self.f - self.d * self.e) / det,
+            (self.b * self.e - self.a * self.f) / det,
+        )
+
+    def around(self, center: Position) -> Transform:
+        """Apply this transform about a fixed center."""
+        p = point(center)
+        return Transform.translate(p.x, p.y) @ self @ Transform.translate(-p.x, -p.y)
+
+    @classmethod
+    def shear(cls, x: float = 0, y: float = 0) -> Transform:
+        """Shear using dimensionless x/y factors."""
+        return cls(b=y, c=x)
+
+    @classmethod
+    def reflect(cls, angle: float = 0, origin: Position = (0, 0)) -> Transform:
+        """Reflect about the line through origin at angle degrees."""
+        return (cls.rotate(angle) @ cls.scale(1, -1) @ cls.rotate(-angle)).around(origin)
 
     @classmethod
     def translate(cls, x: float, y: float) -> Transform:
