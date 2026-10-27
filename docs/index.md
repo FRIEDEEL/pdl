@@ -27,6 +27,8 @@ coordinates
 coordinates_zh
 flowcharts
 flowcharts_zh
+spatial
+spatial_zh
 tikz-output
 tikz-output_zh
 ```

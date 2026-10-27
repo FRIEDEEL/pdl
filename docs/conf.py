@@ -50,6 +50,9 @@ def generate_examples(app: Sphinx) -> None:
         check=True,
     )
 
+    for module in ("examples.spatial.platonic_solids", "examples.spatial.planes"):
+        subprocess.run([sys.executable, "-m", module], cwd=ROOT, check=True)
+
 
 def setup(app: Sphinx) -> None:
     """Register deterministic, local example generation for every build."""
