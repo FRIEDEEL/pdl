@@ -42,7 +42,7 @@ canvas.save("drawing.tex", backend="tikz")
   Style 描述外观，Canvas.draw 把物件加入绘制列表。
 - 普通几何的默认样式为黑色描边、线宽 1 mm、不填充、butt 线端、miter 拐角，
   miter limit 为 10。RGB 各分量在 0 到 1 之间。
-- 后加入的物件画在前面。后端尽量保留原生图形，不支持时再通过 to_path 等方式拆解。
+- 图层从下向上绘制，同层后加入的物件画在前面。后端尽量保留原生图形，不支持时再通过 to_path 等方式拆解。
 - Path 是可变构造器。draw 捕获当时的命令，后续修改需要再次 draw；
   path.to_path() 可以取得独立副本。
 - Path 支持绝对坐标的 move_to、line_to、quadratic_to、cubic_to、arc、close。
@@ -102,6 +102,18 @@ TikZ 编译需要外部 TeX 环境、TikZ 和 standalone，它们不是 Python �
 测试检查几何、圆弧转换、路径、XML 结构、原生输出、回退和真实 TeX 编译；
 缺少相关编译器时会显式跳过对应测试。示例仍需要视觉检查，目前没有像素基准套件。
 
-尚未实现 Layer 管理、图片嵌入、透明度、渐变、自动布局与布线、任意后端选项、动画和 3D。
+尚未实现图层组、整组合成透明度、自动布局与布线、任意后端选项、动画和 3D。
 发布前公共接口仍可能调整。捕获语义、锚点、变换和画布适配见教程与
 [坐标专题](docs/coordinates_zh.md)。
+
+
+## 组合、层序与图像
+
+Group 是单一父级的空间组合，Gather 是可以跨层的扁平操作集合。
+通过 Entity／Group 的 set_layer(int_or_layer) 分配图层；Layer 只控制覆盖顺序。
+详见教程[第 16–18 章](docs/tutorial/zh/16-editable-groups.md)。
+
+[图片](docs/tutorial/zh/19-images.md)使用显式毫米视口，支持 PNG／JPEG 和
+contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保留同级图片资源目录。
+[渐变](docs/tutorial/zh/20-gradients.md)使用形状局部边界归一化坐标。
+原生文字／TeX 仍限纯色；本阶段不含图层组与整组合成透明度。

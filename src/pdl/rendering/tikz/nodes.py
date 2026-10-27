@@ -16,6 +16,13 @@ def supports(drawing: Drawing) -> bool:
     Scaling, reflection and shear use general lowering, preserving fixed
     stroke widths and transformed label geometry under the existing contract.
     """
+    from pdl.scene.paint import LinearGradient, RadialGradient
+
+    if drawing.style is not None or (
+        isinstance(drawing.geometry, Node)
+        and isinstance(drawing.geometry.style.fill, (LinearGradient, RadialGradient))
+    ):
+        return False
     if not isinstance(drawing.geometry, Node):
         return False
     t = drawing.transform

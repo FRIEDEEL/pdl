@@ -4,6 +4,31 @@
 
 ### Added
 
+- Editable single-parent Groups with add/remove/dismiss, world-preserving
+  reparenting, and flat overlapping Gather selections with promotion warnings.
+- Canvas-owned Layer identities with integer lookup, insertion/reordering,
+  per-record layer capture, and Layer.to_gather for imperative operations.
+- Captured PNG/JPEG images with contain/cover/stretch fitting, embedded SVG,
+  and portable TikZ image sidecars.
+- Linear/radial RGB gradient fills in local normalized bounds and per-leaf
+  opacity, with native SVG resources and PDF functional shading output.
+- Five bilingual tutorial chapters and six runnable examples for editable
+  groups, Gathers, layers, images, gradients, and opacity; expanded API reference.
+
+### Changed
+
+- Group is now editable. Existing Drawing-based component definitions remain
+  supported and create independent instances; live Entity/Group members use
+  single-parent ownership. Mutating Group methods affect future captures only.
+- Breaking: individual grouped members cannot be submitted directly to Canvas;
+  draw the outermost Group, or remove/dismiss a member first. Gather and layer
+  assignments to grouped children promote to the outermost Group with a warning.
+- Grouping across layers moves the assembly to the highest member layer unless
+  overridden. Dismiss retains its current layer rather than restoring old layers.
+- Independent Layer instances are separate identities, even at equal initial
+  positions; use canvas.layers[index] for canonical canvas-local lookup.
+
+
 - A local Sphinx/MyST documentation site with Furo, Google-style docstring
   extraction, and a reference for all public exports. Build dependencies live
   in the optional `docs` group; tutorial assets are generated during the build.

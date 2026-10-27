@@ -12,9 +12,10 @@ from pdl.geometry.bounds import Bounds
 from pdl.geometry.transforms import Transform
 from pdl.rendering.config import RendererConfig, rendering
 from pdl.rendering.tikz.compiler import TikZMode, compile_pdf
-from pdl.scene.authoring import capture
+from pdl.scene.authoring import Entity, capture
 from pdl.scene.composition import Drawing, Graphic
 from pdl.scene.composition import bounds as scene_bounds
+from pdl.scene.layers import Layer, LayerStack
 from pdl.scene.paint import BLACK as BLACK
 from pdl.scene.paint import Color as Color
 from pdl.scene.paint import Style as Style
@@ -37,7 +38,8 @@ class Canvas:
         renderer: Font and TeX policy; takes precedence over ``fonts``.
 
     The origin is at the lower-left, x points right, and y points up. Later
-    ``draw`` records paint over earlier ones. Text scales with geometry, but
+    ``draw`` records paint over earlier ones within each layer. Layers paint
+    bottom-to-top; Group members stay contiguous on one layer. Text scales with geometry, but
     stroke widths remain in final Canvas millimeters. Fitting uses layout bounds
     and conservative stroke margins rather than exact painted contours.
 
@@ -76,10 +78,20 @@ class Canvas:
         self.height = height
         self.renderer = renderer or RendererConfig(fonts=fonts)
         self._drawings: list[Drawing] = []
+        self.layers = LayerStack()
+        self._drawing_layers: list[Layer] = []
 
     @property
     def drawings(self) -> tuple[Drawing, ...]:
-        return tuple(self._drawings)
+        if not self._drawing_layers:
+            return tuple(self._drawings)
+        return tuple(
+            d
+            for _, d in sorted(
+                zip(self._drawing_layers, self._drawings, strict=True),
+                key=lambda record: self.layers.index(record[0]),
+            )
+        )
 
     def map(self, space: CoordinateSystem, transform: Transform) -> None:
         """Override a frame's local-to-parent matrix for this canvas.
@@ -135,7 +147,7 @@ class Canvas:
             )
 
     def draw(self, geometry: Graphic | Drawing, style: Style | None = None) -> None:
-        """Add an object to the end of the paint order without rendering it.
+        """Capture an object on its layer without rendering it.
 
         Args:
             geometry: Shape, text, composite, Entity, or explicitly placed Drawing.
@@ -143,9 +155,24 @@ class Canvas:
 
         Built-in mutable paths and Entity states are captured now; later edits
         require another draw call. Font-dependent positions are measured later.
-        Referencing an object does not draw it automatically.
+        Referencing an object does not draw it automatically. Integer layers bind
+        to this canvas on submission. Layer reassignment affects subsequent draws;
+        reordering a captured Layer changes existing records' coverage order.
         """
+        from pdl.scene.composition import Group
+        from pdl.scene.gather import Gather
+
+        if isinstance(geometry, (Layer, Gather)):
+            raise TypeError("Canvas.draw requires a graphic, not a Layer or Gather.")
+        target = geometry.geometry if isinstance(geometry, Drawing) else geometry
+        if isinstance(target, (Entity, Group)) and target.root is not target:
+            raise ValueError("Draw the outermost Group, not an individual grouped member.")
+        layer = target.layer if isinstance(target, (Entity, Group)) else 0
+        selected = self.layers[layer] if isinstance(layer, int) else self.layers.adopt(layer)
+        if isinstance(target, (Entity, Group)):
+            target.set_layer(selected)
         geometry = capture(geometry)
+        self._drawing_layers.append(selected)
         if isinstance(geometry, Drawing):
             if style is not None:
                 geometry = Drawing(geometry.geometry, style, geometry.transform)
@@ -217,7 +244,7 @@ class Canvas:
 
     def viewport(self, source: tuple[Drawing, ...] | None = None) -> Canvas:
         """Resolve authoring mappings, then choose the final output viewport."""
-        from pdl.scene.composition import Group
+        from pdl.scene.composition import GroupDescription as Group
 
         roots = self.drawings if source is None else source
         drawings = resolve_geometry(Group(roots)).decompose() if roots else ()
@@ -317,7 +344,22 @@ class Canvas:
             raise ValueError(f"Unknown TikZ output mode: {tikz_mode}")
         selected = self.backend if backend is None else backend
         source = FilePath(filename)
-        source.write_text(self.render(backend, fonts=fonts, renderer=renderer), encoding="utf-8")
+        content = self.render(backend, fonts=fonts, renderer=renderer)
+        if selected == "tikz":
+            from pdl.media.images import Image
+            from pdl.scene.composition import walk
+
+            policy = rendering(renderer) if renderer is not None else self.typography(fonts)
+            with self.evaluation(), policy:
+                for drawing in walk(self.drawings):
+                    if isinstance(drawing.geometry, Image):
+                        image = drawing.geometry
+                        asset = image.asset(source.parent / (source.stem + "-assets"))
+                        content = content.replace(
+                            image.asset().as_posix(),
+                            asset.relative_to(source.parent.resolve()).as_posix(),
+                        )
+        source.write_text(content, encoding="utf-8")
         if selected == "tikz":
             compile_pdf(
                 source, mode=tikz_mode, keep_intermediates=keep_intermediates, engine=engine

@@ -16,10 +16,14 @@ from pdl.geometry.primitives import (
     Vector,
 )
 from pdl.geometry.transforms import Transform
+from pdl.media.images import Image
 from pdl.rendering.config import RendererConfig
 from pdl.scene.authoring import Entity
 from pdl.scene.canvas import BLACK, Canvas, Color, Style
 from pdl.scene.composition import Drawing, Group, bounds
+from pdl.scene.gather import Gather
+from pdl.scene.layers import Layer, LayerStack
+from pdl.scene.paint import ColorStop, LinearGradient, RadialGradient
 from pdl.scene.references import AnchorRef
 from pdl.scene.resolved import Query, ResolvedGraphic
 from pdl.scene.spaces import WORLD, CoordinateSystem, SpacePoint, SpaceVector
@@ -27,6 +31,13 @@ from pdl.typography.plain import Font, FontStack, Text
 from pdl.typography.tex import TeX, TeXConfig
 
 __all__ = [
+    "ColorStop",
+    "LinearGradient",
+    "RadialGradient",
+    "Image",
+    "Gather",
+    "Layer",
+    "LayerStack",
     "AnchorRef",
     "RendererConfig",
     "Transform",

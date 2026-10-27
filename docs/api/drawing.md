@@ -37,3 +37,51 @@ Start here to create a page, add objects, and choose their appearance.
 ```
 
 The RGB color `Color(0, 0, 0)`.
+
+## Layer
+
+```{eval-rst}
+.. autoclass:: pdl.Layer
+   :members:
+   :member-order: bysource
+```
+
+## LayerStack
+
+```{eval-rst}
+.. autoclass:: pdl.LayerStack
+   :members:
+   :member-order: bysource
+```
+
+## ColorStop
+
+```{eval-rst}
+.. autoclass:: pdl.ColorStop
+   :members:
+   :member-order: bysource
+```
+
+## LinearGradient
+
+```{eval-rst}
+.. autoclass:: pdl.LinearGradient
+   :members:
+   :member-order: bysource
+```
+
+## RadialGradient
+
+```{eval-rst}
+.. autoclass:: pdl.RadialGradient
+   :members:
+   :member-order: bysource
+```
+
+## Image
+
+```{eval-rst}
+.. autoclass:: pdl.Image
+   :members:
+   :member-order: bysource
+```

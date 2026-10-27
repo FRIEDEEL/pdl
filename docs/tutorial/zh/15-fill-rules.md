@@ -34,3 +34,5 @@ extend 转换圆时使用三次曲线近似，所以这里的 Path 不再包含�
 ---
 
 [上一章：TeX 渲染](14-tex-rendering.md)
+
+[Next / 下一章: Editable groups](16-editable-groups.md)

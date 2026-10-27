@@ -38,7 +38,9 @@ def paint_options(style: Style) -> list[str]:
     stroke = style.stroke if style.line_width > 0 else None
     return [
         f"draw={color(stroke) if stroke is not None else 'none'}",
-        f"fill={color(style.fill) if style.fill is not None else 'none'}",
+        f"fill={color(style.fill) if isinstance(style.fill, Color) else 'none'}",
+        f"draw opacity={number(style.opacity)}",
+        f"fill opacity={number(style.opacity)}",
         f"line width={number(style.line_width)}mm",
         f"line cap={style.line_cap}",
         f"line join={style.line_join}",

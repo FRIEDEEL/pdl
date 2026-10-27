@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 
 from pdl.geometry.bounds import Anchor, Bounds
 from pdl.geometry.primitives import Point, Position, Vector
-from pdl.scene.composition import Composite, Drawing, Graphic, Group, bounds
+from pdl.scene.composition import Composite, Drawing, Graphic, bounds
+from pdl.scene.composition import GroupDescription as Group
 from pdl.scene.evaluation import layout_session
 from pdl.scene.references import AnchorRef, PointSource
 from pdl.scene.spaces import WORLD, CoordinateSystem, SpaceVector

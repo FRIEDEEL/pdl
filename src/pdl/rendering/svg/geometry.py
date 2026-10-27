@@ -24,9 +24,14 @@ def color(value: Color | None) -> str:
     )
 
 
-def style_attributes(style: Style) -> str:
+def style_attributes(style: Style, gradient_id: str | None = None) -> str:
+    fill = (
+        f"url(#{gradient_id})"
+        if gradient_id is not None
+        else color(style.fill if isinstance(style.fill, Color) else None)
+    )
     return (
-        f'fill="{color(style.fill)}" stroke="{color(style.stroke)}" '
+        f'fill="{fill}" stroke="{color(style.stroke)}" opacity="{number(style.opacity)}" '
         f'stroke-width="{number(style.line_width)}" '
         f'stroke-linecap="{style.line_cap}" stroke-linejoin="{style.line_join}" '
         f'stroke-miterlimit="10" fill-rule="{style.fill_rule}"'

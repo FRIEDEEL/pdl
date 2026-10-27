@@ -33,8 +33,9 @@ tikz-output_zh
 
 The current library supports shapes, paths, ordinary text, TeX, nodes,
 connectors, groups, affine transforms, authoring frames, and viewport fitting.
-Layer management, embedded images, opacity, gradients, automatic layout, and
-automatic routing are not implemented. Public interfaces remain provisional.
+Editable groups, flat overlapping Gathers, ordered layers, PNG/JPEG images,
+per-leaf opacity, and linear/radial gradient fills are supported. Layer groups,
+isolated compositing, automatic layout, and automatic routing are not implemented. Public interfaces remain provisional.
 
 [Build and maintain these docs](building.md).
 
