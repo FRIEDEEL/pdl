@@ -8,6 +8,7 @@ from pdl.scene.composition import Drawing
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
 from pdl.scene.references import AnchorRef, PointSource
+from pdl.scene.spaces import SpacePoint
 
 
 @dataclass(frozen=True)
@@ -31,9 +32,9 @@ class Connection:
             raise ValueError("Arrow size must be positive and finite.")
         sources = (self.start, *self.via, self.end)
         for source in sources:
-            if not isinstance(source, AnchorRef):
+            if not isinstance(source, (AnchorRef, SpacePoint)):
                 point(source)
-        if not any(isinstance(source, AnchorRef) for source in sources):
+        if not any(isinstance(source, (AnchorRef, SpacePoint)) for source in sources):
             self._points()
 
     def _points(self) -> list[Point]:

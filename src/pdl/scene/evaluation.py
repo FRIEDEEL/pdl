@@ -8,10 +8,10 @@ from contextvars import ContextVar
 from math import hypot, sqrt
 from typing import TYPE_CHECKING, cast
 
-from pdl.geometry.bounds import Bounds, geometry_bounds
+from pdl.geometry.bounds import Bounds, geometry_bounds, transformed_bounds
 from pdl.geometry.primitives import Point, point
-from pdl.geometry.transforms import transform_path
 from pdl.scene.references import AnchorRef, PointSource
+from pdl.scene.spaces import SpacePoint
 
 if TYPE_CHECKING:
     from pdl.components.nodes import Node
@@ -49,19 +49,29 @@ class LayoutContext:
             self._active.pop()
 
     def point(self, source: PointSource) -> Point:
+        if isinstance(source, SpacePoint):
+            return source.resolve()
         if not isinstance(source, AnchorRef):
             return point(source)
         anchor = self.anchor(source)
         offset = point(source.offset)
-        return Point(anchor.x + offset.x, anchor.y + offset.y)
+        x, y = anchor.x + offset.x, anchor.y + offset.y
+        for vector in source.vector_offsets:
+            resolved = vector.resolve()
+            x += resolved.x
+            y += resolved.y
+        return Point(x, y)
 
     def anchor(self, reference: AnchorRef) -> Point:
         from pdl.components.nodes import Node
+        from pdl.scene.authoring import Placement
         from pdl.scene.composition import Drawing
 
         target, name = reference.target, reference.name
 
         def compute() -> Point:
+            if isinstance(target, Placement):
+                return self.point(AnchorRef(target.placed(), name))
             if isinstance(target, Drawing):
                 local = self.point(AnchorRef(target.geometry, name))
                 return target.transform.apply(local)
@@ -118,7 +128,7 @@ class LayoutContext:
                 for child in self.decompose(graphic):
                     box = self._drawing_bounds(child)
                     result = box if result is None else result.union(box)
-                return result if result is not None else Bounds(0, 0, 0, 0)
+                return result if result is not None else Bounds.empty()
             if isinstance(graphic, (Text, TeX)):
                 return graphic.layout_bounds
             return geometry_bounds(graphic)
@@ -145,12 +155,12 @@ class LayoutContext:
                         ancestors | {id(geometry)},
                     )
                     result = box if result is None else result.union(box)
-                return result if result is not None else Bounds(0, 0, 0, 0)
+                return result if result is not None else Bounds.empty()
 
             return self._cached("placed bounds", geometry, compute, str(drawing.transform.values))
         if isinstance(geometry, (Text, TeX)):
             return self.bounds(geometry).transformed(drawing.transform)
-        return geometry_bounds(transform_path(geometry, drawing.transform))
+        return transformed_bounds(geometry, drawing.transform)
 
 
 _current: ContextVar[LayoutContext | None] = ContextVar("pdl_layout", default=None)

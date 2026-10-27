@@ -13,12 +13,16 @@ from pdl.geometry.primitives import (
     Polygon,
     Polyline,
     Rectangle,
+    Vector,
 )
 from pdl.geometry.transforms import Transform
 from pdl.rendering.config import RendererConfig
+from pdl.scene.authoring import Entity
 from pdl.scene.canvas import BLACK, Canvas, Color, Style
 from pdl.scene.composition import Drawing, Group, bounds
 from pdl.scene.references import AnchorRef
+from pdl.scene.resolved import Query, ResolvedGraphic
+from pdl.scene.spaces import WORLD, CoordinateSystem, SpacePoint, SpaceVector
 from pdl.typography.plain import Font, FontStack, Text
 from pdl.typography.tex import TeX, TeXConfig
 
@@ -50,4 +54,16 @@ __all__ = [
     "Polyline",
     "Rectangle",
     "Style",
+]
+
+
+__all__ += [
+    "Vector",
+    "Entity",
+    "WORLD",
+    "CoordinateSystem",
+    "SpacePoint",
+    "SpaceVector",
+    "Query",
+    "ResolvedGraphic",
 ]

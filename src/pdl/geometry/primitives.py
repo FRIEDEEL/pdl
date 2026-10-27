@@ -19,6 +19,18 @@ class Point:
             raise ValueError("Coordinates must be finite.")
 
 
+@dataclass(frozen=True)
+class Vector:
+    """A displacement, independent of coordinate origin."""
+
+    x: float
+    y: float
+
+    def __post_init__(self) -> None:
+        if not all(isfinite(v) for v in (self.x, self.y)):
+            raise ValueError("Vector components must be finite.")
+
+
 type Position = Point | tuple[float, float]
 
 

@@ -4,7 +4,7 @@ import pytest
 
 from pdl import Circle, Line, Path
 from pdl.geometry.bounds import geometry_bounds
-from pdl.geometry.primitives import Point
+from pdl.geometry.primitives import Point, Vector
 from pdl.geometry.transforms import Transform, transform_path
 from pdl.scene.composition import Drawing, Group, bounds
 
@@ -49,3 +49,16 @@ def test_placed_circles_keep_native_output_when_possible() -> None:
     canvas = Canvas(40, 20)
     canvas.draw(Group((Drawing(circle),), Transform.scale(2, 1)))
     assert "<path" in canvas.render()
+
+
+def test_inverse_reflection_and_point_vector_distinction() -> None:
+    t = Transform.translate(10, 20) @ Transform.shear(0.3) @ Transform.rotate(25)
+    p = Point(3, 7)
+    restored = t.inverse().apply(t.apply(p))
+    assert (restored.x, restored.y) == pytest.approx((3, 7))
+    assert Transform.translate(10, 20).apply_vector(Vector(3, 7)) == Vector(3, 7)
+    reflected = Transform.reflect(90).apply((3, 7))
+    assert (reflected.x, reflected.y) == pytest.approx((-3, 7))
+    assert Transform.rotate(90).around((3, 7)).apply((3, 7)) == Point(3, 7)
+    with pytest.raises(ValueError, match="singular"):
+        Transform.scale(0).inverse()
