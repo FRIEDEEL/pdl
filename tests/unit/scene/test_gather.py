@@ -31,3 +31,22 @@ def test_selection_promotes_and_deduplicates_after_regrouping() -> None:
     with pytest.warns(UserWarning, match="promoted"):
         explicit = Gather(a, group)
     assert explicit.members == (group,)
+
+
+def test_dismissed_group_targets_fail_explicitly() -> None:
+    group = Group((Entity(Circle((0, 0), 1)),))
+    selection = Gather(group)
+    group.dismiss()
+    with pytest.raises(ValueError, match="dismissed"):
+        selection.translate(1, 0)
+
+
+def test_opacity_keeps_text_fill_only() -> None:
+    from pdl import Text
+
+    label = Entity(Text("Label"))
+    Gather(label).set_opacity(0.5)
+    canvas = Canvas(100, 60)
+    canvas.draw(label)
+    assert 'opacity="0.5"' in canvas.render()
+    assert "text opacity=0.5" in canvas.render("tikz")

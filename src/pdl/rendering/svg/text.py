@@ -5,7 +5,7 @@ from pdl.geometry.transforms import Transform
 from pdl.rendering.formatting import number
 from pdl.rendering.svg.geometry import color
 from pdl.scene.composition import Drawing
-from pdl.scene.paint import BLACK, Style
+from pdl.scene.paint import BLACK, Color, Style
 from pdl.typography.fonts import font_family
 from pdl.typography.plain import PT_TO_MM, Text
 from pdl.typography.tex import TeX
@@ -21,10 +21,13 @@ def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
         raise ValueError("TeX supports fill-only paint; use Style(stroke=None, fill=...).")
     if paint.fill is None:
         return ""
+    if not isinstance(paint.fill, Color):
+        raise ValueError("Native Text and TeX require solid color fills.")
     p = point(tex.position)
-    return fragment_svg(
+    result = fragment_svg(
         tex.layout, drawing.transform @ Transform.translate(p.x, p.y), prefix, color(paint.fill)
     )
+    return f'<g opacity="{number(paint.opacity)}">{result}</g>'
 
 
 def render_text(text: Text, drawing: Drawing) -> str:
@@ -36,6 +39,8 @@ def render_text(text: Text, drawing: Drawing) -> str:
         raise ValueError("Native Text supports fill-only paint; use fill and stroke=None.")
     if paint.fill is None:
         return ""
+    if not isinstance(paint.fill, Color):
+        raise ValueError("Native Text and TeX require solid color fills.")
     p = point(text.position)
     transform = drawing.transform @ Transform.scale(1, -1)
     matrix = " ".join(number(v) for v in transform.values)
@@ -47,4 +52,7 @@ def render_text(text: Text, drawing: Drawing) -> str:
             f'font-family="{family}, sans-serif" font-size="{number(text.size * PT_TO_MM)}" '
             f'xml:space="preserve">{escape(run.text)}</text>'
         )
-    return f'<g fill="{color(paint.fill)}" transform="matrix({matrix})">' + "".join(spans) + "</g>"
+    return (
+        f'<g opacity="{number(paint.opacity)}" fill="{color(paint.fill)}" '
+        f'transform="matrix({matrix})">' + "".join(spans) + "</g>"
+    )

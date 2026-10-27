@@ -35,6 +35,8 @@ class Gather:
         """Return current unique outermost targets in selection order."""
         result: dict[int, Target] = {}
         for member in self._members.values():
+            if isinstance(member, Group) and member.dismissed:
+                raise ValueError("Gather targets a dismissed Group; create a new selection.")
             root = member.root
             if root is not member:
                 warn("Gather target promoted to its outermost Group.", UserWarning, stacklevel=2)
@@ -111,4 +113,30 @@ class Gather:
                 member.placement = replace(
                     member.placement, drawing=replace(member.placement.drawing, style=style)
                 )
+        return self
+
+    def set_opacity(self, opacity: float) -> Self:
+        """Set per-target opacity, not an isolated composite-group opacity.
+
+        Targets with no instance style receive the default Style. Existing
+        explicit child styles continue to override Group inheritance.
+        """
+        from dataclasses import replace
+
+        from pdl.scene.authoring import Placement
+        from pdl.scene.paint import BLACK
+        from pdl.typography.plain import Text
+        from pdl.typography.tex import TeX
+
+        for member in self.members:
+            style = member.style if isinstance(member, Group) else member.placement.paint
+            default = Style()
+            if isinstance(member, Entity):
+                geometry = member.placement.drawing.geometry
+                while isinstance(geometry, Placement):
+                    geometry = geometry.drawing.geometry
+                if isinstance(geometry, (Text, TeX)):
+                    default = Style(stroke=None, fill=BLACK)
+            self_style = replace(style or default, opacity=opacity)
+            Gather(member).set_style(self_style)
         return self

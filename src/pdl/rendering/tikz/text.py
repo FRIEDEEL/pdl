@@ -9,7 +9,7 @@ from pdl.rendering.config import current_renderer
 from pdl.rendering.formatting import number
 from pdl.rendering.tikz.geometry import color, coordinate
 from pdl.scene.composition import Drawing
-from pdl.scene.paint import BLACK, Style
+from pdl.scene.paint import BLACK, Color, Style
 from pdl.typography.plain import Font, Text
 from pdl.typography.tex import TeX, TeXConfig
 
@@ -57,7 +57,7 @@ def font_commands(drawings: tuple[Drawing, ...]) -> dict[Font, str]:
 
 def preamble(drawings: tuple[Drawing, ...]) -> str:
     config = configuration(drawings)
-    lines = [r"\usepackage{tikz}"]
+    lines = [r"\usepackage{tikz}", r"\usepackage{graphicx}"]
     if config:
         lines.append(config.latex_preamble())
     commands = font_commands(drawings)
@@ -97,6 +97,8 @@ def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
         raise ValueError("Native Text supports fill-only paint; use fill and stroke=None.")
     if paint.fill is None:
         return ""
+    if not isinstance(paint.fill, Color):
+        raise ValueError("Native Text and TeX require solid color fills.")
     t = drawing.transform
     if t.a * t.d - t.b * t.c == 0:
         return ""
@@ -110,7 +112,8 @@ def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
             rf"{{{number(text.size * text.line_spacing)}}}\selectfont " + _escape_text(run.text)
         )
         lines.append(
-            f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)}] "
+            f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)},"
+            f"text opacity={number(paint.opacity)}] "
             f"at {position} {{{body}}};"
         )
     lines.append(r"\end{scope}")
@@ -126,10 +129,13 @@ def render_tex(tex: TeX, drawing: Drawing) -> str:
         raise ValueError("Native TeX supports fill-only paint; use Style(stroke=None, fill=...).")
     if paint.fill is None:
         return ""
+    if not isinstance(paint.fill, Color):
+        raise ValueError("Native Text and TeX require solid color fills.")
     a, b, c, d, e, f = (number(v) for v in drawing.transform.values)
     return (
         f"\\begin{{scope}}[cm={{{a},{b},{c},{d},({e},{f})}},transform shape]\n"
-        + f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)}] "
+        + f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)},"
+        f"text opacity={number(paint.opacity)}] "
         + f"at {coordinate(point(tex.position))} {{{tex.latex_body()}}};\n"
         + r"\end{scope}"
     )

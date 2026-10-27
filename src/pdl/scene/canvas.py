@@ -38,7 +38,8 @@ class Canvas:
         renderer: Font and TeX policy; takes precedence over ``fonts``.
 
     The origin is at the lower-left, x points right, and y points up. Later
-    ``draw`` records paint over earlier ones. Text scales with geometry, but
+    ``draw`` records paint over earlier ones within each layer. Layers paint
+    bottom-to-top; Group members stay contiguous on one layer. Text scales with geometry, but
     stroke widths remain in final Canvas millimeters. Fitting uses layout bounds
     and conservative stroke margins rather than exact painted contours.
 
@@ -146,7 +147,7 @@ class Canvas:
             )
 
     def draw(self, geometry: Graphic | Drawing, style: Style | None = None) -> None:
-        """Add an object to the end of the paint order without rendering it.
+        """Capture an object on its layer without rendering it.
 
         Args:
             geometry: Shape, text, composite, Entity, or explicitly placed Drawing.
@@ -154,7 +155,9 @@ class Canvas:
 
         Built-in mutable paths and Entity states are captured now; later edits
         require another draw call. Font-dependent positions are measured later.
-        Referencing an object does not draw it automatically.
+        Referencing an object does not draw it automatically. Integer layers bind
+        to this canvas on submission. Layer reassignment affects subsequent draws;
+        reordering a captured Layer changes existing records' coverage order.
         """
         from pdl.scene.composition import Group
         from pdl.scene.gather import Gather
@@ -341,7 +344,22 @@ class Canvas:
             raise ValueError(f"Unknown TikZ output mode: {tikz_mode}")
         selected = self.backend if backend is None else backend
         source = FilePath(filename)
-        source.write_text(self.render(backend, fonts=fonts, renderer=renderer), encoding="utf-8")
+        content = self.render(backend, fonts=fonts, renderer=renderer)
+        if selected == "tikz":
+            from pdl.media.images import Image
+            from pdl.scene.composition import walk
+
+            policy = rendering(renderer) if renderer is not None else self.typography(fonts)
+            with self.evaluation(), policy:
+                for drawing in walk(self.drawings):
+                    if isinstance(drawing.geometry, Image):
+                        image = drawing.geometry
+                        asset = image.asset(source.parent / (source.stem + "-assets"))
+                        content = content.replace(
+                            image.asset().as_posix(),
+                            asset.relative_to(source.parent.resolve()).as_posix(),
+                        )
+        source.write_text(content, encoding="utf-8")
         if selected == "tikz":
             compile_pdf(
                 source, mode=tikz_mode, keep_intermediates=keep_intermediates, engine=engine
