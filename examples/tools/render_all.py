@@ -9,6 +9,7 @@ from pathlib import Path
 
 from examples._shared import export, output_base
 from examples.composition.components import example as composition
+from examples.composition.sandwich import example as sandwich
 from examples.coordinates.relationships import example as coordinates
 from examples.diagrams.nodes import example as nodes
 from examples.diagrams.vacuum import example as vacuum
@@ -32,7 +33,18 @@ def main() -> None:
     def compile_tikz(base: Path) -> None:
         compile_pdf(base.with_suffix(".tex"), mode=mode, keep_intermediates=args.keep_intermediates)
 
-    for build in (gallery, composition, text, tex, nodes, vacuum, anchors, instances, coordinates):
+    for build in (
+        gallery,
+        composition,
+        sandwich,
+        text,
+        tex,
+        nodes,
+        vacuum,
+        anchors,
+        instances,
+        coordinates,
+    ):
         canvas = build()
         source = inspect.getfile(build)
         base = export(canvas, source, tikz_mode="tex")

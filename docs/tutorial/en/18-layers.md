@@ -39,3 +39,20 @@ snapshots. A Gather can cross layers. Setting a grouped child's layer promotes
 the whole outermost Group with a warning.
 
 Try moving foreground below background before saving.
+
+
+## The sandwich case
+
+![Layers, Gather, and Group compared](../../../examples/output/composition/sandwich.svg)
+
+[Complete runnable source](../../../examples/composition/sandwich.py)
+
+1. Base, middle, and lid occupy three layers. Each plate is itself a Group,
+   keeping its bolts and label together.
+2. Gather selects base and lid across layers and shifts them right. Their
+   components move together, while the middle stays between their layers.
+3. Replacing that selection with a Group raises both plates to the highest
+   member layer. The base now covers the middle at the lower overlap.
+
+Use Gather to preserve the sandwich; use Group when the selected parts should
+become one indivisible spatial and coverage unit.

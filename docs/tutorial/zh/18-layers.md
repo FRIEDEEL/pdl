@@ -31,3 +31,16 @@ layer.to_gather() 收集当前顶层成员以执行空间操作，包含已分�
 不选择旧 Canvas 快照。Gather 可以跨层。对组内元素设置 Layer 时会提升到最外层 Group 并提示。
 
 试试在保存前把 foreground 移到 background 下方。
+
+
+## 三明治：为什么同时需要 Group 和 Gather
+
+![Layer、Gather 与 Group 的三种结果](../../../examples/output/composition/sandwich.svg)
+
+[完整可运行源码](../../../examples/composition/sandwich.py)
+
+1. 底板、中间物件、盖板位于三个 Layer。每块板本身都是 Group，螺钉和文字跟随板一起移动。
+2. Gather 跨层收集底板和盖板，一起右移；中间物件保持原位，仍夹在两者之间。
+3. 改用 Group 组合底板和盖板后，二者整体提升到最高成员层，底板会盖住中间物件的下缘。
+
+想保持三明治结构并共同操作，用 Gather；想将选中部分变成不可穿插的整体，用 Group。
