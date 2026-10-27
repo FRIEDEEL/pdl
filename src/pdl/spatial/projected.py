@@ -1,6 +1,8 @@
 """Frozen 2D authoring snapshots produced by explicit 3D projection."""
 
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
 
 from pdl.geometry.bounds import Anchor
 from pdl.geometry.primitives import Point
@@ -28,9 +30,26 @@ class ProjectedScene:
     right: tuple[float, float, float]
     up: tuple[float, float, float]
 
+    distance: float | None = None
+    focal_length: float = 100
+    near: float = 0.1
+
     def decompose(self) -> tuple[Drawing, ...]:
         """Expose ordinary 2D authoring drawings to the common evaluator."""
         return self.children
+
+    def reordered(self, order: tuple[int, ...]) -> ProjectedScene:
+        """Return a snapshot with an explicit back-to-front drawing permutation.
+
+        Indices address current children, not source face indices. With
+        Scene3D(sort_faces=False), children follow object order and then face
+        order, one child per face (including its artwork) or other object.
+        Every child index must occur exactly once. Source point queries stay
+        unchanged. This cannot resolve a true cycle without splitting faces.
+        """
+        if sorted(order) != list(range(len(self.children))):
+            raise ValueError("Drawing order must be a permutation of all child indices.")
+        return replace(self, children=tuple(self.children[i] for i in order))
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Reference the 2D bounds, including layout-dependent face artwork."""
@@ -39,10 +58,20 @@ class ProjectedScene:
     def point(self, point: Point3D) -> Point:
         """Project a world point using this snapshot's fixed camera basis."""
         v = point - self.origin
-        return Point(
+        flat = Point(
             v.x * self.right[0] + v.y * self.right[1] + v.z * self.right[2],
             v.x * self.up[0] + v.y * self.up[1] + v.z * self.up[2],
         )
+        if self.distance is None:
+            return flat
+        from pdl.spatial.coordinates import Vector3D
+
+        toward = Vector3D(*self.right).cross(Vector3D(*self.up))
+        axial = self.distance - v.dot(toward)
+        if axial <= self.near:
+            raise ValueError("Perspective point must lie beyond the near plane.")
+        scale = self.focal_length / axial
+        return Point(flat.x * scale, flat.y * scale)
 
     def vertex(self, object_index: int, vertex_index: int) -> Point:
         """Return a source polyhedron vertex in the snapshot's local 2D space."""

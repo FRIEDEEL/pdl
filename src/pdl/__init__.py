@@ -31,7 +31,7 @@ from pdl.scene.spaces import WORLD, CoordinateSystem, SpacePoint, SpaceVector
 from pdl.spatial.coordinates import CoordinateSystem3D, Point3D, Transform3D, Vector3D
 from pdl.spatial.curves import Cylinder, Sphere
 from pdl.spatial.projected import ProjectedScene
-from pdl.spatial.projection import DirectionalLight, OrthographicCamera, Scene3D
+from pdl.spatial.projection import DirectionalLight, OrthographicCamera, PerspectiveCamera, Scene3D
 from pdl.spatial.solids import Plane3D, Polyhedron, Surface3D, regular_polyhedron
 from pdl.typography.plain import Font, FontStack, Text
 from pdl.typography.tex import TeX, TeXConfig
@@ -106,3 +106,5 @@ __all__ += [
 __all__ += ["Cylinder", "Sphere"]
 
 __all__ += ["ProjectedScene"]
+
+__all__ += ["PerspectiveCamera"]
