@@ -326,3 +326,9 @@
 - 新增中英文教程第 16–20 章和六个独立示例，正文使用 literalinclude；更新 API reference、README 与 CHANGELOG。实际浏览 Sphinx 页面，逐张检查六张新 SVG，并比较旋转渐变、径向渐变、图片的 SVG 与 XeLaTeX PDF；图片源加入圆环区分 cover 与 stretch。未建立像素基准测试。
 - 检查：Ruff、格式检查、Pyright strict 通过；pytest 130 项通过，包括真实 TeX 编译、可移动图片资源及字体上下文回归。Sphinx -W 构建通过；全部九个主示例、字体变体和嵌入文档完成实际 PDF 编译。uv build 和解包 wheel 隔离导入／新功能双后端冒烟验证通过。
 - 实现按步骤提交；合入 dev 后仍执行最终检查。未 push、发布或打标签，阶段验收交由用户。
+
+### 2026-10-27 20:25:24
+
+- 本阶段以 `git merge --no-ff` 合入 `dev`，合并提交 `c959004`。合并结果上 Ruff、格式检查和 Pyright strict 通过，pytest 131 项通过；Sphinx -W 构建成功，uv build 与解包 wheel 隔离冒烟验证通过。
+- 最后补充组合快照子实例继承样式回归；另外实际验证 JPEG 的 SVG 嵌入与 XeLaTeX PDF 编译。临时文档检查页与本机服务器已关闭，本地 HTML 可直接打开。
+- 实现及文档交付，等待用户阶段验收。未 push、发布或打标签。
