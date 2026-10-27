@@ -5,14 +5,10 @@ We will keep the same circle and change one part of its appearance at a time.
 
 ## Give the outline a color
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-blue = Color(0.15, 0.35, 0.75)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=blue, line_width=0.5))
+```{literalinclude} ../../../examples/tutorial/basics/stroke.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![stroke](../../../examples/output/tutorial/basics/stroke.svg)
@@ -32,15 +28,10 @@ Our blue uses more blue than red or green.
 
 Keep the blue outline and add a light blue fill:
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-blue = Color(0.15, 0.35, 0.75)
-light_blue = Color(0.75, 0.85, 1.0)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=blue, fill=light_blue, line_width=0.5))
+```{literalinclude} ../../../examples/tutorial/basics/fill.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![fill](../../../examples/output/tutorial/basics/fill.svg)
@@ -55,14 +46,10 @@ paints the inside.
 
 To draw only the filled disk, set `stroke=None`:
 
-```python
-from pdl import Canvas, Circle, Color, Style
-
-circle = Circle((20, 20), radius=10)
-light_blue = Color(0.75, 0.85, 1.0)
-
-canvas = Canvas(40, 40)
-canvas.draw(circle, Style(stroke=None, fill=light_blue))
+```{literalinclude} ../../../examples/tutorial/basics/fill_only.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![fill only](../../../examples/output/tutorial/basics/fill_only.svg)
@@ -79,21 +66,10 @@ the default, so the first circle in this chapter did not need `fill=None`.
 The same style options work for polygons and rectangles. Here is the drawing
 from the previous chapter with a different style on each shape:
 
-```python
-from pdl import Canvas, Circle, Color, Polygon, Rectangle, Style
-
-triangle = Polygon(((10, 10), (30, 10), (20, 30)))
-rectangle = Rectangle((40, 10), width=25, height=20)
-circle = Circle((85, 20), radius=10)
-
-blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.5)
-orange = Style(fill=Color(1.0, 0.75, 0.4), line_width=0.5)
-green = Style(stroke=None, fill=Color(0.4, 0.75, 0.55))
-
-canvas = Canvas(105, 40)
-canvas.draw(triangle, blue)
-canvas.draw(rectangle, orange)
-canvas.draw(circle, green)
+```{literalinclude} ../../../examples/tutorial/basics/colored_shapes.py
+:language: python
+:start-at: from pdl import
+:end-before: output =
 ```
 
 ![colored shapes](../../../examples/output/tutorial/basics/colored_shapes.svg)
@@ -111,8 +87,6 @@ In `fill.py`, change `line_width=0.5` to `line_width=2` and rerun the script.
 The boundary stays in the same place, but the stroke grows on both sides of it.
 Then set `fill=None` to return to an outline-only circle.
 
-You can now place basic shapes and choose their outline and fill. Drawing order,
-text, and transformations will follow in later chapters; this first installment
-ends here.
+You can now place basic shapes and choose their outline and fill. Next, overlap two shapes to learn how drawing order works.
 
-[Previous: basic shapes](02-shapes.md) · [Tutorial contents](index.md)
+[Previous: basic shapes](02-shapes.md) · [Next: drawing order](04-drawing-order.md)
