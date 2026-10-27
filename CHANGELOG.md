@@ -10,6 +10,9 @@
 
 ### Added
 
+- Layer.upper/lower read current adjacent layers without creating them; missing
+  neighbors, including on unattached layers, return None.
+
 - Explicit `Scene3D.project()` snapshots into ordinary 2D Authoring, with source
   vertex/face-center correspondence and deferred bounds anchors for 2D legends.
 - Plane-local vector face artwork, transported with polyhedron transforms and
@@ -43,6 +46,10 @@
   groups, Gathers, layers, images, gradients, and opacity; expanded API reference.
 
 ### Changed
+
+- Breaking: LayerStack insertion and movement methods now use spatial names:
+  `insert_below`/`insert_above` and `move_below`/`move_above` replace the former
+  before/after methods. Update callers; the old names have been removed.
 
 - Group is now editable. Existing Drawing-based component definitions remain
   supported and create independent instances; live Entity/Group members use

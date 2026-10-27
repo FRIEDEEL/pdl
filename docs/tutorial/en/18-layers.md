@@ -19,9 +19,19 @@ blue. Within a layer, submission order is stable. `set_layer(layer)` and
 
 `set_layer(1)` resolves to the current Canvas index on the next draw, then binds
 the instance to that Layer identity. Prefer `canvas.layers[1]` when selecting a
-layer before drawing. `insert_before`/`insert_after` insert between adjacent
-layers without changing existing assignments; `move_before`/`move_after` reorder
+layer before drawing. `insert_below`/`insert_above` insert between adjacent
+layers without changing existing assignments; `move_below`/`move_above` reorder
 the layers, including existing captured records.
+
+Read `middle.upper` to get its immediate higher neighbor (`foreground` here),
+and `middle.lower` to get its lower neighbor (`background`). At the top/bottom,
+or before a Layer joins a stack, the missing neighbor is `None`. Reading these
+properties never creates layers; they reflect the current order after insertion
+or movement.
+
+There is no active-layer counter. `Layer()` creates an independent identity
+whose requested initial position is zero; it does not automatically append a
+new top layer. Use explicit `insert_above`/`insert_below` for that intent.
 
 Changing an object's layer affects future draw records; old records keep their
 captured layer identity. A Layer belongs to one Canvas. Separate `Layer(1)`

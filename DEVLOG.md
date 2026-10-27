@@ -385,3 +385,11 @@
 - 新增教程 21／22／23 的英文源和中文对应版本，分别介绍投影后二维标注、平面文字变形对比、D10 面内数字；独立源码位于 examples/tutorial/spatial，正文 literalinclude 绘图部分，完整脚本负责导出。文档构建生成真实 SVG／PDF，并检查三步实际 PDF 输出；更新三维指南、共享 API、示例批量导出与 changelog。
 - 验证：Ruff、格式检查、Pyright strict 通过；pytest 181 项通过；Sphinx -W 构建、全部主示例 SVG／PDF 导出、uv build 和隔离 wheel 的显式投影／图案／SVG／TikZ 渲染通过。D10 单独核验全部面约束、边共享次数和两视角可见数字覆盖。无像素基准测试，未以浏览器检查本地 SVG。按功能提交并合入本地 dev，不推送或发布。
 - 下一阶段：用户要求完成当前工作后讨论透视投影的流程位置和前后关系，本轮仅排入讨论，不实现。需要区分相机空间深度／裁切／遮挡与投影后二维叠放，并单独讨论平面图案从仿射变换扩展到透视映射的输出策略；具体方案尚未确认。
+
+### 2026-10-28 01:54:03
+
+- 用户确认 Layer 相邻访问与空间命名方案，并明确尚未启用兼容性要求，不保留不合理旧 API。另一进程完成后，从 dev 创建 feat/layer-navigation；原有未跟踪 PREFERENCES.md 保持不动。
+- 新增 Layer.upper／lower，只返回当前相邻层；到达栈边界或尚未加入层栈时返回 None，读取不创建层、不循环。插层和移层后读取反映最新顺序。
+- 破坏性调整：insert_before／after 与 move_before／after 删除，分别改为 insert_below／above 与 move_below／above，无兼容别名。同步迁移测试和示例，在 Git 提交中标明 breaking change。
+- 中英文图层教程补充相邻层、缺失邻居和无活动层计数器的说明；自动 API reference 已生成新接口。实际检查教程层序图，绘制结果不变。
+- Ruff、格式检查、Pyright strict 通过；pytest 184 项通过（新增边界、动态邻居、移层及外来层错误测试），Sphinx -W 构建成功。按授权分步提交并合入 dev，不推送或发布。
