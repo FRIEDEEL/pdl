@@ -13,6 +13,7 @@ from pdl.scene.composition import Drawing
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import BLACK, Style
 from pdl.scene.references import AnchorRef, PointSource
+from pdl.scene.spaces import SpacePoint
 from pdl.typography.plain import Text
 from pdl.typography.tex import TeX
 
@@ -35,7 +36,7 @@ class Node:
     text_style: Style = Style(stroke=None, fill=BLACK)
 
     def __post_init__(self) -> None:
-        if not isinstance(self.position, AnchorRef):
+        if not isinstance(self.position, (AnchorRef, SpacePoint)):
             point(self.position)
         if self.shape not in ("rectangle", "circle"):
             raise ValueError("Node shape must be rectangle or circle.")
