@@ -50,7 +50,11 @@ def generate_examples(app: Sphinx) -> None:
         check=True,
     )
 
-    for module in ("examples.spatial.platonic_solids", "examples.spatial.planes"):
+    for module in (
+        "examples.spatial.platonic_solids",
+        "examples.spatial.planes",
+        "examples.spatial.curved_solids",
+    ):
         subprocess.run([sys.executable, "-m", module], cwd=ROOT, check=True)
 
 

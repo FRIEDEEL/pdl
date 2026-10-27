@@ -10,6 +10,10 @@
 
 ### Added
 
+- Smooth 3D cylinders and spheres with portable SVG/TikZ/PDF vector gradients.
+  Cylinders sample directional Lambert shading; spheres use an explicit radial
+  lighting approximation. Includes light-direction and limiting-view examples.
+
 - 3D Cartesian frames and affine transforms, orthographic projection, planar
   placement of 2D drawings, indexed polygonal solids and all five Platonic solids.
   Directional flat shading maps intrinsic RGB color using oriented face normals;
