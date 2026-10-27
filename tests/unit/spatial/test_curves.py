@@ -24,8 +24,10 @@ from pdl.scene.composition import GroupDescription
 
 def test_sphere_light_direction_and_backlight() -> None:
     camera = OrthographicCamera(0, 0)
-    left = Scene3D((Sphere(),), camera, DirectionalLight(Vector3D(-1, 1, 0)))
-    right = Scene3D((Sphere(),), camera, DirectionalLight(Vector3D(-1, -1, 0)))
+    left = Scene3D((Sphere(),), camera, DirectionalLight(Vector3D(-1, 1, 0)), visibility="centroid")
+    right = Scene3D(
+        (Sphere(),), camera, DirectionalLight(Vector3D(-1, -1, 0)), visibility="centroid"
+    )
     left_fill = left.decompose()[0].style
     right_fill = right.decompose()[0].style
     assert left_fill is not None and right_fill is not None
@@ -35,7 +37,12 @@ def test_sphere_light_direction_and_backlight() -> None:
     assert left_fill.fill.center[0] < 0.5 < right_fill.fill.center[0]
     assert left_fill.fill.stops == right_fill.fill.stops
     color = Color(1, 0.5, 0.25)
-    back = Scene3D((Sphere(color=color),), camera, DirectionalLight(Vector3D(1, 0, 0), 0.2))
+    back = Scene3D(
+        (Sphere(color=color),),
+        camera,
+        DirectionalLight(Vector3D(1, 0, 0), 0.2),
+        visibility="centroid",
+    )
     style = back.decompose()[0].style
     assert style is not None and isinstance(style.fill, RadialGradient)
     assert all(stop.color == Color(0.2, 0.1, 0.05) for stop in style.fill.stops)
@@ -45,7 +52,7 @@ def test_cylinder_side_colors_sample_lambert_and_cap_normal() -> None:
     camera = OrthographicCamera(0, 30)
     light = DirectionalLight(Vector3D(-1, 0, -1))
     cylinder = Cylinder(color=Color(1, 0.5, 0.25))
-    drawing = Scene3D((cylinder,), camera, light).decompose()[0]
+    drawing = Scene3D((cylinder,), camera, light, visibility="centroid").decompose()[0]
     assert isinstance(drawing.geometry, GroupDescription)
     side, cap = drawing.geometry.children
     assert side.style is not None and isinstance(side.style.fill, LinearGradient)
@@ -63,7 +70,9 @@ def test_limiting_camera_views_and_native_gradients(elevation: float) -> None:
     canvas = Canvas(70, 70, mode="fit", padding=5)
     canvas.draw(
         Scene3D(
-            (cylinder, Sphere(Point3D(25, 0, 0), radius=5)), camera=OrthographicCamera(0, elevation)
+            (cylinder, Sphere(Point3D(25, 0, 0), radius=5)),
+            camera=OrthographicCamera(0, elevation),
+            visibility="centroid",
         )
     )
     svg = canvas.render("svg")
@@ -81,16 +90,16 @@ def test_unlit_and_axis_magnitude() -> None:
     cylinder = Cylinder(axis=Vector3D(0, 0, 17))
     normalized = Cylinder()
     first_canvas, second_canvas = Canvas(60, 60), Canvas(60, 60)
-    first_canvas.draw(Scene3D((cylinder,)))
-    second_canvas.draw(Scene3D((normalized,)))
+    first_canvas.draw(Scene3D((cylinder,), visibility="centroid"))
+    second_canvas.draw(Scene3D((normalized,), visibility="centroid"))
     assert first_canvas.render("svg") == second_canvas.render("svg")
-    scene = Scene3D((sphere, cylinder), light=None)
+    scene = Scene3D((sphere, cylinder), light=None, visibility="centroid")
     first = scene.decompose()[0]
     assert first.style is not None and first.style.fill == sphere.color
     canvas = Canvas(60, 60, mode="fit")
     canvas.draw(scene)
     assert "Gradient" not in canvas.render("svg")
-    projected = Scene3D((sphere,), light=None).decompose()[0]
+    projected = Scene3D((sphere,), light=None, visibility="centroid").decompose()[0]
     from pdl import Circle
 
     assert isinstance(projected.geometry, Circle)

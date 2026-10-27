@@ -29,7 +29,7 @@ def test_projection_is_a_captured_2d_authoring_snapshot() -> None:
     source = Path().move_to((0, 0)).line_to((1, 0))
     from pdl import Plane3D
 
-    scene = Scene3D((Plane3D().place(source),))
+    scene = Scene3D((Plane3D().place(source),), visibility="centroid")
     projected = scene.project()
     canvas = Canvas(30, 30, mode="fit")
     canvas.draw(projected)
@@ -68,7 +68,9 @@ def test_artwork_is_grouped_with_face_without_font_measurement() -> None:
     cube = regular_polyhedron("cube")
     for i in range(len(cube.faces)):
         cube = cube.with_face_artwork(i, Node(Text("A"), style=Style(stroke=None)))
-    projected = Scene3D((cube,)).project()  # no font discovery or Node measurement here
+    projected = Scene3D(
+        (cube,), visibility="centroid"
+    ).project()  # no font discovery or Node measurement here
     groups = [d.geometry for d in projected.children if isinstance(d.geometry, GroupDescription)]
     assert len(groups) == 6
     assert all(len(g.children) == 2 for g in groups)

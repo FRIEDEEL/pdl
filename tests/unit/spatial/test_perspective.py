@@ -69,12 +69,16 @@ def test_near_plane_rejection_in_geometry_queries_and_artwork() -> None:
         with pytest.raises(ValueError, match="near"):
             camera.project(p)
         with pytest.raises(ValueError, match="near"):
-            Scene3D((), camera).project().point(p)
+            Scene3D((), camera, visibility="centroid").project().point(p)
     with pytest.raises(ValueError, match="near"):
-        Scene3D((regular_polyhedron("cube", radius=30),), camera).project()
+        Scene3D((regular_polyhedron("cube", radius=30),), camera, visibility="centroid").project()
     surface = Plane3D(Point3D(9, 0, 0), Vector3D(0, 1, 0), Vector3D(0, 0, 1))
     canvas = Canvas(40, 40)
-    canvas.draw(Scene3D((surface.place(Path().move_to((0, 0)).line_to((1, 1))),), camera).project())
+    canvas.draw(
+        Scene3D(
+            (surface.place(Path().move_to((0, 0)).line_to((1, 1))),), camera, visibility="centroid"
+        ).project()
+    )
     with pytest.raises(ValueError, match="near"):
         canvas.render("svg")
 
@@ -84,8 +88,8 @@ def test_depth_sort_is_axial_and_manual_order_overrides_it() -> None:
     # The near plane's reference is farther away in Euclidean distance.
     near = Plane3D(Point3D(20, 200, 0)).place(Path().move_to((0, 0)).line_to((1, 0)))
     far = Plane3D(Point3D(-20, 0, 0)).place(Path().move_to((0, 0)).line_to((1, 0)))
-    automatic = Scene3D((near, far), camera).project()
-    manual = Scene3D((near, far), camera, sort_faces=False).project()
+    automatic = Scene3D((near, far), camera, visibility="centroid").project()
+    manual = Scene3D((near, far), camera, sort_faces=False, visibility="centroid").project()
     assert isinstance(automatic.children[0].geometry, PerspectiveArtwork)
     assert automatic.children[0].geometry.plane == far.plane
     assert isinstance(manual.children[0].geometry, PerspectiveArtwork)
@@ -97,7 +101,7 @@ def test_transparent_faces_keep_back_faces_and_back_artwork() -> None:
     for i in range(len(cube.faces)):
         cube = cube.with_face_artwork(i, Text(str(i)))
     canvas = Canvas(70, 70, mode="fit", padding=4)
-    canvas.draw(Scene3D((cube,), PerspectiveCamera()).project())
+    canvas.draw(Scene3D((cube,), PerspectiveCamera(), visibility="centroid").project())
     root = ET.fromstring(canvas.render("svg"))
     # Six faces plus six outlined numbers; native 2D legends remain native text.
     paths = root.findall(".//{http://www.w3.org/2000/svg}path")
@@ -112,7 +116,9 @@ def test_deferred_text_outlines_capture_and_native_legend() -> None:
     source = Path().move_to((-10, 0)).line_to((10, 0))
     artwork = Group((Drawing(source), Drawing(Node(Text("Plane"), style=Style(stroke=None)))))
     plane = Plane3D(Point3D(0, 0, 0), Vector3D(1, 1, 0), Vector3D(0, 0, 1))
-    snapshot = Scene3D((plane.place(artwork),), PerspectiveCamera(0, 0)).project()
+    snapshot = Scene3D(
+        (plane.place(artwork),), PerspectiveCamera(0, 0), visibility="centroid"
+    ).project()
     baseline = Canvas(60, 60, mode="fit")
     baseline.draw(snapshot)
     before = baseline.render("svg")
@@ -152,7 +158,7 @@ def test_projected_curve_has_bounded_deviation() -> None:
 
 def test_unsupported_curved_solid_is_explicit() -> None:
     with pytest.raises(ValueError, match="OrthographicCamera"):
-        Scene3D((Sphere(),), PerspectiveCamera()).project()
+        Scene3D((Sphere(),), PerspectiveCamera(), visibility="centroid").project()
 
 
 def test_reordering_preserves_source_queries_and_validates_permutation() -> None:
@@ -174,6 +180,6 @@ def test_perspective_images_are_rejected_instead_of_drawing_their_bounds() -> No
     asset = FilePath(__file__).parents[3] / "examples/tutorial/media/quadrants.png"
     surface = Plane3D().place(Image(asset, 10, 10))
     canvas = Canvas(30, 30)
-    canvas.draw(Scene3D((surface,), PerspectiveCamera()).project())
+    canvas.draw(Scene3D((surface,), PerspectiveCamera(), visibility="centroid").project())
     with pytest.raises(ValueError, match="embedded images"):
         canvas.render("svg")
