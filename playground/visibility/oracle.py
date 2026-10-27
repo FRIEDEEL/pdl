@@ -33,6 +33,7 @@ def check(
     camera: PerspectiveCamera,
     samples: int = 2000,
     seed: int = 71,
+    painted_polygons: tuple[tuple[int, tuple[Point, ...]], ...] | None = None,
 ) -> Check:
     """Compare last painted source with the nearest ray hit at seeded screen points."""
     originals = tuple(
@@ -41,6 +42,8 @@ def check(
     projected = tuple(
         (face.source, tuple(camera.project(p) for p in face.vertices)) for face in fragments
     )
+    if painted_polygons is not None:
+        projected = painted_polygons
     rng = Random(seed)
     covered = mismatches = 0
     for index in range(samples):
