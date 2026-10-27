@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, is_dataclass, replace
-from typing import Self, cast
+from typing import TYPE_CHECKING, Self, cast
+
+if TYPE_CHECKING:
+    from pdl.scene.composition import Group
+    from pdl.scene.layers import Layer
 
 from pdl.geometry.bounds import Anchor
 from pdl.geometry.primitives import Path, Position
@@ -31,6 +35,10 @@ def _capture[T](value: T, memo: dict[int, object]) -> T:
     memo[id(value)] = value
     if isinstance(value, CoordinateSystem):
         return value
+    from pdl.scene.composition import Group
+
+    if isinstance(value, Group):
+        return cast(T, value.snapshot())
     if isinstance(value, Entity):
         result = value.snapshot()
         memo[id(value)] = result
@@ -69,6 +77,15 @@ class Placement:
     drawing: Drawing
     space: CoordinateSystem = WORLD
     position: PointSource | None = None
+
+    @property
+    def paint(self) -> Style | None:
+        """Return explicit paint without evaluating placement dependencies."""
+        if self.drawing.style is not None:
+            return self.drawing.style
+        if isinstance(self.drawing.geometry, Placement):
+            return self.drawing.geometry.paint
+        return None
 
     def placed(self) -> Drawing:
         with layout_session() as context:
@@ -117,7 +134,9 @@ class Entity:
     def __init__(
         self, geometry: Graphic, *, style: Style | None = None, space: CoordinateSystem = WORLD
     ) -> None:
-        self._state = Placement(Drawing(capture(geometry), style), space)
+        self.parent: Group | None = None
+        self.assigned_layer: int | Layer = 0
+        self.placement = Placement(Drawing(capture(geometry), style), space)
 
     @property
     def space(self) -> CoordinateSystem:
@@ -131,7 +150,36 @@ class Entity:
 
     def snapshot(self) -> Placement:
         """Return the current placement description, without fixing font metrics."""
-        return capture(self._state)
+        state = self.local_snapshot()
+        if self.parent is None:
+            return state
+        return Placement(
+            Drawing(
+                state,
+                state.paint if state.paint is not None else self.parent.effective_style,
+                self.parent.world_transform,
+            )
+        )
+
+    def local_snapshot(self) -> Placement:
+        return capture(self.placement)
+
+    @property
+    def root(self) -> Entity | Group:
+        """Return the outermost selectable instance."""
+        return self if self.parent is None else self.parent.root
+
+    @property
+    def layer(self) -> int | Layer:
+        """Return the effective layer of this instance or its outermost Group."""
+        return self.root.assigned_layer
+
+    def set_layer(self, layer: int | Layer) -> Self:
+        """Set the outermost instance layer; grouped children promote with a warning."""
+        from pdl.scene.layers import assign_layer
+
+        assign_layer(self, layer)
+        return self
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Capture an anchor of the current state for later evaluation.
@@ -155,7 +203,7 @@ class Entity:
         Returns:
             This modified Entity. Position/font dependencies remain unevaluated.
         """
-        self._state = Placement(self._state.drawing, self._state.space, capture(position))
+        self.placement = Placement(self.placement.drawing, self.placement.space, capture(position))
         return self
 
     def transform(self, transform: Transform) -> Self:
@@ -168,7 +216,9 @@ class Entity:
         Returns:
             This modified Entity; the underlying numerical shape is not rewritten.
         """
-        self._state = Placement(Drawing(self.snapshot(), transform=transform))
+        parent = Transform() if self.parent is None else self.parent.world_transform
+        local = parent.inverse() @ transform @ parent
+        self.placement = Placement(Drawing(self.local_snapshot(), transform=local))
         return self
 
     def translate(self, x: float, y: float) -> Self:
