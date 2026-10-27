@@ -96,3 +96,15 @@ regression checks that every whole-face permutation still has visibility errors.
   these are not stroked cut edges. No pixel-baseline comparison is provided.
 
 See [RESULTS.md](RESULTS.md) for the measured local run and interpretation.
+
+## Formal library implementation
+
+The prototype is retained as a historical experiment. pdl now selects BSP in
+`Scene3D.project()` for polygon-only scenes without face artwork, with concave
+loop decomposition, source-face correspondence and explicit visibility modes.
+Use `uv run python -m playground.visibility.library` to benchmark the public
+library through 2D Authoring and check its actual paint list against the same
+independent oracle. This writes `output/library-*.svg`, `library-results.json`
+and `library-timings.csv`. The original runner explicitly requests centroid
+mode for its baseline so upgrading pdl does not accidentally change the reference.
+See the [formal tutorial](../../docs/tutorial/en/26-visibility.md).

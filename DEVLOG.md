@@ -420,3 +420,13 @@
 - 生成九个场景 SVG 及平行面／相交面／循环遮挡／随机稠密面四组透视新旧对照 SVG、TikZ、PDF；实际查看 PDF 栅格预览并调整图内留白与缩放。十份 SVG XML 均无内嵌位图。中英文 README 说明运行方法、计时边界与限制。
 - 限制：仅合法不透明凸平面面片，无凹面／曲面／透明度／面内图案／近面裁切；输入合法性仍为前提。使用绝对 1e-8 mm 浮点容差，不是精确谓词。片段预算 100000、树深预算 500，超限明确报错，不静默退回中心排序；尚无投影范围筛选或空间索引。
 - 验证：原项目 Ruff、格式、Pyright strict 通过，pytest 198 项通过；playground 独立 Ruff、格式、Pyright strict 与十项测试通过。不推送或发布，原未跟踪 PREFERENCES.md 保持不动。
+
+### 2026-10-28 03:11:20
+
+- 用户验收 playground 原型并授权正式接入库、更新教程与示例。新增 src/pdl/spatial/visibility.py，将 BSP 切分与原边溯源移入内部模块，缓存片段法向；Scene3D.project 对不带面内图案的纯多面体默认使用 BSP，支持正交／透视、相交面、循环遮挡、简单凹面及逐面透明度。凹面通过耳切分解，三角化与 BSP 新边均不描线。
+- 新增 visibility=auto／bsp／centroid、bsp_tolerance（默认绝对 1e-8 mm）和 max_fragments（默认 100000）。曲面、自由平面图案、面内图案尚无严格裁切支持：auto 对整个场景选中心近似并提示；centroid 明确接受近似；bsp 明确拒绝这些输入。sort_faces=False 一律保留原始整面顺序，不切分。片段／树深预算超限报错，不静默退回近似。
+- ProjectedScene.visibility 报告实际模式，source_faces 将绘制子项关联到源对象／源面；原顶点、面中心索引不变。reordered 同时更新溯源并标记 manual。默认子项可能从完整面变为片段，作为 breaking behavior 记录迁移方式。未新增 Python 依赖，没有改为通用实体布尔或解析曲面渲染。
+- 新增正式主示例 examples/spatial/visibility.py：平行面排序反例、相交面、三条带循环遮挡与透明相交面，均保留同几何中心排序对照。新增教程 26 英文源／中文译文和独立可运行教程示例，更新旧教程 21／23／24／25、空间指南、README、changelog 与批量导出。已有图案／曲面示例和相关测试显式选择 centroid，以说明实际边界。
+- 保留 playground 冻结原型；其基线显式指定 centroid，避免库默认变化污染旧比较。新增 playground.visibility.library，实际调用正式 Scene3D.project，计时涵盖捕获、BSP、投影和二维 Authoring。九组各三次，射线验证读取实际返回的二维片段；各组 1024 条射线均无抽样错误。256 面稀疏／中等／稠密中位数约 156.6／384.8／1709.0 ms，分别产生 366／1329／7427 片段。数据更新至 RESULTS.md，原始产物保持忽略。
+- 新增十七项正式测试，覆盖两种相机、独立射线可见性、循环、随机几何、凹面与反绕序、共面优先级、透明全层顺序、实际投影轮廓长度守恒、模式拒绝／回退、近面和预算边界。原型十项测试继续通过。浮点及抽样验证不代表精确谓词或逐像素证明。
+- 验证：Ruff、格式、Pyright strict 通过；pytest 215 项通过且无警告；playground 十项测试与独立类型检查通过。Sphinx -W 构建无警告，76 个 HTML 页面中 10828 个本地链接／资源引用无缺失。全部主示例 SVG／TikZ／PDF 实际导出成功；查看两个新 PDF 的栅格预览，检查新 SVG XML 无内嵌位图。uv build 与解包 wheel 隔离 BSP＋双后端冒烟通过。未建立像素基准；原未跟踪 PREFERENCES.md 保持不动，不 push 或发布。

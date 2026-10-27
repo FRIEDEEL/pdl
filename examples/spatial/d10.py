@@ -78,8 +78,8 @@ def numbered_die() -> Polyhedron:
 def example() -> Canvas:
     die = numbered_die()
     light = DirectionalLight(Vector3D(-1, -2, -3), ambient=0.38)
-    front = Scene3D((die,), OrthographicCamera(28, 22), light).project()
-    back = Scene3D((die,), OrthographicCamera(208, -22), light).project()
+    front = Scene3D((die,), OrthographicCamera(28, 22), light, visibility="centroid").project()
+    back = Scene3D((die,), OrthographicCamera(208, -22), light, visibility="centroid").project()
 
     # The annotation is ordinary 2D authoring, created after projection.
     face = 0

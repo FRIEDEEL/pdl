@@ -55,3 +55,12 @@ PDF 对照图需要 XeLaTeX；没有增加 Python 依赖。可用 Ghostscript �
 它不同于新增描边；没有像素基准测试。
 
 实测数据及解释见 [RESULTS.md](RESULTS.md)，详细设计见 [英文说明](README.md)。
+
+## 正式库实现
+
+pdl 现已将 BSP 接入 `Scene3D.project()`，支持凹面分解、源面对应及明确的算法选择；
+本目录原型保留为历史实验。运行 `uv run python -m playground.visibility.library`，
+可对正式公开接口计时，并将实际返回的二维绘制片段与独立射线求交结果比较。
+输出 `output/library-*.svg`、`library-results.json`、`library-timings.csv`。
+原性能脚本基线已显式选择 centroid，防止库升级后参照算法改变。
+参见[正式教程](../../docs/tutorial/zh/26-visibility.md)。

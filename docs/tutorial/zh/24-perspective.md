@@ -34,7 +34,7 @@ projected_x = focal_length * x / axial_distance
 projected_y = focal_length * y / axial_distance
 ```
 
-`d` 越大越靠近相机。排序采用这个轴向深度，不是到相机的欧氏距离，也与光照方向无关。
+`d` 越大越靠近相机。中心排序模式采用这个轴向深度，不是到相机的欧氏距离，也与光照方向无关。
 `camera.eye` 返回世界坐标中的相机位置。`projected.point(...)`、`vertex(...)` 和
 `face_center(...)` 使用同一投影；索引仍对应原始几何。
 
@@ -56,8 +56,8 @@ legend 按[第 21 章](21-project-3d.md)在投影后添加，保持普通二维�
 
 透视仅支持多面体和平面图案；Sphere、Cylinder 仍要求 OrthographicCamera，使用透视相机
 会明确报错。所有顶点、图案端点和贝塞尔控制点都必须严格位于近裁面前方的有效空间。
-无效多面体点在投影时报错，延迟图案可能在测量边界或导出时报错。不自动做近／远裁切、
-面切分、相交求解或精确可见性计算。
+无效多面体点在投影时报错，延迟图案可能在测量边界或导出时报错。不自动做近／远裁切。
+本章带图案示例显式使用近似中心排序；纯多面体的 BSP 切分见[第 26 章](26-visibility.md)。
 
 试着将 distance 和 focal_length 同时从 55 改为 110：平面更接近左侧正交原图，target
 平面的比例保持不变。

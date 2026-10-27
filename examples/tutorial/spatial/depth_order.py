@@ -28,7 +28,7 @@ objects = (
     near.place(Rectangle((-15, -13), 30, 26), orange),
     far.place(Rectangle((-15, -13), 30, 26), blue),
 )
-automatic = Scene3D(objects, camera, light=None).project()
+automatic = Scene3D(objects, camera, light=None, visibility="centroid").project()
 manual = Scene3D(objects, camera, light=None, sort_faces=False).project()
 # Or permute the current projected paint list; source queries remain unchanged.
 restored = manual.reordered((1, 0))

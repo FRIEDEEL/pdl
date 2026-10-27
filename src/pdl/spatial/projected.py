@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from typing import Literal
 
 from pdl.geometry.bounds import Anchor
 from pdl.geometry.primitives import Point
@@ -15,9 +16,15 @@ from pdl.spatial.coordinates import Point3D
 class ProjectedScene:
     """A reusable 2D authoring composite, before layout or font measurement.
 
-    children contain projected drawings in paint order. vertices and face_centers
-    keep source object/face indices independent of that order; non-polyhedra have
-    empty entries. Projected points are fixed local millimeter coordinates, not
+    children contain projected drawings in paint order. source_faces maps each
+    child to (object index, original face index), or None for non-polyhedra.
+    BSP fragments can repeat one source face; original vertex/face queries are
+    independent of splitting. visibility reports bsp, centroid, or manual;
+    reordered snapshots report manual. Hand-built snapshots may omit source_faces.
+
+    vertices and face_centers keep source object/face indices independent of
+    that order; non-polyhedra have empty entries. Projected points are fixed
+    local millimeter coordinates, not
     visibility tests or live references. Group the snapshot with its 2D labels
     to move/scale them together. Projection captures built-in mutable artwork;
     changing source paths afterward requires another Scene3D.project call.
@@ -33,6 +40,8 @@ class ProjectedScene:
     distance: float | None = None
     focal_length: float = 100
     near: float = 0.1
+    visibility: Literal["bsp", "centroid", "manual"] = "manual"
+    source_faces: tuple[tuple[int, int] | None, ...] = ()
 
     def decompose(self) -> tuple[Drawing, ...]:
         """Expose ordinary 2D authoring drawings to the common evaluator."""
@@ -49,7 +58,12 @@ class ProjectedScene:
         """
         if sorted(order) != list(range(len(self.children))):
             raise ValueError("Drawing order must be a permutation of all child indices.")
-        return replace(self, children=tuple(self.children[i] for i in order))
+        return replace(
+            self,
+            children=tuple(self.children[i] for i in order),
+            source_faces=tuple(self.source_faces[i] for i in order) if self.source_faces else (),
+            visibility="manual",
+        )
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Reference the 2D bounds, including layout-dependent face artwork."""

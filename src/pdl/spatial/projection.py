@@ -1,9 +1,11 @@
-"""Cameras, directional flat shading and approximate painter ordering."""
+"""Cameras, directional shading and BSP or approximate polygon ordering."""
 
 from dataclasses import dataclass
 from math import cos, isfinite, radians, sin
+from typing import Literal
+from warnings import warn
 
-from pdl.geometry.primitives import Point, Polygon
+from pdl.geometry.primitives import Line, Point, Polygon
 from pdl.geometry.transforms import Transform
 from pdl.scene.authoring import capture
 from pdl.scene.composition import Drawing, GroupDescription
@@ -128,19 +130,136 @@ class PerspectiveCamera(OrthographicCamera):
 class Scene3D:
     """Project solids and planar drawings into an ordinary 2D composite.
 
-    All faces in one scene are sorted together, far to near, by centroid
-    depth. Surface placements use their explicit depth reference. No face
-    splitting, intersection resolution, hidden-line extraction or backface
-    culling is performed. Painter ordering can fail for overlapping depth
-    intervals or cyclic occlusion. ``sort_faces=False`` preserves supplied
-    object/face order for manual control. Spheres and cylinders sort as whole
-    objects by center depth. Separate scenes follow Canvas order.
+    ``visibility="auto"`` uses BSP for scenes containing only Polyhedron objects
+    without face artwork. Simple concave loops are triangulated as needed;
+    intersecting faces and visibility cycles are split into ordered fragments.
+    Opacity is composited back-to-front, without refraction or solid booleans.
+    Coplanar ties follow input object/face order. No backface culling is used.
+
+    Curved solids, free planar drawings and face artwork require approximate
+    centroid ordering: auto emits a warning and records this mode in the result;
+    choose ``visibility="centroid"`` to acknowledge it explicitly, or "bsp" to
+    reject unsupported scenes. This selection applies to the entire scene.
+    ``sort_faces=False`` bypasses all sorting and splitting, preserving input
+    object/face order, independently of visibility. Separate scenes follow
+    ordinary 2D Canvas order.
+
+    Args:
+        objects: Captured solids and surface drawings, in source-index order.
+        camera: Orthographic or perspective camera. Curved solids are orthographic only.
+        light: Optional directional shading, evaluated before splitting.
+        sort_faces: False selects manual source order without triangulation.
+        visibility: Auto BSP selection, mandatory BSP, or approximate centroid sorting.
+        bsp_tolerance: Positive finite absolute world-plane tolerance in mm (1e-8).
+        max_fragments: Positive fragment budget including triangulation (100000).
+
+    BSP uses floating predicates, not exact arithmetic. A 500-level tree safety
+    limit and the fragment budget raise ValueError; no fallback is attempted.
+    New cut edges receive no stroke. Near-plane crossings still raise errors.
+    Face artwork clipping and analytic curved-surface visibility are not provided.
     """
 
     objects: tuple[Polyhedron | Surface3D | Sphere | Cylinder, ...]
     camera: OrthographicCamera | PerspectiveCamera = OrthographicCamera()
     light: DirectionalLight | None = DirectionalLight()
     sort_faces: bool = True
+    visibility: Literal["auto", "bsp", "centroid"] = "auto"
+    bsp_tolerance: float = 1e-8
+    max_fragments: int = 100_000
+
+    def __post_init__(self) -> None:
+        if self.visibility not in ("auto", "bsp", "centroid"):
+            raise ValueError("visibility must be auto, bsp or centroid.")
+        if not isfinite(self.bsp_tolerance) or self.bsp_tolerance <= 0:
+            raise ValueError("bsp_tolerance must be finite and positive.")
+        if type(self.max_fragments) is not int or self.max_fragments < 1:
+            raise ValueError("max_fragments must be a positive integer.")
+
+    def _visibility_mode(self) -> Literal["bsp", "centroid", "manual"]:
+        if not self.sort_faces:
+            return "manual"
+        supported = all(
+            isinstance(obj, Polyhedron)
+            and (obj.face_artwork is None or all(a is None for a in obj.face_artwork))
+            for obj in self.objects
+        )
+        if self.visibility == "bsp" and not supported:
+            raise ValueError(
+                "BSP requires polyhedra without face artwork; use visibility='centroid' "
+                "for curved solids or planar artwork (approximate ordering)."
+            )
+        if self.visibility == "auto" and not supported:
+            warn(
+                "Scene3D uses approximate centroid ordering for curved solids or planar artwork; "
+                "set visibility='centroid' explicitly to acknowledge this boundary.",
+                UserWarning,
+                stacklevel=3,
+            )
+        return "bsp" if supported and self.visibility != "centroid" else "centroid"
+
+    def _bsp_drawings(self) -> tuple[tuple[Drawing, ...], tuple[tuple[int, int], ...]]:
+        from pdl.spatial.visibility import Fragment, Metrics, build, convex_fragments, ordered
+
+        fragments: list[Fragment] = []
+        sources: list[tuple[int, int]] = []
+        paints: list[Style] = []
+        for object_index, obj in enumerate(self.objects):
+            if not isinstance(obj, Polyhedron):
+                raise TypeError("BSP requires polygon solids.")
+            # Fail before tree construction when any source vertex crosses near.
+            for vertex in obj.vertices:
+                self.camera.project(vertex)
+            for face_index, face in enumerate(obj.faces):
+                points = tuple(obj.vertices[index] for index in face)
+                color = obj.color if obj.face_colors is None else obj.face_colors[face_index]
+                if self.light is not None:
+                    color = self.light.shade(color, face_normal(points))
+                fragments.extend(convex_fragments(points, len(sources), self.bsp_tolerance))
+                sources.append((object_index, face_index))
+                paints.append(
+                    Style(
+                        fill=color,
+                        stroke=obj.stroke,
+                        line_width=obj.line_width,
+                        line_join="round",
+                        opacity=obj.opacity,
+                    )
+                )
+                if len(fragments) > self.max_fragments:
+                    raise ValueError(f"BSP fragment budget exceeded ({self.max_fragments}).")
+        metrics = Metrics(input_faces=len(fragments))
+        tree = build(tuple(fragments), metrics, self.bsp_tolerance, self.max_fragments)
+        viewer = (
+            self.camera.eye
+            if isinstance(self.camera, PerspectiveCamera)
+            else self.camera.toward_viewer
+        )
+        result: list[Drawing] = []
+        correspondence: list[tuple[int, int]] = []
+        for fragment in ordered(tree, viewer):
+            points = tuple(self.camera.project(p) for p in fragment.vertices)
+            paint = paints[fragment.source]
+            if all(fragment.boundary):
+                drawing = Drawing(Polygon(points), paint)
+            else:
+                # Paint fragments atomically. Never stroke new BSP/triangulation cuts.
+                fill = Drawing(
+                    Polygon(points), Style(stroke=None, fill=paint.fill, opacity=paint.opacity)
+                )
+                edges = tuple(
+                    Drawing(
+                        Line(a, points[(i + 1) % len(points)]),
+                        Style(
+                            stroke=paint.stroke, line_width=paint.line_width, opacity=paint.opacity
+                        ),
+                    )
+                    for i, a in enumerate(points)
+                    if fragment.boundary[i] and paint.stroke is not None and paint.line_width > 0
+                )
+                drawing = Drawing(GroupDescription((fill, *edges)))
+            result.append(drawing)
+            correspondence.append(sources[fragment.source])
+        return tuple(result), tuple(correspondence)
 
     def project(self) -> ProjectedScene:
         """Capture a 2D authoring snapshot without measuring text or rendering.
@@ -157,8 +276,44 @@ class Scene3D:
         return self.project().decompose()
 
     def _project(self) -> ProjectedScene:
-        items: list[tuple[float, Drawing]] = []
-        for obj in self.objects:
+        mode = self._visibility_mode()
+        if mode == "bsp":
+            children, source_faces = self._bsp_drawings()
+        else:
+            children, source_faces = self._centroid_drawings()
+        vertices = tuple(
+            tuple(self.camera.project(p) for p in obj.vertices)
+            if isinstance(obj, Polyhedron)
+            else ()
+            for obj in self.objects
+        )
+        centers = tuple(
+            tuple(
+                self.camera.project(centroid(tuple(obj.vertices[i] for i in face)))
+                for face in obj.faces
+            )
+            if isinstance(obj, Polyhedron)
+            else ()
+            for obj in self.objects
+        )
+        right, up = self.camera.right, self.camera.up
+        return ProjectedScene(
+            children,
+            vertices,
+            centers,
+            self.camera.target,
+            (right.x, right.y, right.z),
+            (up.x, up.y, up.z),
+            self.camera.distance if isinstance(self.camera, PerspectiveCamera) else None,
+            self.camera.focal_length if isinstance(self.camera, PerspectiveCamera) else 100,
+            self.camera.near if isinstance(self.camera, PerspectiveCamera) else 0.1,
+            visibility=mode,
+            source_faces=source_faces,
+        )
+
+    def _centroid_drawings(self) -> tuple[tuple[Drawing, ...], tuple[tuple[int, int] | None, ...]]:
+        items: list[tuple[float, Drawing, tuple[int, int] | None]] = []
+        for object_index, obj in enumerate(self.objects):
             if isinstance(obj, Polyhedron):
                 for i, face in enumerate(obj.faces):
                     points = tuple(obj.vertices[index] for index in face)
@@ -180,7 +335,7 @@ class Scene3D:
                         surface = obj.face_plane(i)
                         overlay = self._plane_drawing(surface, artwork)
                         drawing = Drawing(GroupDescription((drawing, overlay)))
-                    items.append((self.camera.depth(centroid(points)), drawing))
+                    items.append((self.camera.depth(centroid(points)), drawing, (object_index, i)))
             elif isinstance(obj, (Sphere, Cylinder)):
                 if isinstance(self.camera, PerspectiveCamera):
                     raise ValueError("Sphere and Cylinder currently require OrthographicCamera.")
@@ -189,43 +344,18 @@ class Scene3D:
                     if isinstance(obj, Sphere)
                     else project_cylinder(obj, self.camera, self.light)
                 )
-                items.append((self.camera.depth(obj.center), drawing))
+                items.append((self.camera.depth(obj.center), drawing, None))
             else:
                 items.append(
                     (
                         self.camera.depth(obj.depth_point),
                         self._plane_drawing(obj.plane, obj.drawing),
+                        None,
                     )
                 )
         if self.sort_faces:
             items.sort(key=lambda item: item[0])
-        vertices = tuple(
-            tuple(self.camera.project(p) for p in obj.vertices)
-            if isinstance(obj, Polyhedron)
-            else ()
-            for obj in self.objects
-        )
-        centers = tuple(
-            tuple(
-                self.camera.project(centroid(tuple(obj.vertices[i] for i in face)))
-                for face in obj.faces
-            )
-            if isinstance(obj, Polyhedron)
-            else ()
-            for obj in self.objects
-        )
-        right, up = self.camera.right, self.camera.up
-        return ProjectedScene(
-            tuple(drawing for _, drawing in items),
-            vertices,
-            centers,
-            self.camera.target,
-            (right.x, right.y, right.z),
-            (up.x, up.y, up.z),
-            self.camera.distance if isinstance(self.camera, PerspectiveCamera) else None,
-            self.camera.focal_length if isinstance(self.camera, PerspectiveCamera) else 100,
-            self.camera.near if isinstance(self.camera, PerspectiveCamera) else 0.1,
-        )
+        return tuple(item[1] for item in items), tuple(item[2] for item in items)
 
     def _plane_drawing(self, plane: Plane3D, drawing: Drawing) -> Drawing:
         if isinstance(self.camera, PerspectiveCamera):

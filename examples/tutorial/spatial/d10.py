@@ -27,7 +27,7 @@ for face_index in range(10):
     )
     die = die.with_face_artwork(face_index, number)
 
-projected = Scene3D((die,), camera=OrthographicCamera(28, 22)).project()
+projected = Scene3D((die,), camera=OrthographicCamera(28, 22), visibility="centroid").project()
 center = projected.face_center(0, 0)
 leader = Line((center.x + 3, center.y), (38, 14))
 legend = Text("Face 1: a 2D legend", position=(40, 13), size=10)

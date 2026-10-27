@@ -45,6 +45,7 @@ def baseline(faces: tuple[Face, ...], camera: PerspectiveCamera = CAMERA) -> Sce
         ),
         camera,
         light=None,
+        visibility="centroid",
     )
 
 

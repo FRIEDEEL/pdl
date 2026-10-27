@@ -44,7 +44,9 @@ def example() -> Canvas:
             Drawing(Line((0, -15), (0, 15)), Style(line_width=0.2)),
         )
     )
-    scene = Scene3D((plane.place(artwork),), camera=OrthographicCamera(35, 35))
+    scene = Scene3D(
+        (plane.place(artwork),), camera=OrthographicCamera(35, 35), visibility="centroid"
+    )
     marker_world = child.convert_point(Point3D(0, 0, 0), world)
     expected = scene.camera.project(marker_world)
     annotation = Text(

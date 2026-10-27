@@ -34,3 +34,30 @@ Zero sampled errors do not establish all-pixel or exact-arithmetic correctness.
 
 Raw data and every scene SVG are generated under `output/`; rerunning regenerates them.
 See the bilingual READMEs for generation, tolerances, unsupported inputs and exact timing boundaries.
+
+
+## Production library run
+
+The formal `Scene3D.project()` implementation was measured on 2026-10-28
+with `uv run python -m playground.visibility.library` on the same platform.
+Each call includes source capture, BSP, projection, source correspondence and
+2D Authoring construction. Three fresh calls per case; generation, extraction
+of returned polygons, ray checks and export are outside the clock. The oracle
+reads the **actual public output**, not the prototype's fragments.
+
+| Density | Faces | Fragments | Median (ms) | Min–max (ms) | Ray errors / 1024 |
+|---|---:|---:|---:|---:|---:|
+| sparse | 32 | 33 | 10.6 | 10.6–11.6 | 0 |
+| sparse | 96 | 114 | 44.5 | 44.5–44.8 | 0 |
+| sparse | 256 | 366 | 156.6 | 153.5–162.2 | 0 |
+| medium | 32 | 52 | 15.5 | 15.4–15.6 | 0 |
+| medium | 96 | 244 | 84.6 | 84.5–85.7 | 0 |
+| medium | 256 | 1329 | 384.8 | 372.5–386.7 | 0 |
+| dense | 32 | 105 | 26.1 | 25.7–26.3 | 0 |
+| dense | 96 | 835 | 204.7 | 204.4–216.9 | 0 |
+| dense | 256 | 7427 | 1709.0 | 1586.4–1736.8 | 0 |
+
+Raw results: `output/library-results.json`, `output/library-timings.csv`;
+scene images: `output/library-{density}-{count}.svg`. The earlier table is the
+frozen prototype measurement; small speed differences are not a controlled
+optimization comparison. The same floating/sampling caveats apply.

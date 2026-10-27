@@ -35,8 +35,9 @@ provides the ordinary deferred bounds anchors used in earlier chapters.
 
 The supported order is **3D Authoring → 2D Authoring + legends → Resolved → backend**.
 Directly drawing a Scene3D remains a compatibility shorthand; use explicit
-projection when composing 2D annotations. Face sorting remains centroid-based,
-without intersection splitting or cyclic-occlusion handling.
+projection when composing 2D annotations. Polygon-only scenes use BSP splitting
+for intersections and cycles; [chapter 26](26-visibility.md) explains visibility
+and the explicit approximate modes for artwork and curved solids.
 
 Try changing the camera elevation and rerunning. Then rotate the complete Group
 by a different 2D angle and observe that the annotation remains attached.
