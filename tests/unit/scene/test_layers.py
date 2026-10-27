@@ -19,10 +19,10 @@ def test_integer_assignment_capture_and_layer_insertions() -> None:
     canvas.draw(b)
     assert radius(canvas) == [2, 1]
     top = canvas.layers[1]
-    middle = canvas.layers.insert_before(top)
+    middle = canvas.layers.insert_below(top)
     assert canvas.layers[2] is top
     assert a.layer is top
-    canvas.layers.move_before(top, canvas.layers[0])
+    canvas.layers.move_below(top, canvas.layers[0])
     assert radius(canvas) == [1, 2]
     a.set_layer(middle)
     canvas.draw(a)
@@ -67,3 +67,54 @@ def test_layer_membership_and_invalid_drawables() -> None:
     for invalid in (layer, Gather(a)):
         with pytest.raises(TypeError):
             canvas.draw(cast(Graphic, invalid))
+
+
+def test_neighbors_at_boundaries_and_before_adoption_do_not_create_layers() -> None:
+    detached = Layer(5)
+    assert detached.upper is None
+    assert detached.lower is None
+    canvas = Canvas(100, 60)
+    only = canvas.layers[0]
+    assert only.upper is None
+    assert only.lower is None
+    assert len(canvas.layers) == 1
+    canvas.layers.adopt(detached)
+    assert only.upper is detached
+    assert detached.lower is only
+    assert detached.upper is None
+    assert len(canvas.layers) == 2
+
+
+def test_neighbors_follow_insertions_and_moves() -> None:
+    canvas = Canvas(100, 60)
+    bottom = canvas.layers[0]
+    top = canvas.layers.insert_above(bottom, name="top")
+    middle = canvas.layers.insert_below(top, name="middle")
+    assert middle.lower is bottom
+    assert middle.upper is top
+    assert top.position == 2
+    canvas.layers.move_above(bottom, top)
+    assert middle.lower is None
+    assert middle.upper is top
+    assert top.upper is bottom
+    assert bottom.upper is None
+    canvas.layers.move_below(bottom, middle)
+    assert bottom.lower is None
+    assert bottom.upper is middle
+    assert middle.upper is top
+    canvas.layers.move_above(middle, middle)
+    assert middle.lower is bottom
+    assert len(canvas.layers) == 3
+
+
+def test_move_rejects_foreign_layers_without_changing_order() -> None:
+    canvas = Canvas(100, 60)
+    bottom, top = canvas.layers[0], canvas.layers[1]
+    foreign = Layer()
+    for move in (canvas.layers.move_above, canvas.layers.move_below):
+        with pytest.raises(ValueError):
+            move(top, foreign)
+        with pytest.raises(ValueError):
+            move(foreign, top)
+    assert bottom.upper is top
+    assert top.lower is bottom

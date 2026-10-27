@@ -17,8 +17,15 @@ set_layer(layer) 与 layer.add(instance) 只分配归属，不自动绘制。
 
 set_layer(1) 在下一次 draw 时解析为 Canvas 当时的索引，随后绑定 Layer 身份。
 绘制前需要确定归属时，优先使用 canvas.layers[1]。
-insert_before／insert_after 可以在相邻图层之间插层，已有归属不变；
-move_before／move_after 调整层序，也会改变已捕获记录的上下关系。
+insert_below／insert_above 可以在相邻图层之间插层，已有归属不变；
+move_below／move_above 调整层序，也会改变已捕获记录的上下关系。
+
+`middle.upper` 返回紧邻上方的 foreground，`middle.lower` 返回紧邻下方的 background。
+最顶层的 upper、最底层的 lower，以及尚未加入层栈的 Layer 的相邻层都返回 None。
+读取属性不创建新层，插层或移层后再次读取会反映当前顺序。
+
+这里没有“当前活动层”计数器。Layer() 创建独立身份，默认期望插入位置为 0，
+不会自动追加到最上方；需要新建相邻层时显式调用 insert_above／insert_below。
 
 修改对象归属仅影响后续 draw，旧记录保留其 Layer 身份。一个 Layer 只属于一个 Canvas。
 单独构造的两个 Layer(1) 是不同身份；需要统一索引入口时使用 Canvas.layers。
