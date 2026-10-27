@@ -277,3 +277,9 @@
 - 新增 examples/coordinates/relationships.py：旧状态捕获、移动旋转正方形后重新挂接圆、原始三件组件镜像／旋转、字体依赖 Node，提供三种视口输出。实际查看 SVG 渲染和 XeLaTeX PDF，修复旧锚点过早求值及标签遮挡；无像素基准。
 - 新增英文专题 docs/coordinates.md 及对应中文说明，保留此前暂停的 README 草稿和 stash，不恢复改写。
 - 检查记录：Ruff、格式检查、Pyright strict 通过；pytest 103 项通过；uv build 成功。全部 9 个主示例生成并编译，既有字体变体及文章嵌入示例亦成功。合并后还需最终检查，阶段验收交由用户。
+
+### 2026-10-27 18:26:02
+
+- 本阶段按几何基础、场景求值、验收示例、文档拆成四个提交，并以 git merge --no-ff 合入 dev，合并提交为 742b75d。
+- 合并结果上 Ruff、格式检查、Pyright strict 通过，pytest 103 项通过。wheel 解包后以隔离 Python 导入，验证捕获锚点、fit、resolve 及 SVG／TikZ 输出成功。
+- 工作区干净；未 push、发布或打标签。实现交付，等待用户进行阶段验收。
