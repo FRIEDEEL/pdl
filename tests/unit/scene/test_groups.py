@@ -65,3 +65,16 @@ def test_drawing_definitions_create_independent_instances() -> None:
     assert group.members[0] is not group.members[1]
     group.translate(20, 0)
     assert center(Canvas(100, 100), source) == Point(0, 0)
+
+
+def test_member_move_to_and_explicit_paint_in_transformed_parent() -> None:
+    canvas = Canvas(100, 100)
+    explicit = Style(fill=Color(0, 0, 1))
+    child = Entity(Circle((10, 10), 2), style=explicit)
+    group = Group((child,), style=Style(fill=Color(1, 0, 0))).rotate(45)
+    child.move_to((40, 30))
+    assert center(canvas, child).x == pytest.approx(40)
+    assert center(canvas, child).y == pytest.approx(30)
+    assert child.snapshot().placed().style is explicit
+    group.dismiss()
+    assert child.snapshot().placed().style is explicit

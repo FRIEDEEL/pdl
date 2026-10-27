@@ -155,7 +155,7 @@ class Group:
         style: Style | None = None,
         layer: int | Layer | None = None,
     ) -> None:
-        from pdl.scene.authoring import Entity
+        from pdl.scene.authoring import Entity, Placement
         from pdl.scene.layers import highest_layer
 
         self.parent: Group | None = None
@@ -173,7 +173,7 @@ class Group:
         for child in children:
             if isinstance(child, Drawing):
                 member = Entity(child.geometry, style=child.style)
-                member.placement = member.placement.__class__(
+                member.placement = Placement(
                     Drawing(member.placement.drawing.geometry, child.style, child.transform)
                 )
                 member.parent = self
@@ -181,6 +181,11 @@ class Group:
             else:
                 self.add(child)
         self.set_layer(self.assigned_layer)
+
+    @property
+    def dismissed(self) -> bool:
+        """Whether this group has been dissolved and retired."""
+        return self._dismissed
 
     @property
     def members(self) -> tuple[Entity | Group, ...]:
@@ -341,6 +346,8 @@ class Group:
 
     def apply_transform(self, transform: Transform) -> Self:
         """Apply an affine matrix in authoring world space."""
+        if self._dismissed:
+            raise ValueError("Cannot transform a dismissed Group.")
         parent = Transform() if self.parent is None else self.parent.world_transform
         self.transform = parent.inverse() @ transform @ parent @ self.transform
         return self

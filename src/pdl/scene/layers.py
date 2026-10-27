@@ -27,7 +27,7 @@ class Layer:
     """
 
     def __init__(self, position: int = 0, *, name: str = "") -> None:
-        if isinstance(position, bool):
+        if not valid_integer(position):
             raise TypeError("Layer position must be an integer.")
         self.initial_position = position
         self.name = name
@@ -66,29 +66,29 @@ class LayerStack:
     """
 
     def __init__(self) -> None:
-        self.assigned_layers: list[Layer] = []
+        self._ordered: list[Layer] = []
         self.adopt(Layer())
 
     def __len__(self) -> int:
-        return len(self.assigned_layers)
+        return len(self._ordered)
 
     def __getitem__(self, index: int) -> Layer:
-        if isinstance(index, bool):
+        if not valid_integer(index):
             raise TypeError("Layer indices must be integers.")
-        while index >= len(self.assigned_layers):
-            self.adopt(Layer(len(self.assigned_layers)))
-        return self.assigned_layers[index]
+        while index >= len(self._ordered):
+            self.adopt(Layer(len(self._ordered)))
+        return self._ordered[index]
 
     def index(self, layer: Layer) -> int:
-        return self.assigned_layers.index(layer)
+        return self._ordered.index(layer)
 
     def adopt(self, layer: Layer) -> Layer:
         """Attach an independent layer; sharing one across canvases is rejected."""
         if layer.stack is not None and layer.stack is not self:
             raise ValueError("A Layer belongs to one Canvas; use a separate Layer for another.")
-        if layer not in self.assigned_layers:
-            index = max(0, min(layer.initial_position, len(self.assigned_layers)))
-            self.assigned_layers.insert(index, layer)
+        if layer not in self._ordered:
+            index = max(0, min(layer.initial_position, len(self._ordered)))
+            self._ordered.insert(index, layer)
             layer.stack = self
         return layer
 
@@ -97,7 +97,7 @@ class LayerStack:
         index = self.index(reference)
         layer = Layer(name=name)
         layer.stack = self
-        self.assigned_layers.insert(index, layer)
+        self._ordered.insert(index, layer)
         return layer
 
     def insert_after(self, reference: Layer, *, name: str = "") -> Layer:
@@ -105,7 +105,7 @@ class LayerStack:
         index = self.index(reference)
         layer = Layer(name=name)
         layer.stack = self
-        self.assigned_layers.insert(index + 1, layer)
+        self._ordered.insert(index + 1, layer)
         return layer
 
     def move_before(self, layer: Layer, reference: Layer) -> None:
@@ -114,8 +114,8 @@ class LayerStack:
         self.index(reference)
         if layer is reference:
             return
-        self.assigned_layers.remove(layer)
-        self.assigned_layers.insert(self.index(reference), layer)
+        self._ordered.remove(layer)
+        self._ordered.insert(self.index(reference), layer)
 
     def move_after(self, layer: Layer, reference: Layer) -> None:
         """Move a layer above another without altering geometry."""
@@ -123,13 +123,13 @@ class LayerStack:
         self.index(reference)
         if layer is reference:
             return
-        self.assigned_layers.remove(layer)
-        self.assigned_layers.insert(self.index(reference) + 1, layer)
+        self._ordered.remove(layer)
+        self._ordered.insert(self.index(reference) + 1, layer)
 
 
 def assign_layer(member: Entity | Group, layer: int | Layer) -> None:
     """Assign only a top-level unit; layer changes affect subsequent draw captures."""
-    if isinstance(layer, bool):
+    if not valid_layer(layer):
         raise TypeError("Expected an integer layer index or Layer instance.")
     root = member.root
     if root is not member:
@@ -153,3 +153,11 @@ def highest_layer(members: Iterable[Entity | Group]) -> int | Layer:
 
 def layer_position(layer: int | Layer) -> int:
     return layer if isinstance(layer, int) else layer.position
+
+
+def valid_integer(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def valid_layer(value: object) -> bool:
+    return valid_integer(value) or isinstance(value, Layer)

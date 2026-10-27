@@ -203,6 +203,12 @@ class Entity:
         Returns:
             This modified Entity. Position/font dependencies remain unevaluated.
         """
+        if self.parent is not None:
+            target = Placement(Drawing(self.snapshot()), position=capture(position))
+            self.placement = Placement(
+                Drawing(target, transform=self.parent.world_transform.inverse())
+            )
+            return self
         self.placement = Placement(self.placement.drawing, self.placement.space, capture(position))
         return self
 
