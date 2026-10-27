@@ -290,3 +290,10 @@
 - 默认在临时目录编译，仅复制 PDF；找不到编译器时 auto 仅保存 tex，pdf 模式报错；实际编译失败明确报错。保留模式在源码目录编译以供诊断，不自动删除既有产物。
 - examples/tools/render_all 复用编译器并支持模式与中间文件 CLI 参数；清理 examples/output 中旧 aux/log/synctex 等编译产物，保留 tex、pdf 和其他非编译输出。新增中英文输出说明。
 - 验证：Ruff、格式检查、Pyright strict 通过，pytest 108 项通过，覆盖真实编译、保留中间文件、缺失工具、源码模式与失败清理；全部 9 个主示例及字体变体、嵌入文档成功编译。本次未修改绘制逻辑，未新增像素比较。
+
+### 2026-10-27 18:55:58
+
+- 按用户确认的教程范围，新增 `docs/tutorial/en` 与 `docs/tutorial/zh`：Hello world Node、基本图形、描边与填充三章，以及各语言目录页。暂不建立文档网站、不修改 API reference，不扩展后续章节或绘图功能。
+- 在 `examples/tutorial/basics` 新增七个独立脚本，每个仅展示少量操作；坐标示例显式绘制坐标轴、辅助线及位置标签。示例不依赖原有复杂展示例子的辅助导出逻辑，也不需要 TeX。
+- 每个步骤提供完整源码、运行命令、对应 SVG 和小练习；中英文使用相同的英文代码。生成文件保持位于忽略的 `examples/output/tutorial/basics`，文档用相对链接展示，首次查看需运行脚本；`uv run python -m examples.tutorial.render_all` 可一次生成全部图片。
+- 验证：七个脚本实际运行成功，使用 Quick Look 渲染并逐张检查七张 SVG，文字、位置标签及描边填充正常。检查全部教程链接及十四个代码块，确认与实际源码完全一致。Ruff、格式检查、Pyright strict 通过，pytest 108 项通过。未新增依赖、像素基准或修改渲染实现。

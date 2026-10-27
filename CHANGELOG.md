@@ -4,6 +4,9 @@
 
 ### Added
 
+- English and Chinese step-by-step tutorials covering a Hello world node,
+  basic shapes, coordinate guides, strokes and fills, with seven runnable SVG examples.
+
 - Optional TikZ PDF compilation during `Canvas.save`, with auto/source/required
   modes and configurable intermediate-file retention; examples use the same pipeline.
 
