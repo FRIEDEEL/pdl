@@ -40,6 +40,32 @@ class Layer:
         return self.initial_position if self.stack is None else self.stack.index(self)
 
     @property
+    def upper(self) -> Layer | None:
+        """Return the immediately higher layer, without creating one.
+
+        Returns:
+            The current neighbor, or None at the top or before stack adoption.
+            Inserting or moving layers changes subsequent reads.
+        """
+        if self.stack is None:
+            return None
+        index = self.stack.index(self) + 1
+        return self.stack[index] if index < len(self.stack) else None
+
+    @property
+    def lower(self) -> Layer | None:
+        """Return the immediately lower layer, without creating one.
+
+        Returns:
+            The current neighbor, or None at the bottom or before stack adoption.
+            This never wraps around through negative indexing.
+        """
+        if self.stack is None:
+            return None
+        index = self.stack.index(self) - 1
+        return self.stack[index] if index >= 0 else None
+
+    @property
     def members(self) -> tuple[Entity | Group, ...]:
         """Return live outermost members, excluding objects subsequently regrouped."""
         return tuple(m for m in self.registrations.values() if m.root is m and m.layer is self)
@@ -92,7 +118,7 @@ class LayerStack:
             layer.stack = self
         return layer
 
-    def insert_before(self, reference: Layer, *, name: str = "") -> Layer:
+    def insert_below(self, reference: Layer, *, name: str = "") -> Layer:
         """Insert a fresh layer immediately below an existing layer."""
         index = self.index(reference)
         layer = Layer(name=name)
@@ -100,7 +126,7 @@ class LayerStack:
         self._ordered.insert(index, layer)
         return layer
 
-    def insert_after(self, reference: Layer, *, name: str = "") -> Layer:
+    def insert_above(self, reference: Layer, *, name: str = "") -> Layer:
         """Insert a fresh layer immediately above an existing layer."""
         index = self.index(reference)
         layer = Layer(name=name)
@@ -108,7 +134,7 @@ class LayerStack:
         self._ordered.insert(index + 1, layer)
         return layer
 
-    def move_before(self, layer: Layer, reference: Layer) -> None:
+    def move_below(self, layer: Layer, reference: Layer) -> None:
         """Move a layer below another, preserving its identity and recorded members."""
         self.index(layer)
         self.index(reference)
@@ -117,7 +143,7 @@ class LayerStack:
         self._ordered.remove(layer)
         self._ordered.insert(self.index(reference), layer)
 
-    def move_after(self, layer: Layer, reference: Layer) -> None:
+    def move_above(self, layer: Layer, reference: Layer) -> None:
         """Move a layer above another without altering geometry."""
         self.index(layer)
         self.index(reference)
