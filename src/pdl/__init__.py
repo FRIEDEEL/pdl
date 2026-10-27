@@ -1,6 +1,7 @@
 """Static vector drawing through a backend-independent authoring API."""
 
 from pdl.components.connections import Connection
+from pdl.components.flowchart import Decision, FlowEdge, FlowNode, Terminal
 from pdl.components.nodes import Node
 from pdl.geometry.bounds import Bounds
 from pdl.geometry.primitives import (
@@ -78,3 +79,6 @@ __all__ += [
     "Query",
     "ResolvedGraphic",
 ]
+
+
+__all__ += ["FlowNode", "Decision", "Terminal", "FlowEdge"]

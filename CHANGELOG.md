@@ -4,6 +4,10 @@
 
 ### Added
 
+- Growing flowchart components: editable FlowNode, Decision, Terminal and FlowEdge,
+  font-aware directional placement, merges and feedback, and isolated draw captures.
+  Includes a bilingual guide and an SVG/TikZ/PDF example.
+
 - Editable single-parent Groups with add/remove/dismiss, world-preserving
   reparenting, and flat overlapping Gather selections with promotion warnings.
 - Canvas-owned Layer identities with integer lookup, insertion/reordering,
