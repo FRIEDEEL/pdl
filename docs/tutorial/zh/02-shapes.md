@@ -6,8 +6,6 @@
 ## 三角形、矩形和圆
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Polygon, Rectangle
 
 triangle = Polygon(((10, 10), (30, 10), (20, 30)))
@@ -18,16 +16,6 @@ canvas = Canvas(105, 40)
 canvas.draw(triangle)
 canvas.draw(rectangle)
 canvas.draw(circle)
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "shapes.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/shapes.py
 ```
 
 ![shapes](../../../examples/output/tutorial/basics/shapes.svg)
@@ -55,8 +43,6 @@ Circle 用圆心，而 Polygon 直接使用你给出的各个顶点。
 `(20, 15)` 表示从原点向右 20 mm、向上 15 mm，起点不是圆的边缘。
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Line, Style, Text
 
 circle = Circle((20, 15), radius=5)
@@ -76,16 +62,6 @@ canvas.draw(Text("y", position=(1, 30), size=8))
 canvas.draw(Text("20", position=(21, 1), size=8))
 canvas.draw(Text("15", position=(1, 16), size=8))
 canvas.draw(Text("(20, 15)", position=(26, 15), size=8))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "coordinates.svg")
-```
-
-运行（在仓库根目录）：
-
-```sh
-uv run python examples/tutorial/basics/coordinates.py
 ```
 
 ![coordinates](../../../examples/output/tutorial/basics/coordinates.svg)

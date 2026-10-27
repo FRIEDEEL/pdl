@@ -6,8 +6,6 @@ Now we will draw shapes directly, without any text inside them.
 ## A triangle, a rectangle, and a circle
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Polygon, Rectangle
 
 triangle = Polygon(((10, 10), (30, 10), (20, 30)))
@@ -18,16 +16,6 @@ canvas = Canvas(105, 40)
 canvas.draw(triangle)
 canvas.draw(rectangle)
 canvas.draw(circle)
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "shapes.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/shapes.py
 ```
 
 ![shapes](../../../examples/output/tutorial/basics/shapes.svg)
@@ -60,8 +48,6 @@ connect its center to the x and y axes. The label `(20, 15)` means 20 mm right
 and 15 mm up from the origin, not from the edge of the circle.
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Line, Style, Text
 
 circle = Circle((20, 15), radius=5)
@@ -81,16 +67,6 @@ canvas.draw(Text("y", position=(1, 30), size=8))
 canvas.draw(Text("20", position=(21, 1), size=8))
 canvas.draw(Text("15", position=(1, 16), size=8))
 canvas.draw(Text("(20, 15)", position=(26, 15), size=8))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "coordinates.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/coordinates.py
 ```
 
 ![coordinates](../../../examples/output/tutorial/basics/coordinates.svg)

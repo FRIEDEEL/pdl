@@ -1,7 +1,7 @@
 # Learn to draw with pdl
 
 Start with a box saying “Hello world”, then draw and color a few shapes.
-Each step includes a complete Python script and its resulting SVG image.
+Each step includes drawing code, its resulting SVG image, and a link to a complete runnable example.
 No knowledge of pdl's rendering internals is needed.
 
 1. [Your first picture](01-hello-world.md)
@@ -19,7 +19,9 @@ To generate all seven images at once:
 uv run python -m examples.tutorial.render_all
 ```
 
-The code blocks are complete copies of the linked example files. When editing
-a lesson, keep its code block and example source in sync.
+After chapter 1, code blocks show only the drawing code. Saving files and
+choosing output paths are omitted; the linked examples include those steps.
+To save a drawing yourself, append `canvas.save("drawing.svg")` as in chapter 1.
+When editing a lesson, keep its drawing code in sync with the example source.
 
 [中文版](../zh/index.md)

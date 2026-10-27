@@ -6,8 +6,6 @@ We will keep the same circle and change one part of its appearance at a time.
 ## Give the outline a color
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -15,16 +13,6 @@ blue = Color(0.15, 0.35, 0.75)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=blue, line_width=0.5))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "stroke.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/stroke.py
 ```
 
 ![stroke](../../../examples/output/tutorial/basics/stroke.svg)
@@ -45,8 +33,6 @@ Our blue uses more blue than red or green.
 Keep the blue outline and add a light blue fill:
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -55,16 +41,6 @@ light_blue = Color(0.75, 0.85, 1.0)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=blue, fill=light_blue, line_width=0.5))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "fill.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/fill.py
 ```
 
 ![fill](../../../examples/output/tutorial/basics/fill.svg)
@@ -80,8 +56,6 @@ paints the inside.
 To draw only the filled disk, set `stroke=None`:
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Style
 
 circle = Circle((20, 20), radius=10)
@@ -89,16 +63,6 @@ light_blue = Color(0.75, 0.85, 1.0)
 
 canvas = Canvas(40, 40)
 canvas.draw(circle, Style(stroke=None, fill=light_blue))
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "fill_only.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/fill_only.py
 ```
 
 ![fill only](../../../examples/output/tutorial/basics/fill_only.svg)
@@ -116,8 +80,6 @@ The same style options work for polygons and rectangles. Here is the drawing
 from the previous chapter with a different style on each shape:
 
 ```python
-from pathlib import Path
-
 from pdl import Canvas, Circle, Color, Polygon, Rectangle, Style
 
 triangle = Polygon(((10, 10), (30, 10), (20, 30)))
@@ -132,16 +94,6 @@ canvas = Canvas(105, 40)
 canvas.draw(triangle, blue)
 canvas.draw(rectangle, orange)
 canvas.draw(circle, green)
-
-output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"
-output.mkdir(parents=True, exist_ok=True)
-canvas.save(output / "colored_shapes.svg")
-```
-
-Run from the repository root:
-
-```sh
-uv run python examples/tutorial/basics/colored_shapes.py
 ```
 
 ![colored shapes](../../../examples/output/tutorial/basics/colored_shapes.svg)
