@@ -117,3 +117,6 @@ Group 是单一父级的空间组合，Gather 是可以跨层的扁平操作集�
 contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保留同级图片资源目录。
 [渐变](docs/tutorial/zh/20-gradients.md)使用形状局部边界归一化坐标。
 原生文字／TeX 仍限纯色；本阶段不含图层组与整组合成透明度。
+
+三维多面体支持正交与[透视投影](docs/tutorial/zh/24-perspective.md)，按面中心深度近似排序；
+保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/25-depth-order.md)。

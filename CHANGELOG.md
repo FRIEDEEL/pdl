@@ -10,6 +10,11 @@
 
 ### Added
 
+- PerspectiveCamera for polygon solids and planar vector artwork, with explicit
+  near-plane validation and perspective-aware projected point queries.
+- Polyhedron opacity and ProjectedScene.reordered for manual paint order,
+  with bilingual perspective/transparency tutorials and runnable comparisons.
+
 - A bilingual Group/Layer/Gather comparison chapter with a shared-member
   example showing how overlapping selections change one another's arrangement.
 
@@ -49,6 +54,10 @@
   groups, Gathers, layers, images, gradients, and opacity; expanded API reference.
 
 ### Changed
+
+- Face artwork is now retained on back faces, appearing mirrored from behind,
+  so transparent faces can reveal it. Perspective artwork uses vector outlines
+  and adaptive curve polylines; orthographic text stays native.
 
 - Breaking: LayerStack insertion and movement methods now use spatial names:
   `insert_below`/`insert_above` and `move_below`/`move_above` replace the former

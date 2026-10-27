@@ -117,7 +117,9 @@ The compilation test skips explicitly when `pdflatex` is unavailable. Rendering
 examples should also be visually reviewed; no pixel baseline suite is provided.
 
 Layer groups, isolated group compositing, automatic layout/routing, arbitrary
-backend-specific options, animation, and 3D are not implemented.
+backend-specific options and animation are not implemented. Simple 3D supports
+orthographic/perspective polygon projection with approximate face-depth sorting;
+see the [perspective tutorial](docs/tutorial/en/24-perspective.md).
 Public interfaces are provisional before release. For authoring capture, anchors,
 transforms, and viewport policies, follow the tutorial and
 [coordinate guide](docs/coordinates.md).

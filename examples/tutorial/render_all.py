@@ -44,6 +44,8 @@ MODULES = (
     "spatial.projection",
     "spatial.plane_text",
     "spatial.d10",
+    "spatial.perspective",
+    "spatial.depth_order",
 )
 
 
