@@ -10,6 +10,9 @@
 
 ### Added
 
+- A microscope vector poster example with fifteen named subassemblies, shared
+  assembled/exploded geometry and part-relative 2D annotations.
+
 - PerspectiveCamera for polygon solids and planar vector artwork, with explicit
   near-plane validation and perspective-aware projected point queries.
 - Polyhedron opacity and ProjectedScene.reordered for manual paint order,
