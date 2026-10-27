@@ -4,6 +4,9 @@
 
 ### Added
 
+- Optional TikZ PDF compilation during `Canvas.save`, with auto/source/required
+  modes and configurable intermediate-file retention; examples use the same pipeline.
+
 - Basic lines, polylines, circles, rectangles, polygons, elliptical arcs and
   quadratic/cubic paths with explicit closing and multiple subpaths.
 - Solid RGB fill and stroke, fill rules, line caps and joins.

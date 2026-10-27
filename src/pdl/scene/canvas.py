@@ -11,6 +11,7 @@ from typing import Literal
 from pdl.geometry.bounds import Bounds
 from pdl.geometry.transforms import Transform
 from pdl.rendering.config import RendererConfig, rendering
+from pdl.rendering.tikz.compiler import TikZMode, compile_pdf
 from pdl.scene.authoring import capture
 from pdl.scene.composition import Drawing, Graphic
 from pdl.scene.composition import bounds as scene_bounds
@@ -215,6 +216,23 @@ class Canvas:
         *,
         backend: Literal["svg", "tikz"] | None = None,
         fonts: tuple[Font, ...] | None = None,
+        renderer: RendererConfig | None = None,
+        tikz_mode: TikZMode = "auto",
+        keep_intermediates: bool = False,
+        engine: str = "xelatex",
     ) -> None:
-        """Write the selected output as UTF-8 text."""
-        FilePath(filename).write_text(self.render(backend, fonts=fonts), encoding="utf-8")
+        """Save source and optionally compile TikZ to a sibling PDF.
+
+        TikZ modes are auto (compile if available), tex (source only), and
+        pdf (require compilation). Intermediate files are discarded by default.
+        Existing auxiliary files from earlier runs are not removed.
+        """
+        if tikz_mode not in ("auto", "tex", "pdf"):
+            raise ValueError(f"Unknown TikZ output mode: {tikz_mode}")
+        selected = self.backend if backend is None else backend
+        source = FilePath(filename)
+        source.write_text(self.render(backend, fonts=fonts, renderer=renderer), encoding="utf-8")
+        if selected == "tikz":
+            compile_pdf(
+                source, mode=tikz_mode, keep_intermediates=keep_intermediates, engine=engine
+            )

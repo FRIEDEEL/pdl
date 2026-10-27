@@ -283,3 +283,10 @@
 - 本阶段按几何基础、场景求值、验收示例、文档拆成四个提交，并以 git merge --no-ff 合入 dev，合并提交为 742b75d。
 - 合并结果上 Ruff、格式检查、Pyright strict 通过，pytest 103 项通过。wheel 解包后以隔离 Python 导入，验证捕获锚点、fit、resolve 及 SVG／TikZ 输出成功。
 - 工作区干净；未 push、发布或打标签。实现交付，等待用户进行阶段验收。
+
+### 2026-10-27 18:34:47
+
+- 将 TikZ 文档编译集中到 rendering/tikz/compiler.py；Canvas.save 支持 auto（默认）、tex、pdf 模式、指定 engine 和 keep_intermediates。render 保持源码返回接口；TeX 文字测量仍使用原有独立流程。
+- 默认在临时目录编译，仅复制 PDF；找不到编译器时 auto 仅保存 tex，pdf 模式报错；实际编译失败明确报错。保留模式在源码目录编译以供诊断，不自动删除既有产物。
+- examples/tools/render_all 复用编译器并支持模式与中间文件 CLI 参数；清理 examples/output 中旧 aux/log/synctex 等编译产物，保留 tex、pdf 和其他非编译输出。新增中英文输出说明。
+- 验证：Ruff、格式检查、Pyright strict 通过，pytest 108 项通过，覆盖真实编译、保留中间文件、缺失工具、源码模式与失败清理；全部 9 个主示例及字体变体、嵌入文档成功编译。本次未修改绘制逻辑，未新增像素比较。

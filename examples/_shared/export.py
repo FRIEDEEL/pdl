@@ -4,6 +4,7 @@ from pathlib import Path
 
 from examples._shared.config import EXAMPLES, OUTPUT
 from pdl import Canvas
+from pdl.rendering.tikz.compiler import TikZMode
 
 
 def output_base(source: str | Path) -> Path:
@@ -13,8 +14,8 @@ def output_base(source: str | Path) -> Path:
     return destination
 
 
-def export(canvas: Canvas, source: str | Path) -> Path:
+def export(canvas: Canvas, source: str | Path, *, tikz_mode: TikZMode = "auto") -> Path:
     base = output_base(source)
     canvas.save(base.with_suffix(".svg"), backend="svg")
-    canvas.save(base.with_suffix(".tex"), backend="tikz")
+    canvas.save(base.with_suffix(".tex"), backend="tikz", tikz_mode=tikz_mode)
     return base
