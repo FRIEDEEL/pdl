@@ -9,11 +9,10 @@ process = start.right(FlowNode("Process"))
 check = process.right(Decision("Valid?"))
 done = check.right(Terminal("Done"), gap=20, label="Yes")
 retry = check.below(FlowNode("Revise"), gap=15, label="No")
-retry.connect(process, start="west", end="south", via=((37, -32),), label="Retry")
+retry.connect(process, start="west", end="south", label="Retry")
 # A second branch joins the existing end node without repositioning it.
 manual = check.above(FlowNode("Review"), gap=15, label="Check")
-manual.connect(done, start="east", end="north", via=((125, 32),))
-manual.translate(-3, 0)
+manual.connect(done, start="east", end="north")
 check.style = Style(fill=Color(1, 0.93, 0.73), line_width=0.4)
 process.style = Style(fill=Color(0.83, 0.92, 1), line_width=0.4)
 

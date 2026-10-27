@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed
+
+- Flowchart cardinal-port connections now default to orthogonal elbows. Removed
+  accidental node offsets and fixed-coordinate routes from the growing example.
+  Explicit waypoints remain authoritative; `route="straight"` opts into direct lines.
+
 ### Added
 
 - Growing flowchart components: editable FlowNode, Decision, Terminal and FlowEdge,

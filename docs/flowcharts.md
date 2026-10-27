@@ -21,8 +21,9 @@ also moves its grown descendants; unrelated branches retain their placement.
 
 Use `connect(existing)` for merges and feedback, without moving the target.
 It returns an editable `FlowEdge`: set `start`/`end` ports, `via` waypoints,
-`label`, and `style`. Routes are straight segments through explicit waypoints;
-there is no obstacle avoidance. Prefer cardinal ports on diamond nodes.
+`label`, and `style`. Cardinal ports default to horizontal/vertical elbows computed from their current
+positions. Set `route="straight"` for a direct segment. Explicit `via` waypoints
+override this routing. There is no obstacle avoidance. Prefer cardinal ports on diamond nodes.
 Edge labels sit beside the route midpoint; dense diagrams can still overlap.
 
 Draw the root once to include the outgoing graph, including cycles, and any

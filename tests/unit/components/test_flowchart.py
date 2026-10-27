@@ -96,3 +96,46 @@ def test_diagonal_diamond_port_lies_on_boundary() -> None:
     assert isinstance(connection.start, Point)
     assert connection.start.x == pytest.approx(box.anchor().x + box.width / 4)
     assert connection.start.y == pytest.approx(box.anchor().y + box.height / 4)
+
+
+@pytest.mark.parametrize(
+    "start,end", [("east", "north"), ("west", "south"), ("east", "west"), ("south", "south")]
+)
+def test_default_routes_are_axis_aligned(start: str, end: str) -> None:
+    from typing import cast
+
+    from pdl.components.connections import Connection
+    from pdl.geometry.bounds import Anchor
+    from pdl.scene.evaluation import layout_session
+
+    root = FlowNode("Root")
+    target = FlowNode("Target", position=(65, 35))
+    root.connect(target, start=cast(Anchor, start), end=cast(Anchor, end))
+    connection = next(d.geometry for d in root.decompose() if isinstance(d.geometry, Connection))
+    with layout_session() as context:
+        points = [context.point(p) for p in (connection.start, *connection.via, connection.end)]
+    for a, b in zip(points, points[1:]):
+        assert a.x == pytest.approx(b.x) or a.y == pytest.approx(b.y)
+
+
+def test_straight_route_and_explicit_waypoints_are_preserved() -> None:
+    from pdl.components.connections import Connection
+
+    root = FlowNode("Root")
+    target = FlowNode("Target", position=(65, 35))
+    edge = root.connect(target, route="straight")
+    connection = next(d.geometry for d in root.decompose() if isinstance(d.geometry, Connection))
+    assert connection.via == ()
+    edge.route = "orthogonal"
+    edge.via = ((25, 15),)
+    connection = next(d.geometry for d in root.decompose() if isinstance(d.geometry, Connection))
+    assert connection.via == edge.via
+
+
+def test_directional_growth_keeps_centers_aligned() -> None:
+    root = FlowNode("Short")
+    child = root.right(Terminal("A longer label"))
+    child.above(FlowNode("Review"))
+    a, b, c = placed(root)
+    assert a.bounds.anchor().y == pytest.approx(b.bounds.anchor().y)
+    assert b.bounds.anchor().x == pytest.approx(c.bounds.anchor().x)

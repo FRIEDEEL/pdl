@@ -115,13 +115,15 @@ class FlowNode:
         end: Anchor = "west",
         label: str = "",
         via: tuple[tuple[float, float], ...] = (),
+        route: Literal["orthogonal", "straight"] = "orthogonal",
     ) -> FlowEdge:
         """Connect existing nodes without moving them; via uses world millimeters.
 
         The returned edge exposes editable ports, label, waypoints and style.
-        Routes are explicit polylines, with no obstacle avoidance.
+        Cardinal ports default to orthogonal elbows; via overrides routing.
+        Use route="straight" for a direct segment. No obstacle avoidance is performed.
         """
-        edge = FlowEdge(self, target, start, end, label, via)
+        edge = FlowEdge(self, target, start, end, label, via, route=route)
         self._edges.append(edge)
         return edge
 
@@ -159,7 +161,14 @@ class FlowNode:
         )
         edges = tuple(
             _EdgeSpec(
-                indices[id(n)], indices[id(e.target)], e.start, e.end, e.label, e.via, e.style
+                indices[id(n)],
+                indices[id(e.target)],
+                e.start,
+                e.end,
+                e.label,
+                e.via,
+                e.style,
+                e.route,
             )
             for n in nodes
             for e in n._edges
@@ -193,6 +202,7 @@ class FlowEdge:
     label: str = ""
     via: tuple[tuple[float, float], ...] = ()
     style: Style = Style(line_width=0.4)
+    route: Literal["orthogonal", "straight"] = "orthogonal"
 
 
 @dataclass(frozen=True)
@@ -219,6 +229,7 @@ class _EdgeSpec:
     label: str
     via: tuple[tuple[float, float], ...]
     style: Style
+    route: Literal["orthogonal", "straight"]
 
 
 @dataclass(frozen=True)
@@ -279,12 +290,17 @@ class FlowDescription:
         drawings: list[Drawing] = []
         for edge in self.edges:
             first, last = port(edge.source, edge.start), port(edge.target, edge.end)
-            connection = Connection(first, last, via=edge.via, style=edge.style)
+            if edge.route not in ("orthogonal", "straight"):
+                raise ValueError("Flow edge route must be orthogonal or straight.")
+            via = edge.via
+            if not via and edge.route == "orthogonal":
+                via = _orthogonal(first, last, edge.start, edge.end)
+            connection = Connection(first, last, via=via, style=edge.style)
             drawings.append(Drawing(connection))
             if edge.label:
                 points = [
                     first,
-                    *[point(p) for p in edge.via],
+                    *[point(p) for p in via],
                     last,
                 ]
                 points = [p for i, p in enumerate(points) if i == 0 or p != points[i - 1]]
@@ -323,3 +339,26 @@ class FlowDescription:
             else:
                 drawings.append(Drawing(node))
         return tuple(drawings)
+
+
+def _orthogonal(first: Point, last: Point, start: Anchor, end: Anchor) -> tuple[Point, ...]:
+    """Build cardinal-port elbows with short outward stubs, without obstacle search."""
+    directions = {"east": (1, 0), "west": (-1, 0), "north": (0, 1), "south": (0, -1)}
+    if start not in directions or end not in directions:
+        return ()
+    sx, sy = directions[start]
+    ex, ey = directions[end]
+    if (first.y == last.y and sx and ex and sx * (last.x - first.x) > 0 and ex == -sx) or (
+        first.x == last.x and sy and ey and sy * (last.y - first.y) > 0 and ey == -sy
+    ):
+        return ()
+    a = Point(first.x + 4 * sx, first.y + 4 * sy)
+    b = Point(last.x + 4 * ex, last.y + 4 * ey)
+    if bool(sx) != bool(ex):
+        elbow = Point(b.x, a.y) if sx else Point(a.x, b.y)
+        return a, elbow, b
+    if sx:
+        x = (a.x + b.x) / 2 if sx != ex else (max(a.x, b.x) + 4 if sx > 0 else min(a.x, b.x) - 4)
+        return a, Point(x, a.y), Point(x, b.y), b
+    y = (a.y + b.y) / 2 if sy != ey else (max(a.y, b.y) + 4 if sy > 0 else min(a.y, b.y) - 4)
+    return a, Point(a.x, y), Point(b.x, y), b
