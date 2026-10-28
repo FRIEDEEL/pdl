@@ -7,13 +7,13 @@
 
 `scene.project()` 显式返回 `ProjectedScene`，它是普通二维 Authoring 组合对象。
 投影捕获内置可变描述，固定本次相机、光照、几何和深度顺序，但不测量文字、不执行二维布局。
-在结果上组合 legend、辅助线、引线，再交由 Canvas 将整套二维 Authoring 求值到 Resolved，
+在结果上组合 legend、辅助线、引线，再交由 Canvas 捕获整套二维 Author 描述，
 最后输出 SVG／TikZ。
 
 `projected.vertex(对象索引, 顶点索引)`、`face_center(对象索引, 面索引)` 和
 `point(世界三维点)` 返回固定的**局部二维毫米坐标**；索引保持原始输入顺序，不随面排序改变。
 它们不是可见性查询，也不是跟随已移动实例的引用。把投影与标注放进同一个 Group，便可一起
-变换。改变视角时重新 project，旧结果不变。`projected.anchor()` 提供普通延迟边界锚点。
+变换。改变视角时重新 project，旧结果不变。`projected.anchor()` 提供普通数值边界锚点。
 非多面体对象没有顶点／面数据。
 
 旧的 `canvas.draw(scene)` 保留为相同投影路径的兼容简写；新代码推荐显式 project。

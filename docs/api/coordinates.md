@@ -38,15 +38,6 @@ Use explicit authoring frames when working before viewport fitting. Queries defa
    :member-order: bysource
 ```
 
-## ResolvedGraphic
-
-```{eval-rst}
-.. autoclass:: pdl.ResolvedGraphic
-   :members:
-   :undoc-members:
-   :member-order: bysource
-```
-
 ## WORLD
 
 ```{eval-rst}

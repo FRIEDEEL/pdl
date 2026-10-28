@@ -4,7 +4,7 @@ from pathlib import Path
 
 from examples._shared.config import EXAMPLES, OUTPUT
 from pdl import Canvas
-from pdl.rendering.tikz.compiler import TikZMode
+from pdl.backends.tikz.compiler import TikZMode
 
 
 def output_base(source: str | Path) -> Path:

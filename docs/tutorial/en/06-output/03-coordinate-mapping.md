@@ -39,7 +39,8 @@ frame moves a point but does not change a displacement. You can pass an explicit
 space point to `move_to` to avoid guessing which frame a coordinate pair belongs to.
 
 `canvas.map(local, matrix)` overrides that frame's placement for this canvas
-only. It replaces the frame's local-to-parent matrix; it does not add to it.
+only, for subsequent measurements and submissions. Existing draw records stay fixed.
+It replaces the frame's local-to-parent matrix; it does not add to it.
 Other canvases and the original frame are unchanged.
 
 ## Try it

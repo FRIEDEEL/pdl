@@ -153,3 +153,7 @@ SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数�
 独立投影共用相机，之后按材料、内部截面、probe、标注的二维顺序绘制。
 BSP 仅在每个受支持的多边形场景内处理，不计算独立快照之间的遮挡。
 曲面暂不支持透视或跨对象 BSP 裁切。
+
+## 源码架构
+
+模块分工和依赖边界见 [架构说明](docs/architecture_zh.md)。

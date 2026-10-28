@@ -30,7 +30,7 @@ from examples.spatial.visibility import example as visibility
 from examples.text.labels import example as text
 from examples.text.tex import example as tex
 from examples.text.tex import export_embedding
-from pdl.rendering.tikz.compiler import TikZMode, compile_pdf
+from pdl.backends.tikz.compiler import TikZMode, compile_pdf
 
 
 def main() -> None:

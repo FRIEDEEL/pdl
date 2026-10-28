@@ -25,9 +25,9 @@
 求值时确定。修改视角或源对象需要再次 `project()`，旧快照不更新。
 `point(Point3D(...))` 用同一相机投影任意世界坐标点，
 `face_center(对象索引, 面索引)` 返回投影后的面顶点平均位置。这些方法不判断可见性。
-`projected.anchor()` 则提供前面章节使用的普通延迟边界锚点。
+`projected.anchor()` 则提供前面章节使用的普通数值边界锚点。
 
-流程为 **3D Authoring → 2D Authoring 与标注 → Resolved → 后端**。
+流程为 **3D 扩展 → 2D Author 与标注 → Canvas 捕获 → 后端**。
 组合二维标注时使用显式投影。
 纯多面体场景采用 BSP 切分处理相交与循环；图案和曲面的显式近似模式及可见性流程
 见[相关章节](05-visibility.md)。

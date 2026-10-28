@@ -1,1 +1,0 @@
-"""Scene facilities for pdl."""

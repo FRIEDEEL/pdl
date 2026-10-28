@@ -1,65 +1,44 @@
 # 6.1 From your objects to an image
 
-The earlier chapters describe what to draw. Now let's look at when those
-descriptions turn into measured geometry and output text.
+Author objects are the only drawing model. Anchor and placement operations
+compute numerical results when called. Text queries use the current font or TeX
+measurement environment; they do not wait for final rendering.
 
-## Three steps
-
-1. **Author:** create shapes, labels, placements, and references. `draw` records
-   the state you add without measuring fonts.
-2. **Resolve:** evaluate positions and typography with the canvas's current
-   settings, then apply the viewport mapping.
-3. **Export:** an adapter writes SVG or TikZ. It uses native objects where
-   supported and decomposes other objects as needed.
-
-Resolved data does not mean everything becomes a Path. Rectangles, circles,
-measured text, and nodes can retain their native types. For example, TikZ can
-output a native node under translation/rotation; more general affine placement
-may require decomposition. Output is not guaranteed pixel-identical across adapters.
+`canvas.draw(object)` captures the current state and fixes typography using that
+canvas's settings. Later edits and per-render font overrides do not relayout old
+records. Draw again to submit a new state. The backend receives ordinary captured
+shapes, text, images and groups, not an independent resolved scene.
 
 ## Keep a fixed result
 
-```{literalinclude} ../../../../examples/tutorial/advanced/resolved.py
+```{literalinclude} ../../../../examples/tutorial/advanced/snapshots.py
 :language: python
 :start-after: "# tutorial-start"
 :end-before: "# tutorial-end"
 ```
 
-![Original label and later moved label](../../../../examples/output/tutorial/advanced/resolved.svg)
+![Original label and later moved label](../../../../examples/output/tutorial/advanced/snapshots.svg)
 
-[Complete runnable example](../../../../examples/tutorial/advanced/resolved.py)
+[Complete runnable example](../../../../examples/tutorial/advanced/snapshots.py)
 
-`canvas.resolve(label)` measures the original label before we move the Entity.
-The main canvas shows both recorded states. The `copy` canvas receives only
-the fixed original result:
+`canvas.snapshot(label)` returns an ordinary Drawing in authoring coordinates,
+with fixed layout, without submitting it. The second canvas draws that same
+captured description:
 
-![Fixed original label](../../../../examples/output/tutorial/advanced/resolved-copy.svg)
+![Fixed original label](../../../../examples/output/tutorial/advanced/snapshots-copy.svg)
 
-The snapshot has fixed positions and typography metrics. It still needs font
-or TeX resources for native text output; it is not an embedded bitmap or a
-self-contained portable font package. Drawing it on another canvas applies
-that destination's mapping to the fixed geometry.
-
-A regular render reevaluates dependencies each time. A reference captures an
-authoring description; a resolved result fixes its measurements too. This is
-why changing fonts can affect a regular reference but not its resolved metrics.
+Native text still needs fonts or TeX resources. SVG viewers and native LaTeX can
+shape glyphs differently; fixed layout does not promise pixel-identical output.
 
 ## Choose output
 
-`canvas.render("svg")` returns XML text. `canvas.render("tikz")` returns TeX
-source; `standalone=False` requests an embeddable TikZ picture. `save` writes
-those sources and can compile a TikZ PDF. Keep source suffix and backend
-consistent: a filename extension does not choose the adapter.
+`canvas.render("svg")` returns XML; `canvas.render("tikz")` returns TeX source.
+`save` writes output and optionally compiles a TikZ PDF. Canvas fitting and
+resource collection operate on the final submitted paint list. Paint order is
+independent of the order in which anchors were calculated.
 
-## Try it
-
-Move the label farther before the second draw call. The copied snapshot stays
-at its original position. Querying an object's dependencies does not draw them,
-and dependency evaluation never rearranges paint order.
-
-API: {py:meth}`pdl.Canvas.resolve`, {py:class}`pdl.ResolvedGraphic`,
-{py:meth}`pdl.Canvas.render`. See the [TikZ output guide](../../../tikz-output.md).
-
+API: {py:meth}`pdl.Canvas.snapshot`, {py:meth}`pdl.Canvas.render`.
+See the [TikZ output guide](../../../tikz-output.md).
 
 ---
 

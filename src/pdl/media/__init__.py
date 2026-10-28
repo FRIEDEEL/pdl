@@ -1,1 +1,0 @@
-"""Captured external image resources."""

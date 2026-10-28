@@ -4,6 +4,16 @@
 
 ### Changed
 
+- **Breaking:** reorganized internal imports into foundation, author, canvas,
+  backends, and extensions. Core 2D imports no longer load diagram or 3D extensions.
+- **Breaking:** anchors return fixed numerical points immediately. Placement and
+  pivot queries use current state; draw captures measured layouts. Later font or
+  object edits do not relayout existing draw records.
+- **Breaking:** removed Canvas.resolve, ResolvedGraphic and deferred AnchorRef.
+  Canvas.snapshot returns an ordinary Drawing in authoring coordinates.
+- TikZ diagrams use pdl-computed shapes and text positions instead of native
+  TikZ node layout. Existing numerical geometry, SVG/TikZ and 3D features remain.
+
 - Reorganized both tutorials into seven nested parts. Group, Gather, and Layer
   precede reference points and Frame; evaluation and coordinate mapping follow
   practical drawing. D10 and the material/probe recipe live in the case-study part.

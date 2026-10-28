@@ -22,7 +22,7 @@ Finish 的中心位于 Start 的右侧锚点向右 35 mm 的地方。
 Connection 默认在末端加箭头；`arrow_end=False` 可以取消箭头，
 `via=((x, y), ...)` 可以指定中间途经点，但不会自动绕开其他物件。
 
-渲染时才测量节点的文字和尺寸，所以写场景时不用提前求宽度，连线也能接在正确的边缘。
+调用锚点时立即测量节点并取得数值位置；连线与节点谁先绘制由 draw 顺序独立决定。
 先画连线、后画节点，可以让连线位于节点后方。
 
 ## 移动物件后，原来的挂接会怎样？
@@ -38,21 +38,21 @@ Connection 默认在末端加箭头；`arrow_end=False` 可以取消箭头，
 [完整可运行示例](../../../../examples/tutorial/layout/captured_anchors.py)
 
 橙色圆在矩形移动前挂上，所以保留原来的位置；绿色圆在移动后挂上，使用新位置。
-Entity 的 anchor 捕获的是**调用时的状态描述**，不会继续跟随这个 Entity 后来的编辑。
+Entity 的 anchor 是**调用时测量得到的数值点**，不跟随后续编辑。
 
-这里还没有把描述变成固定的数值点。如果位置依赖文字度量，更换渲染字体仍可能改变它。
+文字测量在查询时完成，更换渲染字体不改变已取得的点。
 如果希望一组互相连接的物件一起变换，可以用下一章的 Group。
 
 对于旋转后的物件，east 表示局部右侧锚点随物件变换后的结果，
 不一定是最终轴对齐包围盒的最右点。
-需要明确偏移方向时，可以写 `anchor.shifted(frame.vector(...))`，指定沿哪个坐标系偏移。
+需要明确偏移方向时，可以写 `anchor + frame.vector(...).resolve()`，指定沿哪个坐标系偏移。
 
 ## 自己试试
 
 把 Start 的文字改成 `"A longer starting label"`。
 右侧节点和连线会依据重新测量的右边缘调整；必要时加宽画布。
 
-接口说明：{py:class}`pdl.AnchorRef`、{py:class}`pdl.Connection`、{py:meth}`pdl.Entity.anchor`。
+接口说明：{py:class}`pdl.Connection`、{py:meth}`pdl.Entity.anchor`。
 
 
 ---

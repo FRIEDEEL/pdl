@@ -34,7 +34,7 @@ MODULES = (
     "geometry.outline",
     "geometry.curve",
     "geometry.queries",
-    "advanced.resolved",
+    "advanced.snapshots",
     "advanced.fill_rules",
     "advanced.tex_pipeline",
     "layout.editable_groups",

@@ -1,60 +1,37 @@
-# Authoring 状态、坐标空间与求值
+# Author 状态、坐标与数值查询
 
-本文对应英文文档 [coordinates.md](coordinates.md)。
+图形、Text、TeX、Image 和 Group 是唯一的 Author 绘图对象。
+几何参数定义局部内容，摆放施加仿射变换，不存在独立 Resolved 模型。
 
-## 职责与状态捕获
+## 立即求值与捕获
 
-Circle、Rectangle、Polygon、Path、文字和 Group 本身都是可编辑 Entity。
-几何参数描述局部内容，摆放状态保存变换。Drawing 是不可变摆放记录。
-直接操作对象，不再使用额外包装。
+`object.anchor(name)` 立即返回当前状态的世界坐标 Point；文字锚点可能触发字体或 TeX 测量。
+之后修改对象，不更新这个数值。`move_to`／`place` 当场把变换后边界中心移到指定世界位置；
+局部坐标通过显式 frame point 表达。Path.move_to 构建子路径，Path.place 摆放整条路径。
+旋转／缩放的默认中心也在操作发生时测量。
 
-move_to 将变换后局部边界中心移到目标位置。Path.move_to 保留路径构建语义，
-整条路径使用 place。apply_transform、translate、rotate、scale、reflect 修改自身并返回自身。
-旋转／缩放默认绕自身中心，about 显式选择其他支点。copy 得到独立可编辑对象。
-共同变换交给 Group 或 Gather。
+使用 `measurement(RendererConfig(...))` 或 `canvas.typography()` 显式选择字体与 TeX 配置。
+普通 Text 未指定字体时查找默认字体。构造本身不测量，查询、需要尺寸的摆放和提交会测量。
 
-Entity.anchor()、Entity.space 捕获调用时描述状态，不立即测量。目标随后修改
-不影响既有捕获；Canvas.draw() 同样捕获内置可变描述，包括共享 Path。
-自定义 Composite 必须提供不可变描述，不自动冻结任意用户可变对象。
+`Canvas.draw` 使用画布配置捕获状态并固定文字度量。之后修改对象、字体或渲染配置不重新布局
+旧记录。`Canvas.snapshot` 不提交绘制，返回作者坐标中的普通捕获 Drawing。
+定位计算顺序和 draw 遮挡顺序独立，没有持续锚点依赖。
 
-捕获描述仍使用本次 Canvas 字体求值；显式 canvas.resolve() 才固定测量结果。
+## 坐标与查询
 
-## 坐标空间
+采用毫米、x 向右、y 向上。CoordinateSystem 表达显式仿射坐标系，点和向量可转换为数值。
+`in_space(frame)` 指定局部几何的放置坐标。已有 Entity.space／frame 入口在本轮保留为暂定接口。
+局部 Canvas.map 影响后续查询／提交，不改变旧记录；WORLD 映射是最终整页变换。
 
-默认世界坐标以毫米为单位、左下原点、x 向右、y 向上。子空间可嵌套；
-canvas.map(frame, matrix) 覆盖该空间相对父空间的映射，map(WORLD, matrix)
-配置世界到画布的基础映射。不同 Canvas 可采用不同配置。
+普通形状 east 是局部锚点变换后的世界位置；Group 使用可见整体的世界轴对齐边界。
+偏移使用 `anchor + vector.resolve()`。平移影响点，不影响向量；奇异矩阵不能逆转换。
 
-Entity.move_to 的普通坐标属于父空间；带空间点和锚点引用会自动转换。
-Entity.space 的原点沿用数值几何原点，不自动改为边界中心。
+query 的 point／vector 默认返回最终画布数值，bounds 返回不含描边的几何／排版边界，
+ink_bounds 使用字形轮廓。`in_space` 指定作者坐标；from_canvas 逆向转换数值。
+查询不绘制对象。fit／auto_size 使用当前提交列表确定视口，因此最终画布查询应在提交后执行。
 
-形状局部 east 锚点随变换移动；它不等于世界包围盒 east。显式使用
-anchor.shifted(space.vector(x, y)) 区分局部／世界偏移。平移影响点，不影响向量。
-逆向转换遇到奇异矩阵报错，正向变换允许退化。
+clip 固定视口，fit 等比例适配固定画布，auto_size 保持比例并确定尺寸。
+描边余量为保守估计，文字随几何变换，线宽保持最终画布毫米值。空边界没有锚点。
+原生 SVG 与 TeX 字形输出仍可能有差异。
 
-## 查询与输出
-
-依赖顺序决定先测量谁；draw 顺序决定遮挡。求值不自动加入绘制对象。
-常规绘图无需调用 query 或 resolve。
-
-- query().point 返回数值点，bounds 返回不含描边的几何／排版边界。
-- ink_bounds 使用字形实际轮廓；in_space 指定适配前的 Authoring 空间。
-- from_canvas 将数值 Canvas 点转换为固定 Authoring 坐标，不恢复依赖。
-- resolve 返回 Canvas 坐标中的确定快照，保留基础形状、变换、已测量文字和 Node。
-- 后端优先原生表达，不支持时拆解。快照在另一 Canvas 绘制时仍受目标画布适配影响。
-
-fit／auto_size 查询使用当前绘制列表确定视口；没有绘制内容时，bounds／resolve
-使用被查询对象适配。空绘制列表的点／向量查询只使用基础映射。
-
-## 画布策略与边界
-
-clip 默认固定视口裁剪；fit 固定画布、等比例缩放居中；auto_size 保持比例，
-按内容确定尺寸。后两者支持 padding。文字随几何缩放，线宽保持画布毫米值。
-适配使用排版边界和保守描边余量，不宣称精确外观边界。
-
-空几何不会把原点加入整体边界，is_empty 为真且没有锚点。内置坐标不包含依赖
-画布宽高的比例单位，因此不会引入画布尺寸循环。非线性坐标、精确描边边界、
-自动布局／寻路、曲线长度、最近点和一般求交后置。
-
-示例 examples/coordinates/relationships.py 演示状态捕获、变换后重新挂接、
-镜像／旋转组合、文字依赖和三种画布策略。
+完整规则和示例见 [English guide](coordinates.md)。

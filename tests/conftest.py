@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from pdl.typography.plain import Font
+from pdl.foundation.typography.shaping import Font
 
 
 @pytest.fixture

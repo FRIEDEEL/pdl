@@ -21,7 +21,7 @@
 对于文字，普通 bounds 使用排版框；ink_bounds 则使用可见字形轮廓。
 
 Bounds 提供 left、bottom、right、top、width、height。
-它的 anchor 返回数值 Point。要把延迟锚点算成数值，使用
+它的 anchor 返回数值 Point。要转换到画布坐标，使用
 `canvas.query().point(reference, in_space=WORLD)`。
 
 查询不会把目标自动画出来。本例只有显式 draw 才加入图形和红框。

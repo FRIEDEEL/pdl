@@ -233,3 +233,22 @@
   message and granularity rules above, and use `git merge --no-ff`.
 - This standing authorization does not include push or release publication.
   Perform those actions only when explicitly instructed.
+
+## Architecture Boundaries
+
+- Author is the sole drawing object model. Do not introduce a parallel Resolved
+  scene hierarchy. Anchors and placement inputs are evaluated immediately from
+  the referenced object's current state; later edits do not create live bindings.
+- Keep numerical geometry and typography measurement in `foundation/`, with no
+  dependency on Author, Canvas, backends, or extensions.
+- Keep editable 2D drawing semantics in `author/`. It may use foundation services,
+  including external TeX measurement, but must not import output adapters.
+- Place 3D and advanced diagram components under `extensions/`; core 2D must not
+  depend on these extensions. Capture expands extensions into core descriptions.
+- Canvas owns submissions, ordering, and viewport policy. Backends consume the
+  narrow `canvas.records.Page` contract, never the Canvas implementation.
+- Implement anchors numerically in pdl; do not delegate placement to TikZ anchor
+  syntax or native diagram-node layout. Backend primitive optimizations must
+  preserve the already defined geometry and placement.
+- See `docs/architecture.md` and run the architecture boundary tests with the
+  normal validation suite when moving code or introducing dependencies.

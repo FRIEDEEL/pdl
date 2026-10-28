@@ -18,7 +18,7 @@ from pdl import (
     Vector3D,
     regular_polyhedron,
 )
-from pdl.spatial.solids import PlatonicKind
+from pdl.extensions.spatial.solids import PlatonicKind
 
 # Edit these shared parameters to compare lighting and viewing directions.
 CAMERA = OrthographicCamera(azimuth=30, elevation=22)

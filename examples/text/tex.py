@@ -2,7 +2,7 @@
 
 from examples._shared import LABEL, export, output_base
 from pdl import Canvas, RendererConfig, TeX, TeXConfig, Text
-from pdl.components.debug import debug_overlay
+from pdl.extensions.diagrams.debug import debug_overlay
 
 CONFIG = TeXConfig(
     packages=("amsmath", "amssymb"),
