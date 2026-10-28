@@ -2,7 +2,7 @@
 
 具体形状本身就是可编辑的 `Entity`：直接变换，需要留档时使用 `.copy()`。
 `Frame` 和 `ReferencePoint` 是不绘制的参考对象；需要参考系随图形共同变换时，
-显式使用 `Gather`。参见[对象与参考系教程](docs/tutorial/zh/29-entities-and-frames.md)。
+显式使用 `Gather`。参见[对象与参考系教程](docs/tutorial/zh/03-organize/07-frames.md)。
 
 一个用于静态矢量绘图的类型化 Python 库，支持几何图形、路径、文字、LaTeX 公式、
 节点连接、组合复用和仿射坐标系，输出 SVG 或 TikZ。需要 Python 3.12 或更高版本。
@@ -115,17 +115,17 @@ TikZ 编译需要外部 TeX 环境、TikZ 和 standalone，它们不是 Python �
 
 Group 是单一父级的空间组合，Gather 是可以跨层的扁平操作集合。
 通过 Entity／Group 的 set_layer(int_or_layer) 分配图层；Layer 只控制覆盖顺序。
-详见教程[第 16–18 章](docs/tutorial/zh/16-editable-groups.md)。
+详见教程[第 16–18 章](docs/tutorial/zh/03-organize/02-edit-groups.md)。
 
-[图片](docs/tutorial/zh/19-images.md)使用显式毫米视口，支持 PNG／JPEG 和
+[图片](docs/tutorial/zh/04-finish/02-images.md)使用显式毫米视口，支持 PNG／JPEG 和
 contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保留同级图片资源目录。
-[渐变](docs/tutorial/zh/20-gradients.md)使用形状局部边界归一化坐标。
+[渐变](docs/tutorial/zh/04-finish/01-gradients.md)使用形状局部边界归一化坐标。
 原生文字／TeX 仍限纯色；本阶段不含图层组与整组合成透明度。
 
-三维多面体支持正交与[透视投影](docs/tutorial/zh/24-perspective.md)，纯多面体场景默认用 BSP 切分处理相交与循环遮挡（不含面内图案），另有显式近似模式；
-保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/25-depth-order.md)。
+三维多面体支持正交与[透视投影](docs/tutorial/zh/05-spatial/03-perspective.md)，纯多面体场景默认用 BSP 切分处理相交与循环遮挡（不含面内图案），另有显式近似模式；
+保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/05-spatial/04-depth-order.md)。
 
-多面体切分与模式边界见[相交面与可见性教程](docs/tutorial/zh/26-visibility.md)。
+多面体切分与模式边界见[相交面与可见性教程](docs/tutorial/zh/05-spatial/05-visibility.md)。
 
 ## 从组件搭建显微镜
 
@@ -145,8 +145,8 @@ SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数�
 
 `CylinderSurface` 表示开放半圆柱面，`AnnularCylinder` 表示封闭垫圈。
 两者使用 OrthographicCamera，输出纯色、平滑矢量边界。
-见[曲面教程](docs/tutorial/zh/27-cylinder-surfaces.md)与
-[投影图层教程](docs/tutorial/zh/28-projected-layers.md)。
+见[曲面教程](docs/tutorial/zh/05-spatial/06-curved-surfaces.md)与
+[投影图层教程](docs/tutorial/zh/05-spatial/07-projected-composition.md)。
 
 运行 `uv run python -m examples.spatial.material_probe` 生成
 [材料／probe 剖面示意图](examples/spatial/material_probe.py)。

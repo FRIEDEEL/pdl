@@ -1,47 +1,22 @@
-# 跟着例子学 pdl
+# pdl 教程：开发阶段说明
 
-按顺序跟着例子画图。每一步都有小段代码和实际生成的 SVG 图片。
-开始时不用了解渲染器，最后几章再解释内部过程。
+目前 API 尚未稳定，教程先保证例子和行为说明清楚，不追求章节间的自然衔接。
+可以按主题查阅，也可以按下面七篇依次阅读。示例统一使用当前 API。
 
-第一章交代怎样保存文件，后续正文只保留绘图代码，附上完整可运行脚本的链接。
-脚本在仓库根目录运行；如果直接复制正文片段，可自行加上 `canvas.save("drawing.svg")`。
-构建网站时会自动生成图片。直接用 Markdown 预览时，先运行
+每个例子附源代码和实际输出。生成教程图片时，在仓库根目录运行
 `uv run python -m examples.tutorial.render_all`。
-完整运行需要 XeLaTeX 和 dvisvgm，请先看第五章的环境说明。
+涉及 TeX 的例子需要 XeLaTeX 和 dvisvgm，详见文字与公式一节。
 
 ```{toctree}
-:maxdepth: 1
+:maxdepth: 2
 
-01-hello-world
-02-shapes
-03-stroke-and-fill
-04-drawing-order
-05-text-and-tex
-06-transforms
-07-coordinate-systems
-08-anchors
-09-groups
-10-paths
-11-geometry-queries
-12-viewports
-13-rendering
-14-tex-rendering
-15-fill-rules
-16-editable-groups
-17-gathers
-18-layers
-groups-layers-gathers
-19-images
-20-gradients
-21-project-3d
-22-plane-artwork
-23-d10
-24-perspective
-25-depth-order
-26-visibility
-27-cylinder-surfaces
-28-projected-layers
-29-entities-and-frames
+01-start/index
+02-shapes/index
+03-organize/index
+04-finish/index
+05-spatial/index
+06-output/index
+07-recipes/index
 ```
 
-[English version](../en/index.md) · [API 接口文档](../../api/index.md)
+[English](../en/index.md) · [API](../../api/index.md)

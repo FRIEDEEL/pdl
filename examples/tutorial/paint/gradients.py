@@ -26,7 +26,7 @@ canvas = Canvas(105, 65)
 canvas.draw(bar)
 canvas.draw(square)
 canvas.draw(disc)
-bar.rotate(15, center=(22, 17)).translate(0, 30)
+bar.rotate(15, about=(22, 17)).translate(0, 30)
 canvas.draw(bar)
 
 # tutorial-end

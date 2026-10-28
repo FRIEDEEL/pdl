@@ -200,7 +200,7 @@ def resolve_geometry(graphic: Graphic | Drawing) -> ResolvedGraphic:
             if isinstance(geometry, Entity) and not geometry.description_only:
                 geometry = (
                     geometry.snapshot()
-                    if type(geometry) is Entity or "_entity_state" in geometry.__dict__
+                    if "_entity_state" in geometry.__dict__
                     else description(geometry)
                 )
             if isinstance(geometry, Around):

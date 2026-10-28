@@ -4,11 +4,17 @@
 
 ### Changed
 
+- Reorganized both tutorials into seven nested parts. Group, Gather, and Layer
+  precede reference points and Frame; evaluation and coordinate mapping follow
+  practical drawing. D10 and the material/probe recipe live in the case-study part.
+- Removed the Entity(shape) constructor and center pivot keyword. Use concrete
+  objects, about pivots, and in_space for explicit coordinate placement.
+
 - Concrete 2D drawing objects now inherit Entity and support mutable placement,
-  style, and independent copies directly. Entity(shape) remains compatible.
+  style, and independent copies directly. The former Entity(shape) wrapper has been removed.
 - **Breaking behavior:** direct shapes and Groups rotate/scale around their own
-  center by default. Use about=(0, 0) for world-origin operations; center remains
-  an alias. Legacy Entity wrappers retain the world-origin default.
+  center by default. Use about=(0, 0) for world-origin operations; only about is accepted
+  as the pivot keyword.
 - Canvas captures independent object descriptions rather than preserving leaf
   object identity. Integer-derived layers can be reused across canvases;
   explicitly assigned Layer identities remain bound to one Canvas.
@@ -25,6 +31,9 @@
   Explicit waypoints remain authoritative; `route="straight"` opts into direct lines.
 
 ### Added
+
+- Small copy/capture and non-painting reference-point examples with original
+  states retained for visual comparison.
 
 - Non-painting Frame and ReferencePoint entities for explicit Group/Gather
   transformations, coordinate references, and independent frame visualizations.

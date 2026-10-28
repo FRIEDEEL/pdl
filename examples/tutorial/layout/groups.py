@@ -1,21 +1,14 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Drawing, Group, Rectangle, Style, Transform
+from pdl import Canvas, Circle, Color, Group, Rectangle, Style
 
-body = Rectangle((-8, -5), width=16, height=10)
-port = Circle((11, 0), radius=2)
-component = Group(
-    (
-        Drawing(body, Style(fill=Color(0.6, 0.8, 1), line_width=0.5)),
-        Drawing(port, Style(fill=Color(1, 0.7, 0.35), line_width=0.5)),
-    )
-)
-first = Drawing(component, transform=Transform.translate(20, 20))
-second = Drawing(component, transform=Transform.translate(60, 20) @ Transform.rotate(45))
-
+body = Rectangle((-8, -5), 16, 10).set_style(Style(fill=Color(0.6, 0.8, 1), line_width=0.5))
+port = Circle((11, 0), 2).set_style(Style(fill=Color(1, 0.7, 0.35), line_width=0.5))
+component = Group((body, port))
+first = component.copy().translate(20, 20)
+second = component.copy().rotate(45, about=(0, 0)).translate(60, 20)
 canvas = Canvas(85, 45)
 canvas.draw(first)
 canvas.draw(second)
-
 # tutorial-end
 
 if __name__ == "__main__":

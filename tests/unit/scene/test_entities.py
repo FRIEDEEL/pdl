@@ -49,8 +49,11 @@ def test_explicit_pivot_and_draw_capture() -> None:
     before = canvas.render()
     shape.translate(50, 0)
     assert canvas.render() == before
-    with pytest.raises(TypeError, match="either"):
-        shape.rotate(30, about=(0, 0), center=(0, 0))
+    from inspect import signature
+
+    assert "center" not in signature(shape.rotate).parameters
+    with pytest.raises(TypeError, match="base class"):
+        Entity()
 
 
 def test_copy_group_and_member_are_independent() -> None:
@@ -245,3 +248,17 @@ def test_automatic_layers_allow_reuse_but_explicit_layers_remain_canvas_bound() 
         shape.set_layer(second.layers[0])
     with pytest.raises(ValueError, match="one Canvas"):
         Canvas(30, 20).draw(group)
+
+
+def test_direct_coordinate_placement_supports_shapes_and_groups() -> None:
+    from pdl import CoordinateSystem
+
+    local = CoordinateSystem(transform=Transform.translate(10, 5))
+    shape = Circle((2, 3), 1).in_space(local)
+    group = Group((Circle((2, 3), 1),)).in_space(local)
+    canvas = Canvas(60, 40)
+    assert canvas.bounds(shape).anchor() == Point(12, 8)
+    assert canvas.bounds(group).anchor() == Point(12, 8)
+    canvas.draw(group)
+    canvas.map(local, Transform.translate(20, 5))
+    assert canvas.bounds(canvas.drawings[0]).anchor() == Point(22, 8)

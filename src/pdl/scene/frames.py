@@ -107,11 +107,9 @@ class Frame(Entity):
     def place(self, end: PointSource) -> Self:
         return self.move_to(end)
 
-    def rotate(
-        self, angle: float, *, about: PointSource | None = None, center: Position | None = None
-    ) -> Self:
+    def rotate(self, angle: float, *, about: PointSource | None = None) -> Self:
         """Rotate the frame explicitly, defaulting to its own origin."""
-        return self._reference_transform(Transform.rotate(angle), about, center)
+        return self._reference_transform(Transform.rotate(angle), about)
 
     def scale(
         self,
@@ -119,25 +117,19 @@ class Frame(Entity):
         y: float | None = None,
         *,
         about: PointSource | None = None,
-        center: Position | None = None,
     ) -> Self:
         """Scale the frame explicitly, defaulting to its own origin."""
-        return self._reference_transform(Transform.scale(x, y), about, center)
+        return self._reference_transform(Transform.scale(x, y), about)
 
     def _reference_transform(
         self,
         matrix: Transform,
         about: PointSource | None,
-        center: Position | None,
     ) -> Self:
         from pdl.scene.evaluation import layout_session
 
-        if about is not None and center is not None:
-            raise TypeError("Specify either about or center, not both.")
         with layout_session() as context:
-            pivot = context.point(
-                about if about is not None else center if center is not None else self.origin
-            )
+            pivot = context.point(about if about is not None else self.origin)
         return self.apply_transform(matrix.around(pivot))
 
     def visualize(
@@ -210,7 +202,7 @@ class FrameSpace(CoordinateSystem):
         object.__setattr__(self, "source", source)
 
     def __deepcopy__(self, memo: dict[int, object]) -> FrameSpace:
-        """Copy mutable reference state instead of sharing a legacy frame identity."""
+        """Copy mutable reference state instead of sharing an immutable coordinate identity."""
         from copy import deepcopy
 
         result = FrameSpace(self.source)

@@ -3,7 +3,7 @@
 Concrete shapes are editable `Entity` objects: transform them directly and use `.copy()`
 to retain a version. `Frame` and `ReferencePoint` provide non-painting references;
 include a frame explicitly in a `Gather` to move it with a shape. See the
-[entities and frames tutorial](docs/tutorial/en/29-entities-and-frames.md).
+[entities and frames tutorial](docs/tutorial/en/03-organize/07-frames.md).
 
 A typed Python library for static vector drawings: geometry, paths, text,
 LaTeX formulas, connected nodes, reusable groups, and affine coordinate systems,
@@ -125,7 +125,7 @@ Layer groups, isolated group compositing, automatic layout/routing, arbitrary
 backend-specific options and animation are not implemented. Simple 3D supports
 orthographic/perspective polygon projection with BSP splitting for intersections
 and cyclic occlusion (without face artwork), plus explicit approximate modes;
-see the [visibility tutorial](docs/tutorial/en/26-visibility.md).
+see the [visibility tutorial](docs/tutorial/en/05-spatial/05-visibility.md).
 Public interfaces are provisional before release. For authoring capture, anchors,
 transforms, and viewport policies, follow the tutorial and
 [coordinate guide](docs/coordinates.md).
@@ -136,11 +136,11 @@ transforms, and viewport policies, follow the tutorial and
 A Group is one single-parent spatial unit. Gather is a flat operation set and
 can cross layers. Assign Entity/Group instances with `set_layer(int_or_layer)`;
 Layer itself controls coverage only. See tutorial chapters
-[16–18](docs/tutorial/en/16-editable-groups.md).
+[16–18](docs/tutorial/en/03-organize/02-edit-groups.md).
 
-[Images](docs/tutorial/en/19-images.md) use explicit millimeter viewports and
+[Images](docs/tutorial/en/04-finish/02-images.md) use explicit millimeter viewports and
 contain/cover/stretch fitting. SVG embeds bytes; keep the generated asset folder
-beside exported TikZ source. [Gradients](docs/tutorial/en/20-gradients.md) use
+beside exported TikZ source. [Gradients](docs/tutorial/en/04-finish/01-gradients.md) use
 normalized local shape bounds. Native text/TeX remain solid-color only; isolated
 group opacity and layer groups are outside this stage.
 
@@ -166,8 +166,8 @@ kinematic specifications.
 
 Use `CylinderSurface` for an open half-cylinder and `AnnularCylinder` for a closed
 washer. Both project smooth, uniformly colored vector boundaries with an
-OrthographicCamera. See the [curved-surface tutorial](docs/tutorial/en/27-cylinder-surfaces.md)
-and [projected layers tutorial](docs/tutorial/en/28-projected-layers.md).
+OrthographicCamera. See the [curved-surface tutorial](docs/tutorial/en/05-spatial/06-curved-surfaces.md)
+and [projected layers tutorial](docs/tutorial/en/05-spatial/07-projected-composition.md).
 
 Run `uv run python -m examples.spatial.material_probe` for the
 [material/probe cutaway](examples/spatial/material_probe.py). It shares one camera

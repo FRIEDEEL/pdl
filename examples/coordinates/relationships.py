@@ -13,7 +13,6 @@ from pdl import (
     Connection,
     CoordinateSystem,
     Drawing,
-    Entity,
     Group,
     Line,
     Node,
@@ -36,7 +35,7 @@ def example(mode: Literal["fit", "auto_size", "clip"] = "fit") -> Canvas:
     world = CoordinateSystem(name="example")
     row = world.child(Transform.translate(18, 70), name="original-row")
 
-    square = Entity(Rectangle((-8, -8), 16, 16), style=BLUE, space=row)
+    square = Rectangle((-8, -8), 16, 16).set_style(BLUE).in_space(row)
     triangle = Polygon(((-7, -6), (7, -6), (0, 8))).set_style(ORANGE)
     triangle.move_to(square.space.point(30, 0))
     circle = Circle((0, 0), 7).set_style(GREEN)
@@ -50,7 +49,7 @@ def example(mode: Literal["fit", "auto_size", "clip"] = "fit") -> Canvas:
 
     # New state: rotate and translate only the square. Existing dependents
     # keep their captured source state. A new attachment uses the new state.
-    square.rotate(25, center=(18, 70)).translate(0, -34)
+    square.rotate(25, about=(18, 70)).translate(0, -34)
     new_attachment = Circle((0, 0), 3).set_style(GREEN)
     new_attachment.move_to(square.anchor("east") + (8, 0))
 
@@ -69,9 +68,9 @@ def example(mode: Literal["fit", "auto_size", "clip"] = "fit") -> Canvas:
 
     # Both labels need font measurement. Their relative placement remains
     # authoring-only and is evaluated automatically by the canvas.
-    label = Entity(Node(Text("Captured state")), space=world)
+    label = Node(Text("Captured state")).in_space(world)
     label.move_to((45, -12))
-    next_label = Entity(Node(Text("New attachment")), space=world)
+    next_label = Node(Text("New attachment")).in_space(world)
     next_label.move_to(label.anchor("east") + (28, 0))
 
     old_link = Connection(original_east, triangle.anchor("west"))

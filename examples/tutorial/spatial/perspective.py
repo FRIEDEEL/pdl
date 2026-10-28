@@ -4,7 +4,6 @@ from examples.spatial.d10 import numbered_die
 from pdl import (
     Canvas,
     Color,
-    Drawing,
     Group,
     Line,
     Node,
@@ -23,9 +22,9 @@ from pdl import (
 plane = Plane3D(u=Vector3D(0.8, 1, 0), v=Vector3D(0, 0, 1))
 artwork = Group(
     (
-        Drawing(Rectangle((-22, -12), 44, 24), Style(fill=Color(0.65, 0.84, 1), line_width=0.3)),
-        Drawing(Node(Text("Plane 123", size=16), style=Style(stroke=None))),
-        Drawing(Line((-18, -8), (18, -8)), Style(line_width=0.3)),
+        Rectangle((-22, -12), 44, 24).set_style(Style(fill=Color(0.65, 0.84, 1), line_width=0.3)),
+        Node(Text("Plane 123", size=16), style=Style(stroke=None)),
+        Line((-18, -8), (18, -8)).set_style(Style(line_width=0.3)),
     )
 )
 ortho = OrthographicCamera(0, 0)
@@ -41,9 +40,9 @@ die_perspective = Scene3D(
 
 canvas = Canvas(160, 145)
 for x, panel in ((40, reference), (120, projected)):
-    canvas.draw(Drawing(panel, transform=Transform.translate(x, 110)))
+    canvas.draw(panel.copy().apply_transform(Transform.translate(x, 110)))
 for x, solid in ((40, die_ortho), (120, die_perspective)):
-    canvas.draw(Drawing(solid, transform=Transform.translate(x, 43)))
+    canvas.draw(solid.copy().apply_transform(Transform.translate(x, 43)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Orthographic reference"), (94, "Perspective")):
     canvas.draw(Text(title, position=(x, 135), size=12), ink)

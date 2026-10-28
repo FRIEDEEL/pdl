@@ -6,7 +6,6 @@ import pytest
 
 from pdl import (
     Canvas,
-    Entity,
     Node,
     Rectangle,
     Text,
@@ -15,7 +14,7 @@ from pdl import (
 
 def test_resolved_snapshot_keeps_native_geometry_and_detaches_paths() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Rectangle((-10, -5), 20, 10)).rotate(30)
+    a = Rectangle((-10, -5), 20, 10).rotate(30)
     snapshot = canvas.resolve(a)
     a.translate(50, 0)
     assert snapshot.bounds().anchor().x == pytest.approx(0)
@@ -36,7 +35,7 @@ def test_snapshot_typography_metrics_survive_default_font_changes() -> None:
 
 def test_rotated_resolved_anchor_keeps_local_shape_semantics() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Rectangle((-10, -5), 20, 10)).rotate(45)
+    a = Rectangle((-10, -5), 20, 10).rotate(45)
     resolved = canvas.resolve(a)
     tip = resolved.anchor("east")
     assert (tip.x, tip.y) == pytest.approx((10 / sqrt(2), 10 / sqrt(2)))

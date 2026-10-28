@@ -27,7 +27,11 @@ uv run python -m examples.tutorial.render_all
 
 ## What to edit
 
-- Tutorial prose: `docs/tutorial/en/` and corresponding `docs/tutorial/zh/`.
+- Tutorial prose: seven part directories under `docs/tutorial/en/` and corresponding
+  `docs/tutorial/zh/`. Each part has an index and numbered sections. The API is
+  provisional: clear examples and behavior notes take priority over polished prose.
+- Teach Group, Gather, and Layer before reference points and Frame. Use current
+  APIs only; do not add compatibility paths or migration tutorials by default.
 - Drawing code: `examples/tutorial/`, mirrored under `examples/output/tutorial/`.
 - API descriptions: Google-style docstrings beside the implementation in `src/pdl/`.
 - API organization: curated pages in `docs/api/`, using Sphinx autodoc.

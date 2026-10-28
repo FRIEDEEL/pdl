@@ -5,7 +5,6 @@ from dataclasses import replace
 from pdl import (
     Canvas,
     Color,
-    Drawing,
     PerspectiveCamera,
     Point3D,
     Polyhedron,
@@ -36,8 +35,8 @@ assert projected.visibility == "bsp"
 assert set(projected.source_faces) == {(0, 0), (1, 0)}
 
 canvas = Canvas(180, 95)
-canvas.draw(Drawing(reference, transform=Transform.translate(45, 45)))
-canvas.draw(Drawing(projected, transform=Transform.translate(135, 45)))
+canvas.draw(reference.copy().apply_transform(Transform.translate(45, 45)))
+canvas.draw(projected.copy().apply_transform(Transform.translate(135, 45)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Centroid reference"), (103, "BSP: split and order")):
     canvas.draw(Text(title, position=(x, 85), size=12), ink)

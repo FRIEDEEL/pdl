@@ -11,7 +11,7 @@ Export SVG or TikZ without changing the objects that describe your drawing.
 - [API reference](api/index.md): exact signatures, defaults, units, and behavior.
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 3
 :caption: Tutorials
 
 tutorial/en/index
