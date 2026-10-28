@@ -175,3 +175,7 @@ across independent projections, then draws material, interior, probe and labels
 in explicit 2D order. BSP is confined to each supported polygon scene; independent
 snapshots never compute mutual visibility. Curves do not support perspective or
 cross-object BSP clipping.
+
+## Source architecture
+
+See [module responsibilities and dependency boundaries](docs/architecture.md).

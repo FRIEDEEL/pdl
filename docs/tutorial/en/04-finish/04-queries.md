@@ -24,7 +24,7 @@ mapping. The bounds exclude stroke width. For text, ordinary bounds use the
 layout box; `ink_bounds` uses visible glyph outlines instead.
 
 A Bounds value exposes `left`, `bottom`, `right`, `top`, `width`, and `height`.
-Its `anchor(...)` returns a numerical Point. To evaluate a deferred anchor,
+Its `anchor(...)` returns a numerical Point. To convert an authoring point to canvas coordinates,
 use `canvas.query().point(reference, in_space=WORLD)`.
 
 Queries do not draw their targets. In the example, only the explicit draw calls

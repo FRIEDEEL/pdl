@@ -22,7 +22,7 @@ object after moving; the orange copy keeps its independent position.
 | `object.copy()` | Independent editable object |
 | `object.anchor(...)` | Description of the anchor at this call; measurement can wait |
 | `canvas.draw(object)` | Recorded description; later object edits do not change it |
-| `canvas.resolve(object)` | Measured positions and typography, using canvas settings |
+| `canvas.snapshot(object)` | Ordinary Drawing with fixed authoring placement and typography |
 
 References and `draw` capture descriptions, not necessarily numeric font metrics.
 The evaluation part explains `resolve` in detail. `frame.visualize()` also creates

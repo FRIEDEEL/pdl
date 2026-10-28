@@ -33,15 +33,6 @@ set that may cross layers. References and draws capture state before later edits
    :member-order: bysource
 ```
 
-## AnchorRef
-
-```{eval-rst}
-.. autoclass:: pdl.AnchorRef
-   :members:
-   :undoc-members:
-   :member-order: bysource
-```
-
 ## Connection
 
 ```{eval-rst}

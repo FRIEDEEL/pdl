@@ -12,7 +12,7 @@
 ![Growing flowchart](../examples/output/flowcharts/growing.svg)
 
 `a.right(b)` 在右侧放置新节点并连接，返回 **b**，便于继续生长。
-`left`、`above`、`below` 同理。默认边界间距为 12 mm，文字在渲染时使用最终字体测量。
+`left`、`above`、`below` 同理。默认边界间距为 12 mm，文字在查询或提交时使用当前测量配置。
 子节点初始 position 是生长位置上的额外偏移。修改文字、尺寸后重新计算间距；
 平移父节点也会移动其生长出的后代，其他分支保留位置。
 

@@ -19,7 +19,7 @@ recommended user API.
 | Name | Accepted values |
 |---|---|
 | `Position` | A `Point` or an `(x, y)` coordinate pair |
-| `PointSource` | A Position, deferred `AnchorRef`, or frame-qualified `SpacePoint` |
+| `PointSource` | A numerical Position or frame-qualified SpacePoint, evaluated when used |
 | `Graphic` | Numerical geometry or a composite such as a Node, Group, or Entity |
 | `Anchor` | `center`, `north`, `south`, `east`, `west`, or a spaced diagonal such as `north east` |
 | `Self` | The same kind of object as the method's receiver; Entity/Path builder methods return the modified receiver |

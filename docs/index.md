@@ -23,6 +23,8 @@ tutorial/zh/index
 :caption: Reference and guides
 
 api/index
+architecture
+architecture_zh
 coordinates
 coordinates_zh
 flowcharts

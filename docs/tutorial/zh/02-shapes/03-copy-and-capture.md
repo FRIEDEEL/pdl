@@ -20,7 +20,7 @@
 | `object.copy()` | 独立、可编辑的对象 |
 | `object.anchor(...)` | 调用时的锚点描述，测量可延后 |
 | `canvas.draw(object)` | 固定描述的绘制记录，之后编辑对象不改变它 |
-| `canvas.resolve(object)` | 使用画布配置确定位置与文字度量的结果 |
+| `canvas.snapshot(object)` | 使用画布配置固定作者坐标和文字度量的普通 Drawing |
 
 引用与 draw 捕获的是描述，不一定已得到字体相关数值。求值篇再详细解释 resolve。
 后面介绍的 `frame.visualize()` 也会生成独立的可绘制快照。

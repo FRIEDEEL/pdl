@@ -11,7 +11,7 @@ There are no additional runtime dependencies.
 composite. Projection captures built-in mutable descriptions and fixes camera,
 light, geometry and painter order. It does not measure text or resolve 2D layout.
 Add legends, guides and connections afterward; Canvas resolves that combined 2D
-authoring description into Resolved before SVG/TikZ output.
+authoring description into fixed draw records before SVG/TikZ output.
 
 `projected.vertex(object_index, vertex_index)`, `face_center(object_index,
 face_index)` and `point(world_point)` return fixed **local 2D millimeter points**.
@@ -19,7 +19,7 @@ Indices retain input order despite face sorting. They are not visibility queries
 or live references to a moved instance. Group the projected drawing and its 2D
 annotations to transform them together. Change the camera by creating a new
 projection; previous projections remain unchanged. `projected.anchor()` provides
-ordinary deferred bounds anchors. Non-polyhedron entries have no vertex/face data.
+ordinary numerical bounds anchors. Non-polyhedron entries have no vertex/face data.
 
 Direct `canvas.draw(scene)` remains a compatibility shorthand for the same
 projection path; new code should make the projection boundary explicit.

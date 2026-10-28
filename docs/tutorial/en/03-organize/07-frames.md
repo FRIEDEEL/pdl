@@ -36,12 +36,9 @@ it does not bind the frame to the box.
   Groups use visible group bounds. Frames use their own origin. Gather uses
   the world origin unless a shared pivot is supplied.
 - `frame.point(u, v)` and `frame.vector(u, v)` express positions and displacements.
-  A position assigned with `move_to(frame.point(...))` follows that frame until
-  a capture or subsequent placement operation. This is an explicit dependency.
-- `anchor(...)` retains its existing snapshot semantics. It describes the state
-  at the call, with measurement deferred; subsequent edits do not move that anchor.
-- `draw()` captures state and references; later edits do not alter that record.
-  Text measurement and layout evaluation can still wait until rendering.
+  `move_to(frame.point(...))` immediately calculates and fixes the target position.
+- `anchor(...)` immediately returns a numerical point of the current state.
+- `draw()` captures state and fixes typography; later edits do not alter that record.
 
 For `Path`, `move_to` keeps its path-building meaning; use `place(...)` to position
 the whole path. Other entities support both `move_to` and `place`.

@@ -31,9 +31,9 @@ renderer. Changing the camera or source needs a new `project()` call; existing
 snapshots do not update. `point(Point3D(...))` projects any world point with the
 same camera, and `face_center(object_index, face_index)` returns a face's projected
 vertex average. These methods do not test visibility. `projected.anchor()` instead
-provides the ordinary deferred bounds anchors used in earlier chapters.
+provides the ordinary numerical bounds anchors used in earlier chapters.
 
-The supported order is **3D Authoring → 2D Authoring + legends → Resolved → backend**.
+The supported order is **3D extension → 2D Authoring + legends → Canvas capture → backend**.
 Use explicit projection when composing 2D annotations. Polygon-only scenes use BSP splitting
 for intersections and cycles; [related chapter](05-visibility.md) explains visibility
 and the explicit approximate modes for artwork and curved solids.
