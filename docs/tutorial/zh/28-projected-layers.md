@@ -20,7 +20,7 @@
 和同一世界坐标约定，可以使不同快照对齐。不要分别对每张快照居中或适配尺寸。
 相关图层后续也应应用相同的二维放置，例如放入同一个 Group。
 
-`assembly.add(Entity(material_2d))` 先于 probe，因此 probe 覆盖材料。
+`assembly.add(material_2d)` 先于 probe，因此 probe 覆盖材料。
 Canvas 同时遵循显式图层；在同一图层内，绘制顺序决定覆盖。
 Group 和 Canvas 都不合并原始场景的深度数据。即使某个源对象在三维中更远，
 也可以指定其二维投影覆盖在前面。

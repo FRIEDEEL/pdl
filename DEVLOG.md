@@ -453,3 +453,13 @@
 - 新增 examples/spatial/material_probe.py，按具名函数组织材料侧壁、单独 Plane3D 底部截面、probe 与二维引线标注；保留浅色材料背景，并排展示组合与三维调整 probe 的结果。另提供垫圈／半圆柱面的俯视、仰视、侧视和沿轴检查图。新增三份小教程源和第 27／28 章英文教程及对应中文翻译，使用 literalinclude 与实际输出；更新 API、空间指南、README、CHANGELOG 和批量生成入口。
 - 验证：Ruff、格式检查和 Pyright strict 通过；pytest 235 项通过，其中新增 20 项测试，覆盖五个视角下垫圈投影与独立解析射线求交的抽样可见面比较、边界、镜像、非法参数、模式拒绝以及独立投影二维叠放。抽样检查不等于逐像素证明。Sphinx -W 构建通过，80 个 HTML 页面共 8412 个本地资源／链接引用无缺失。uv build 与解包 wheel 的独立 SVG／TikZ 冒烟通过。
 - 新示例及三份教程均导出 SVG／TikZ／PDF；实际查看主示例、特殊视角图与叠放教程的 PDF 栅格预览，修正底部截面线宽。浏览器安全策略不允许 file 协议，本轮未做 HTML 页面截图验收；未尝试绕过。生成物保持 Git 忽略，原未跟踪 PREFERENCES.md 保持不动。本地分步提交并按 --no-ff 合入 dev，不推送或发布，交由用户验收。
+
+### 2026-10-28 20:07:05
+
+- 用户授权将 Entity 从形状外部包装改为绘图对象共同基类。Circle、Line、Path、Polyline／Polygon、Rectangle、Arc、Text／TeX、Node、Connection、Image、ProjectedScene 与 Group 直接提供原地变换、样式、锚点和独立 copy。普通 Entity 不引入通用父子嵌套；共同变换由 Group／Gather 显式组织。内部保留几何描述与摆放状态，变换不改写原始坐标；局部内容更新作用于未来捕获，已提交记录不变。
+- 默认旋转／缩放支点采用普通对象自身中心、Group 可见边界中心、Frame 原点；Gather 保留共同世界原点默认值。about 支持明确世界点、锚点和空间点，center 保留兼容别名。默认中心变换采用延迟支点描述，单体与 Group 中的文字均可先构图再测量。旧 Entity(geometry, space=...) 适配入口保留，其省略支点时仍沿用世界原点，避免旧调用悄然改变。Path.move_to 保留构建器语义，整条路径使用 place。
+- 新增 Frame：核心数据为 origin、x_basis、y_basis，默认世界对齐。每个对象的 frame 独立于图形变换，可显式赋值；希望跟随时使用 Gather(shape, frame)。Frame 与 ReferencePoint 可成组、选集、变换及引用，不产生绘制叶子，不影响可见边界／自动适配，也不进入遮挡几何。visualize 生成独立普通图形，轴长、原点标记与样式均为参数。Frame.point／vector 提供显式坐标引用，space 支持逆转换。
+- draw 捕获对象、组和引用状态，字体／布局求值延后；copy 包括独立成员与可变 Frame 引用，保留图层身份。修正捕获递归的循环诊断、临时对象身份重用、Path 后续构建、Group 延迟中心变换、Gather 共享参考的成员顺序依赖，以及可变叶对象跨 Canvas 时的默认图层绑定。显式 Layer 身份仍只属于一个 Canvas。
+- 迁移常用示例的 Entity 包装为直接对象／set_style，保留旧坐标映射示例作为兼容用法；新增第 29 章双语教程和 reference_frames 对照图，灰色保留原始轮廓／坐标轴。更新 README、API 与 changelog。原测试中不可变叶子身份断言改为类型、顺序和快照独立性的行为断言。
+- 验证：Ruff、格式检查、Pyright strict 通过；pytest 253 项通过。新增 18 项用例覆盖变换／支点、copy／成组隔离、Frame 点向量与逆转换、非绘制边界、延迟引用捕获、可视化、文字／Group 延迟测量、Path 继续构建、Gather 顺序无关，以及图层复用边界。Sphinx -W --keep-going 完整构建通过，生成全部教程与相关空间示例。新对照图导出 SVG／TikZ／PDF，并实际查看 PDF 栅格结果；uv build --offline 成功构建 sdist 与 wheel。查询文字边界或必须保持文字相关世界姿态的重新成组操作仍需要字体上下文。
+- 保留原未跟踪 PREFERENCES.md，不增加依赖；按本地分步提交并 --no-ff 集成 dev，不推送或发布。

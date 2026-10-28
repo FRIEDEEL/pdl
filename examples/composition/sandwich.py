@@ -1,6 +1,6 @@
 """The sandwich case: spatial groups, cross-layer Gather, and regrouping."""
 
-from pdl import Canvas, Circle, Color, Entity, Gather, Group, Rectangle, Style, Text
+from pdl import Canvas, Circle, Color, Gather, Group, Rectangle, Style, Text
 
 INK = Color(0.12, 0.18, 0.25)
 BLUE = Color(0.25, 0.55, 0.82)
@@ -11,17 +11,12 @@ LABEL = Style(stroke=None, fill=INK)
 
 def plate(x: float, y: float, width: float, color: Color, label: str) -> Group:
     """Keep the plate, its two bolts, and its label in one spatial unit."""
-    body = Entity(
-        Rectangle((x, y), width, 12),
-        style=Style(stroke=INK, fill=color, line_width=0.35),
-    )
+    body = Rectangle((x, y), width, 12).set_style(Style(stroke=INK, fill=color, line_width=0.35))
     bolts = tuple(
-        Entity(Circle((px, y + 6), 1.2), style=Style(stroke=None, fill=INK))
+        Circle((px, y + 6), 1.2).set_style(Style(stroke=None, fill=INK))
         for px in (x + 4, x + width - 4)
     )
-    text = Entity(
-        Text(label, size=11, position=(x + width / 2, y + 4.5), align="center"), style=LABEL
-    )
+    text = Text(label, size=11, position=(x + width / 2, y + 4.5), align="center").set_style(LABEL)
     return Group((body, *bolts, text))
 
 

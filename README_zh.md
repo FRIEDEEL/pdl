@@ -1,5 +1,9 @@
 # pdl — Python Drawing Library
 
+具体形状本身就是可编辑的 `Entity`：直接变换，需要留档时使用 `.copy()`。
+`Frame` 和 `ReferencePoint` 是不绘制的参考对象；需要参考系随图形共同变换时，
+显式使用 `Gather`。参见[对象与参考系教程](docs/tutorial/zh/29-entities-and-frames.md)。
+
 一个用于静态矢量绘图的类型化 Python 库，支持几何图形、路径、文字、LaTeX 公式、
 节点连接、组合复用和仿射坐标系，输出 SVG 或 TikZ。需要 Python 3.12 或更高版本。
 

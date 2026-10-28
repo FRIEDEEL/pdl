@@ -1,7 +1,7 @@
 # 6. Move, rotate, and scale
 
 So far we have placed shapes by supplying coordinates to their constructors.
-Use {py:class}`pdl.Entity` to move an existing object with a few method calls.
+Shapes already inherit {py:class}`pdl.Entity`; move them directly with method calls.
 
 ## Move a rectangle
 
@@ -36,8 +36,9 @@ at a target, rather than adding a displacement.
 [Complete runnable example](../../../examples/tutorial/geometry/rotation.py)
 
 The red dot is the pivot `(25, 20)`. Positive angles turn counterclockwise.
-The gray outline shows the old position. Without `center=...`, rotation uses
-the world origin, not the shape's center, so an off-origin box also changes position.
+The gray outline shows the old position. Without `about=...`, direct shapes rotate around their own center. Use an explicit
+world point when the box should also orbit another location. `center=` remains a
+compatibility alias.
 
 ## Stretch a circle
 
@@ -58,7 +59,7 @@ fixed. Geometry and text scale; stroke widths remain in Canvas millimeters.
 These methods return the same Entity, so calls can be chained. Later operations
 act outside earlier placement in authoring world: moving then rotating generally
 differs from rotating then moving. `reflect(angle, origin=...)` mirrors about a
-line; `Transform.shear(...)` provides shear for `entity.transform(...)`.
+line; `Transform.shear(...)` provides shear for `entity.apply_transform(...)`.
 
 ## Try it
 

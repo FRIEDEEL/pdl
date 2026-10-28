@@ -1,5 +1,10 @@
 # pdl — Python Drawing Library
 
+Concrete shapes are editable `Entity` objects: transform them directly and use `.copy()`
+to retain a version. `Frame` and `ReferencePoint` provide non-painting references;
+include a frame explicitly in a `Gather` to move it with a shape. See the
+[entities and frames tutorial](docs/tutorial/en/29-entities-and-frames.md).
+
 A typed Python library for static vector drawings: geometry, paths, text,
 LaTeX formulas, connected nodes, reusable groups, and affine coordinate systems,
 with SVG and TikZ output. Editable Groups, overlapping Gather selections,

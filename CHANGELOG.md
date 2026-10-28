@@ -4,6 +4,15 @@
 
 ### Changed
 
+- Concrete 2D drawing objects now inherit Entity and support mutable placement,
+  style, and independent copies directly. Entity(shape) remains compatible.
+- **Breaking behavior:** direct shapes and Groups rotate/scale around their own
+  center by default. Use about=(0, 0) for world-origin operations; center remains
+  an alias. Legacy Entity wrappers retain the world-origin default.
+- Canvas captures independent object descriptions rather than preserving leaf
+  object identity. Integer-derived layers can be reused across canvases;
+  explicitly assigned Layer identities remain bound to one Canvas.
+
 - **Breaking behavior:** default polygon projection can produce multiple children
   per source face. Use ProjectedScene.source_faces for correspondence and use
   sort_faces=False for source-order manual lists; visibility="centroid" restores
@@ -16,6 +25,11 @@
   Explicit waypoints remain authoritative; `route="straight"` opts into direct lines.
 
 ### Added
+
+- Non-painting Frame and ReferencePoint entities for explicit Group/Gather
+  transformations, coordinate references, and independent frame visualizations.
+- A bilingual tutorial comparing fixed reference axes with axes explicitly
+  transformed alongside a shape, retaining original outlines for comparison.
 
 - Smooth `CylinderSurface` angular patches and closed `AnnularCylinder` washers
   for orthographic illustrations, with uniform fills, open bores, visible

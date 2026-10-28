@@ -25,6 +25,7 @@ MODULES = (
     "geometry.rotation",
     "geometry.scaling",
     "geometry.local_coordinates",
+    "geometry.reference_frames",
     "layout.anchors",
     "layout.captured_anchors",
     "layout.groups",

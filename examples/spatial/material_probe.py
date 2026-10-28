@@ -15,7 +15,6 @@ from pdl import (
     Cylinder,
     CylinderSurface,
     Drawing,
-    Entity,
     Group,
     Line,
     OrthographicCamera,
@@ -83,21 +82,19 @@ def make_cutaway(material: CylinderSurface, probe: Cylinder, *, label: bool = Tr
     ).project()
     probe_2d = Scene3D((probe,), CAMERA, light=None, sort_faces=False).project()
     assembly = Group()
-    assembly.add(Entity(background))
-    assembly.add(Entity(floor_2d))
-    assembly.add(Entity(probe_2d))
+    assembly.add(background)
+    assembly.add(floor_2d)
+    assembly.add(probe_2d)
     if label:
         tip = background.point(probe.base + probe.axis.normalized() * probe.height)
         assembly.add(
-            Entity(
-                Line((tip.x + 1, tip.y - 1), (tip.x + 13, tip.y + 3)),
-                style=Style(stroke=PROBE, line_width=0.25),
+            Line((tip.x + 1, tip.y - 1), (tip.x + 13, tip.y + 3)).set_style(
+                Style(stroke=PROBE, line_width=0.25)
             )
         )
         assembly.add(
-            Entity(
-                Text("probe", position=(tip.x + 14, tip.y + 2), size=10),
-                style=Style(fill=INK, stroke=None),
+            Text("probe", position=(tip.x + 14, tip.y + 2), size=10).set_style(
+                Style(fill=INK, stroke=None)
             )
         )
     return assembly
