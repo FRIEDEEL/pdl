@@ -123,8 +123,8 @@ face_rgb = intrinsic_rgb * intensity
 
 ![D10 面图案与二维标注](../examples/output/spatial/d10.svg)
 
-对应教程：[21](tutorial/zh/21-project-3d.md)、[22](tutorial/zh/22-plane-artwork.md)、
-[23](tutorial/zh/23-d10.md)。
+对应教程：[21](tutorial/zh/05-spatial/01-projection.md)、[22](tutorial/zh/05-spatial/02-plane-artwork.md)、
+[23](tutorial/zh/07-recipes/01-d10.md)。
 
 ## 光滑圆柱与球面
 
@@ -185,7 +185,7 @@ auto 遇到这些内容时，**整个场景**退为近似中心排序并提示�
 无限支撑平面可能切分实际不相交的有限面，增加输出规模。跨近面仍报错；
 不提供自动隐藏边虚线、面内图案裁切或解析曲面可见性。
 
-参见[相交面与可见性](tutorial/zh/26-visibility.md)的可运行示例及三维切分到二维 Authoring 流程。
+参见[相交面与可见性](tutorial/zh/05-spatial/05-visibility.md)的可运行示例及三维切分到二维 Authoring 流程。
 
 ## 透视投影
 
@@ -197,8 +197,8 @@ auto 遇到这些内容时，**整个场景**退为近似中心排序并提示�
 0.02 mm。描边保持固定宽度。不支持近裁面切割、透视平面的渐变或嵌入图片。
 legend 在投影后添加，保持普通二维内容。
 
-详见[透视教程](tutorial/zh/24-perspective.md)和
-[透明度与深度顺序](tutorial/zh/25-depth-order.md)，包含相机参数、手动顺序与能力限制。
+详见[透视教程](tutorial/zh/05-spatial/03-perspective.md)和
+[透明度与深度顺序](tutorial/zh/05-spatial/04-depth-order.md)，包含相机参数、手动顺序与能力限制。
 
 ## 平滑圆柱曲面与独立投影图层
 
@@ -207,8 +207,8 @@ legend 在投影后添加，保持普通二维内容。
 仅支持 OrthographicCamera，输出平滑矢量边界，不生成多边形网格。
 三维修改支持相似变换，非均匀缩放和剪切会报错。
 
-[圆柱曲面教程](tutorial/zh/27-cylinder-surfaces.md) 介绍角度、坐标约定、
-特殊视角及可运行示例。[材料／probe 配方](tutorial/zh/28-projected-layers.md)
+[圆柱曲面教程](tutorial/zh/05-spatial/06-curved-surfaces.md) 介绍角度、坐标约定、
+特殊视角及可运行示例。[材料／probe 配方](tutorial/zh/05-spatial/07-projected-composition.md)
 介绍独立 Scene3D 投影：共用相机和世界坐标，后续应用相同二维放置，再使用
 普通 Canvas 顺序或图层控制覆盖。BSP 和面切分仅发生在一次 project 调用内部。
 即使使用相同相机，独立快照也不共享可见性状态。

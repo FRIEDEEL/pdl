@@ -2,37 +2,32 @@
 
 ## Object responsibilities
 
-Geometry values (`Rectangle`, `Circle`, `Polygon`, and numerical `Path` commands)
-express local shapes. `Entity` is the editable authoring handle for placement
-and optional instance style. `Drawing` remains the immutable placement record;
-`Group` defines ordered reusable content. Existing direct geometry drawing is
-supported. Use `Entity` when in-place operations are needed:
+Circle, Rectangle, Polygon, Path, text, and groups are editable Entity objects.
+Geometry parameters describe local content; placement stores their transforms.
+Drawing is an immutable placement record used by composition and evaluation.
+Operate on the concrete object directly:
 
 ```python
-from pdl import Canvas, Circle, Entity, Rectangle
+from pdl import Canvas, Circle, Rectangle
 
 canvas = Canvas(100, 60)
-a = Entity(Rectangle((-10, -5), 20, 10)).move_to((30, 20))
-b = Entity(Circle((0, 0), 3)).move_to(a.anchor("west"))
+a = Rectangle((-10, -5), 20, 10).move_to((30, 20))
+b = Circle((0, 0), 3).move_to(a.anchor("west"))
 a.translate(30, 0)
 canvas.draw(b)
 canvas.draw(a)
 canvas.save("drawing.svg")
 ```
 
-`move_to` places the transformed local bounds **center** at the supplied point.
-`transform`, `translate`, `rotate`, `scale`, and `reflect` mutate the handle and
-return it. Each new transform applies in authoring world outside the previous placement; rotation
-is about the authoring world origin unless `center` is supplied. Shape geometry is not
-rewritten. To move a connected assembly together, place it inside a `Group`.
-Group transforms do not recalculate member spacing.
+`move_to` places the transformed local bounds center at the target. Path keeps
+`move_to` for path construction; use `place` for whole-path placement.
+`apply_transform`, `translate`, `rotate`, `scale`, and `reflect` mutate the object.
+Rotation and scaling use its own center unless `about` selects another pivot.
+`copy` creates an independent editable object. Group handles shared transforms.
 
-`Entity.anchor()` and `Entity.space` capture the current authoring state without
-measuring it. Later edits do not change those captures. `Canvas.draw()` captures
-built-in mutable descriptions, including shared paths, without measuring fonts.
-Unreferenced old states can be released. Custom `Composite` implementations must
-provide immutable descriptions; arbitrary mutable user objects are not frozen
-by this protocol. Direct numerical geometry keeps its existing value API.
+`anchor` and `space` capture current descriptions; later edits do not change them.
+`draw` captures built-in mutable descriptions without measuring fonts. Custom
+Composite implementations must provide immutable descriptions.
 
 A reference captures a description, not a numerical result: changing the canvas's
 default font before another render can change measured positions. An explicit
@@ -48,8 +43,8 @@ from pdl import WORLD, CoordinateSystem, Transform
 
 root = CoordinateSystem(name="diagram")
 local = root.child(Transform.translate(20, 10) @ Transform.rotate(30))
-a = Entity(Rectangle((-5, -5), 10, 10), space=local)
-b = Entity(Circle((0, 0), 2)).move_to(a.space.point(12, 0))
+a = Rectangle((-5, -5), 10, 10).in_space(local)
+b = Circle((0, 0), 2).move_to(a.space.point(12, 0))
 canvas.map(root, Transform.translate(10, 5))
 ```
 

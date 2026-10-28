@@ -147,8 +147,8 @@ introduced here.
 
 ![D10 face artwork and 2D legend](../examples/output/spatial/d10.svg)
 
-See tutorial chapters [21](tutorial/en/21-project-3d.md),
-[22](tutorial/en/22-plane-artwork.md) and [23](tutorial/en/23-d10.md).
+See tutorial chapters [21](tutorial/en/05-spatial/01-projection.md),
+[22](tutorial/en/05-spatial/02-plane-artwork.md) and [23](tutorial/en/07-recipes/01-d10.md).
 
 ## Smooth cylinders and spheres
 
@@ -225,7 +225,7 @@ fallback. Supporting planes can split disjoint finite faces and increase output
 size. Near-plane crossings still fail explicitly. Automatic hidden-edge dashes,
 face-artwork clipping and analytic curved-surface visibility are not provided.
 
-See [Intersections and visibility](tutorial/en/26-visibility.md) for runnable
+See [Intersections and visibility](tutorial/en/05-spatial/05-visibility.md) for runnable
 examples and the 3D splitting → 2D Authoring flow.
 
 ## Perspective
@@ -241,8 +241,8 @@ adaptive polylines with 0.02 mm local projection tolerance. Constant-width
 strokes are retained. No near-plane cutting, gradients or embedded images on
 perspective planes are supported. Add ordinary 2D legends after projection.
 
-See [Perspective](tutorial/en/24-perspective.md) and
-[Transparency and depth order](tutorial/en/25-depth-order.md) for runnable
+See [Perspective](tutorial/en/05-spatial/03-perspective.md) and
+[Transparency and depth order](tutorial/en/05-spatial/04-depth-order.md) for runnable
 comparisons, camera parameters, manual order and the exact scope limits.
 
 ## Smooth cylindrical patches and explicit projection layers
@@ -253,9 +253,9 @@ Both use uniform color, independent of DirectionalLight, and require an
 OrthographicCamera. They keep curved vector boundaries without a polygon mesh.
 Use similarity transforms for 3D edits; shear/nonuniform scales are rejected.
 
-See [Cylindrical surfaces](tutorial/en/27-cylinder-surfaces.md) for angles,
+See [Cylindrical surfaces](tutorial/en/05-spatial/06-curved-surfaces.md) for angles,
 coordinate conventions, view checks and runnable examples. The
-[material/probe recipe](tutorial/en/28-projected-layers.md) explains independent
+[material/probe recipe](tutorial/en/05-spatial/07-projected-composition.md) explains independent
 Scene3D projections: share a camera/world frame and apply matching 2D placements,
 then control coverage with ordinary Canvas order or layers. BSP and face splitting
 are scoped to one project call. Independent snapshots never share visibility

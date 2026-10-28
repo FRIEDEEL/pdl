@@ -4,13 +4,14 @@
 
 ## 职责与状态捕获
 
-数值几何类型 Rectangle、Circle、Polygon 和 Path 描述局部形状；Entity
-提供可原地修改的放置句柄；Drawing 是放置记录；Group 表达有序复用组件。
-继续支持直接绘制既有数值几何，不要求迁移所有旧代码。
+Circle、Rectangle、Polygon、Path、文字和 Group 本身都是可编辑 Entity。
+几何参数描述局部内容，摆放状态保存变换。Drawing 是不可变摆放记录。
+直接操作对象，不再使用额外包装。
 
-Entity 的 move_to 将变换后局部边界中心移到目标位置。transform、translate、
-rotate、scale、reflect 修改句柄并返回自身。后加变换作用在已有放置之外；
-旋转默认绕 Authoring 世界原点，可指定 center。一起移动的内容用 Group 组合。
+move_to 将变换后局部边界中心移到目标位置。Path.move_to 保留路径构建语义，
+整条路径使用 place。apply_transform、translate、rotate、scale、reflect 修改自身并返回自身。
+旋转／缩放默认绕自身中心，about 显式选择其他支点。copy 得到独立可编辑对象。
+共同变换交给 Group 或 Gather。
 
 Entity.anchor()、Entity.space 捕获调用时描述状态，不立即测量。目标随后修改
 不影响既有捕获；Canvas.draw() 同样捕获内置可变描述，包括共享 Path。

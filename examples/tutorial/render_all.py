@@ -22,6 +22,8 @@ MODULES = (
     "text.labels",
     "text.formula",
     "geometry.translation",
+    "geometry.copy_and_capture",
+    "layout.reference_points",
     "geometry.rotation",
     "geometry.scaling",
     "geometry.local_coordinates",
