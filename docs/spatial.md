@@ -244,3 +244,25 @@ perspective planes are supported. Add ordinary 2D legends after projection.
 See [Perspective](tutorial/en/24-perspective.md) and
 [Transparency and depth order](tutorial/en/25-depth-order.md) for runnable
 comparisons, camera parameters, manual order and the exact scope limits.
+
+## Smooth cylindrical patches and explicit projection layers
+
+`CylinderSurface` adds an open angular side patch without caps or thickness;
+`AnnularCylinder` adds a closed washer with inner/outer walls and annular caps.
+Both use uniform color, independent of DirectionalLight, and require an
+OrthographicCamera. They keep curved vector boundaries without a polygon mesh.
+Use similarity transforms for 3D edits; shear/nonuniform scales are rejected.
+
+See [Cylindrical surfaces](tutorial/en/27-cylinder-surfaces.md) for angles,
+coordinate conventions, view checks and runnable examples. The
+[material/probe recipe](tutorial/en/28-projected-layers.md) explains independent
+Scene3D projections: share a camera/world frame and apply matching 2D placements,
+then control coverage with ordinary Canvas order or layers. BSP and face splitting
+are scoped to one project call. Independent snapshots never share visibility
+state, even if their source scenes use the same camera.
+
+The cutaway's interior floor is an explicit Plane3D drawing. It is an illustration,
+not an automatic solid section. Curves remain outside BSP; auto mode warns and
+uses centroid ordering, explicit BSP rejects them, and sort_faces=False chooses
+manual object order. Visible parts within a single curved object still receive
+its own internal drawing order.

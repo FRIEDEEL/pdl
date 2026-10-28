@@ -39,6 +39,8 @@ groups-layers-gathers
 24-perspective
 25-depth-order
 26-visibility
+27-cylinder-surfaces
+28-projected-layers
 ```
 
 [English version](../en/index.md) · [API 接口文档](../../api/index.md)

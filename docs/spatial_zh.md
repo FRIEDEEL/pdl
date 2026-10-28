@@ -199,3 +199,20 @@ legend 在投影后添加，保持普通二维内容。
 
 详见[透视教程](tutorial/zh/24-perspective.md)和
 [透明度与深度顺序](tutorial/zh/25-depth-order.md)，包含相机参数、手动顺序与能力限制。
+
+## 平滑圆柱曲面与独立投影图层
+
+`CylinderSurface` 是没有端盖或厚度的开放角度侧面；`AnnularCylinder` 是包含
+内外壁和环形端盖的封闭垫圈。两者使用不受 DirectionalLight 影响的纯色，
+仅支持 OrthographicCamera，输出平滑矢量边界，不生成多边形网格。
+三维修改支持相似变换，非均匀缩放和剪切会报错。
+
+[圆柱曲面教程](tutorial/zh/27-cylinder-surfaces.md) 介绍角度、坐标约定、
+特殊视角及可运行示例。[材料／probe 配方](tutorial/zh/28-projected-layers.md)
+介绍独立 Scene3D 投影：共用相机和世界坐标，后续应用相同二维放置，再使用
+普通 Canvas 顺序或图层控制覆盖。BSP 和面切分仅发生在一次 project 调用内部。
+即使使用相同相机，独立快照也不共享可见性状态。
+
+示例底部截面是单独绘制的 Plane3D，是插图构造，不是自动实体剖切。
+曲面仍不参与 BSP：自动模式警告并采用中心排序，显式 BSP 拒绝曲面，
+`sort_faces=False` 选择手动对象顺序。单个曲面对象内部的可见部分仍按自身顺序绘制。
