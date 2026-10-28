@@ -161,11 +161,12 @@ class Group(Entity):
         style: Style | None = None,
         layer: int | Layer | None = None,
     ) -> None:
-        from pdl.scene.authoring import Entity, Placement
+        from pdl.scene.authoring import DrawingEntity
         from pdl.scene.layers import highest_layer
 
         self.parent = None
         self.transform = transform
+        self._coordinate_space: CoordinateSystem | None = None
         self._operations: list[tuple[Transform, PointSource]] = []
         self.style = style
         self._members: list[Entity | Group] = []
@@ -179,10 +180,7 @@ class Group(Entity):
         self._dismissed = False
         for child in children:
             if isinstance(child, Drawing):
-                member = Entity(child.geometry, style=child.style)
-                member.placement = Placement(
-                    Drawing(member.placement.drawing.geometry, child.style, child.transform)
-                )
+                member = DrawingEntity(child)
                 member.parent = self
                 self._members.append(member)
             else:
@@ -214,6 +212,7 @@ class Group(Entity):
         if self.parent is not None:
             result.transform = self.world_transform
             result._operations = []
+            result._coordinate_space = None
         result.style = self.effective_style
         return result
 
@@ -250,9 +249,11 @@ class Group(Entity):
     @property
     def world_transform(self) -> Transform:
         """Return the accumulated local-to-world matrix."""
-        result = (
-            self.transform if self.parent is None else self.parent.world_transform @ self.transform
-        )
+        result = self.transform
+        if self._coordinate_space is not None:
+            result = self._coordinate_space.to_world() @ result
+        if self.parent is not None:
+            result = self.parent.world_transform @ result
         with layout_session() as context:
             for matrix, pivot in self._operations:
                 result = matrix.around(context.point(pivot)) @ result
@@ -267,7 +268,7 @@ class Group(Entity):
         )
 
     def _description(self) -> Graphic:
-        if not self._operations:
+        if not self._operations and self._coordinate_space is None:
             return GroupDescription(self.children, self.transform, self.style)
         from pdl.scene.authoring import Placement
 
@@ -282,6 +283,8 @@ class Group(Entity):
             self.transform if self.parent is None else self.parent.world_transform @ self.transform
         )
         result = Placement(Drawing(GroupDescription(self.children, base, self.effective_style)))
+        if self._coordinate_space is not None:
+            result = Placement(result.drawing, space=capture(self._coordinate_space))
         for matrix, pivot in self._operations:
             result = Placement(Drawing(Around(result, matrix, capture(pivot))))
         return result
@@ -348,6 +351,7 @@ class Group(Entity):
         if isinstance(member, Group):
             member.transform = inverse @ world
             member._operations = []
+            member._coordinate_space = None
             member.style = paint
         else:
             member.placement = Placement(Drawing(state, transform=inverse))
@@ -367,6 +371,7 @@ class Group(Entity):
             member.parent = None
             member.transform, member.style = world, paint
             member._operations = []
+            member._coordinate_space = None
         else:
             state = member.snapshot()
             member.parent = None
@@ -407,6 +412,8 @@ class Group(Entity):
             self._operations.append((transform, (0, 0)))
             return self
         parent = Transform() if self.parent is None else self.parent.world_transform
+        if self._coordinate_space is not None:
+            parent = parent @ self._coordinate_space.to_world()
         self.transform = parent.inverse() @ transform @ parent @ self.transform
         return self
 
@@ -414,11 +421,9 @@ class Group(Entity):
         """Translate by world millimeters."""
         return self.apply_transform(Transform.translate(x, y))
 
-    def rotate(
-        self, angle: float, *, about: PointSource | None = None, center: Position | None = None
-    ) -> Self:
+    def rotate(self, angle: float, *, about: PointSource | None = None) -> Self:
         """Rotate about a world point, defaulting to the visible group center."""
-        self._operations.append((Transform.rotate(angle), self._pivot(about, center)))
+        self._operations.append((Transform.rotate(angle), self._pivot(about)))
         return self
 
     def scale(
@@ -427,16 +432,13 @@ class Group(Entity):
         y: float | None = None,
         *,
         about: PointSource | None = None,
-        center: Position | None = None,
     ) -> Self:
         """Scale about a world point; line widths stay in canvas millimeters."""
-        self._operations.append((Transform.scale(x, y), self._pivot(about, center)))
+        self._operations.append((Transform.scale(x, y), self._pivot(about)))
         return self
 
-    def _pivot(self, about: PointSource | None, center: Position | None) -> PointSource:
-        if about is not None and center is not None:
-            raise TypeError("Specify either about or center, not both.")
-        return about if about is not None else center if center is not None else self.anchor()
+    def _pivot(self, about: PointSource | None) -> PointSource:
+        return about if about is not None else self.anchor()
 
     def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
         """Reflect about a world line."""
@@ -450,6 +452,17 @@ class Group(Entity):
 
     def place(self, end: PointSource) -> Self:
         return self.move_to(end)
+
+    def in_space(self, space: CoordinateSystem) -> Self:
+        """Place a top-level group in explicit authoring coordinates.
+
+        Grouping an already mapped group bakes its current world placement,
+        like other reparenting operations. Canvas mappings resolve at evaluation.
+        """
+        if self.parent is not None:
+            raise ValueError("Set coordinate placement on the outermost Group.")
+        self._coordinate_space = space
+        return self
 
     @property
     def space(self) -> CoordinateSystem:

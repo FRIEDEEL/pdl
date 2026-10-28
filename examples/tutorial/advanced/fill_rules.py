@@ -1,5 +1,5 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Drawing, Path, Style, Transform
+from pdl import Canvas, Circle, Color, Path, Style, Transform
 
 rings = Path().extend(Circle((15, 15), radius=10)).extend(Circle((15, 15), radius=5))
 blue = Color(0.6, 0.8, 1)
@@ -7,7 +7,7 @@ blue = Color(0.6, 0.8, 1)
 canvas = Canvas(65, 30)
 canvas.draw(rings, Style(fill=blue, line_width=0.4, fill_rule="nonzero"))
 canvas.draw(
-    Drawing(rings, transform=Transform.translate(35, 0)),
+    rings.copy().apply_transform(Transform.translate(35, 0)),
     Style(fill=blue, line_width=0.4, fill_rule="evenodd"),
 )
 

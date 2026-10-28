@@ -4,7 +4,6 @@ from pdl import (
     Canvas,
     Color,
     CylinderSurface,
-    Drawing,
     OrthographicCamera,
     Point3D,
     Scene3D,
@@ -23,7 +22,7 @@ material = CylinderSurface(
 )
 material_2d = Scene3D((material,), camera, sort_faces=False).project()
 canvas = Canvas(75, 70)
-canvas.draw(Drawing(material_2d, transform=Transform.translate(37, 34)))
+canvas.draw(material_2d.copy().apply_transform(Transform.translate(37, 34)))
 # tutorial-end
 
 if __name__ == "__main__":

@@ -2,11 +2,11 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Entity, Gather, Group, Point
+from pdl import Canvas, Circle, Gather, Group, Point
 
 
 def test_overlapping_gathers_and_flattened_membership() -> None:
-    a, b, c = (Entity(Circle((0, 0), 1)) for _ in range(3))
+    a, b, c = (Circle((0, 0), 1) for _ in range(3))
     first, second = Gather(a, b), Gather(a, c)
     flat = Gather(first, second)
     first.translate(10, 0)
@@ -22,7 +22,7 @@ def test_overlapping_gathers_and_flattened_membership() -> None:
 
 
 def test_selection_promotes_and_deduplicates_after_regrouping() -> None:
-    a, b = Entity(Circle((0, 0), 1)), Entity(Circle((10, 0), 1))
+    a, b = Circle((0, 0), 1), Circle((10, 0), 1)
     selection = Gather(a, b)
     group = Group((a, b))
     with pytest.warns(UserWarning, match="promoted"):
@@ -34,7 +34,7 @@ def test_selection_promotes_and_deduplicates_after_regrouping() -> None:
 
 
 def test_dismissed_group_targets_fail_explicitly() -> None:
-    group = Group((Entity(Circle((0, 0), 1)),))
+    group = Group((Circle((0, 0), 1),))
     selection = Gather(group)
     group.dismiss()
     with pytest.raises(ValueError, match="dismissed"):
@@ -44,7 +44,7 @@ def test_dismissed_group_targets_fail_explicitly() -> None:
 def test_opacity_keeps_text_fill_only() -> None:
     from pdl import Text
 
-    label = Entity(Text("Label"))
+    label = Text("Label")
     Gather(label).set_opacity(0.5)
     canvas = Canvas(100, 60)
     canvas.draw(label)

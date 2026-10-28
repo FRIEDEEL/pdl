@@ -7,7 +7,7 @@ blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.5)
 
 canvas = Canvas(50, 40)
 canvas.draw(circle, ghost)
-circle.scale(2, 0.75, center=(25, 20))
+circle.scale(2, 0.75, about=(25, 20))
 canvas.draw(circle, blue)
 
 # tutorial-end

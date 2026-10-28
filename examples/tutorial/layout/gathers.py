@@ -13,7 +13,7 @@ canvas = Canvas(85, 65)
 canvas.draw(component)
 canvas.draw(marker)
 combined.translate(10, 25)
-second.rotate(20, center=(30, 40))
+second.rotate(20, about=(30, 40))
 canvas.draw(component)
 canvas.draw(marker)
 

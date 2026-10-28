@@ -12,7 +12,7 @@ def center(canvas: Canvas, member: Entity | Group) -> Point:
 def test_reparent_remove_and_dismiss_preserve_world_and_styles() -> None:
     canvas = Canvas(100, 100)
     red = Style(fill=Color(1, 0, 0))
-    a = Entity(Circle((10, 10), 2))
+    a = Circle((10, 10), 2)
     first = Group((a,), style=red).rotate(30).translate(20, 10)
     before = center(canvas, a)
     second = Group(transform=Transform.translate(40, 0))
@@ -33,7 +33,7 @@ def test_reparent_remove_and_dismiss_preserve_world_and_styles() -> None:
 
 
 def test_nested_dismiss_preserves_child_order_and_group_identity() -> None:
-    a, b, c = (Entity(Circle((x, 10), 1)) for x in (10, 20, 30))
+    a, b, c = (Circle((x, 10), 1) for x in (10, 20, 30))
     inner = Group((a, b)).translate(5, 0)
     outer = Group((inner, c)).rotate(90)
     before = Canvas(100, 100).bounds(outer)
@@ -44,7 +44,7 @@ def test_nested_dismiss_preserves_child_order_and_group_identity() -> None:
 
 
 def test_cycles_and_captured_group_state() -> None:
-    a = Entity(Circle((10, 10), 1))
+    a = Circle((10, 10), 1)
     inner = Group((a,))
     outer = Group((inner,))
     with pytest.raises(ValueError, match="Cyclic"):
@@ -60,7 +60,7 @@ def test_cycles_and_captured_group_state() -> None:
 
 
 def test_drawing_definitions_create_independent_instances() -> None:
-    source = Entity(Circle((0, 0), 1))
+    source = Circle((0, 0), 1)
     group = Group((Drawing(source), Drawing(source)))
     assert group.members[0] is not group.members[1]
     group.translate(20, 0)
@@ -70,7 +70,7 @@ def test_drawing_definitions_create_independent_instances() -> None:
 def test_member_move_to_and_explicit_paint_in_transformed_parent() -> None:
     canvas = Canvas(100, 100)
     explicit = Style(fill=Color(0, 0, 1))
-    child = Entity(Circle((10, 10), 2), style=explicit)
+    child = Circle((10, 10), 2).set_style(explicit)
     group = Group((child,), style=Style(fill=Color(1, 0, 0))).rotate(45)
     child.move_to((40, 30))
     assert center(canvas, child).x == pytest.approx(40)

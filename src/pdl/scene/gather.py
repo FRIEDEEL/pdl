@@ -95,11 +95,9 @@ class Gather:
         """Translate each target by world millimeters."""
         return self.transform(Transform.translate(x, y))
 
-    def rotate(
-        self, angle: float, *, about: PointSource | None = None, center: Position | None = None
-    ) -> Self:
+    def rotate(self, angle: float, *, about: PointSource | None = None) -> Self:
         """Rotate together around one world pivot, defaulting to the world origin."""
-        return self.transform(Transform.rotate(angle).around(self._pivot(about, center)))
+        return self.transform(Transform.rotate(angle).around(self._pivot(about)))
 
     def scale(
         self,
@@ -107,21 +105,16 @@ class Gather:
         y: float | None = None,
         *,
         about: PointSource | None = None,
-        center: Position | None = None,
     ) -> Self:
         """Scale together around one world pivot, defaulting to the world origin."""
-        return self.transform(Transform.scale(x, y).around(self._pivot(about, center)))
+        return self.transform(Transform.scale(x, y).around(self._pivot(about)))
 
     @staticmethod
-    def _pivot(about: PointSource | None, center: Position | None) -> Position:
+    def _pivot(about: PointSource | None) -> Position:
         from pdl.scene.evaluation import layout_session
 
-        if about is not None and center is not None:
-            raise TypeError("Specify either about or center, not both.")
         with layout_session() as context:
-            return context.point(
-                about if about is not None else center if center is not None else (0, 0)
-            )
+            return context.point(about if about is not None else (0, 0))
 
     def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
         """Reflect targets about one world line."""

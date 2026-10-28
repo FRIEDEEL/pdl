@@ -7,7 +7,7 @@ component = Group((body, port))
 
 canvas = Canvas(90, 45)
 canvas.draw(component)
-component.rotate(25, center=(22, 18)).translate(45, 0)
+component.rotate(25, about=(22, 18)).translate(45, 0)
 canvas.draw(component)
 component.dismiss()
 port.translate(0, 10)

@@ -9,7 +9,6 @@ from pdl import (
     Canvas,
     Circle,
     Drawing,
-    Entity,
     Group,
     Node,
     Path,
@@ -23,8 +22,8 @@ from pdl import (
 
 def test_reference_captures_target_before_later_edit() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Rectangle((0, 0), 20, 10)).move_to((30, 20))
-    b = Entity(Circle((0, 0), 2)).move_to(a.anchor("west"))
+    a = Rectangle((0, 0), 20, 10).move_to((30, 20))
+    b = Circle((0, 0), 2).move_to(a.anchor("west"))
     a.move_to((80, 30))
     assert canvas.query().point(b.anchor()) == Point(20, 20)
     assert canvas.query().point(a.anchor()) == Point(80, 30)
@@ -33,7 +32,7 @@ def test_reference_captures_target_before_later_edit() -> None:
 
 def test_draw_captures_two_independent_placements() -> None:
     canvas = Canvas(100, 60)
-    b = Entity(Circle((0, 0), 2)).move_to((10, 10))
+    b = Circle((0, 0), 2).move_to((10, 10))
     canvas.draw(b)
     b.translate(30, 0)
     canvas.draw(b)
@@ -43,9 +42,9 @@ def test_draw_captures_two_independent_placements() -> None:
 
 def test_dependency_measurement_and_paint_order_are_independent() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Node(Text("A"), position=(30, 20)))
-    b = Entity(Circle((0, 0), 2)).move_to(a.anchor("west"))
-    c = Entity(Node(Text("C"))).move_to(a.anchor("east"))
+    a = Node(Text("A"), position=(30, 20))
+    b = Circle((0, 0), 2).move_to(a.anchor("west"))
+    c = Node(Text("C")).move_to(a.anchor("east"))
     canvas.draw(b)
     canvas.draw(c)
     canvas.draw(a)
@@ -59,7 +58,7 @@ def test_path_captured_at_draw_and_entity_creation() -> None:
     path = Path().move_to((10, 10)).line_to((20, 10))
     canvas = Canvas(100, 60)
     canvas.draw(path)
-    entity = Entity(path)
+    entity = path.copy()
     path.line_to((90, 50))
     assert canvas.bounds(canvas.drawings[0]).right == 20
     assert canvas.bounds(entity).right == 20
@@ -67,7 +66,7 @@ def test_path_captured_at_draw_and_entity_creation() -> None:
 
 def test_shape_anchor_differs_from_world_box_anchor() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Rectangle((-10, -5), 20, 10)).rotate(45)
+    a = Rectangle((-10, -5), 20, 10).rotate(45)
     anchor = canvas.query().point(a.anchor("east"))
     box_anchor = canvas.bounds(a).anchor("east")
     assert anchor.x == pytest.approx(10 / sqrt(2))
@@ -78,8 +77,8 @@ def test_shape_anchor_differs_from_world_box_anchor() -> None:
 
 def test_group_moves_internal_positions_together() -> None:
     canvas = Canvas(100, 60)
-    a = Entity(Rectangle((-5, -5), 10, 10))
-    b = Entity(Circle((0, 0), 2)).move_to(a.anchor("east"))
+    a = Rectangle((-5, -5), 10, 10)
+    b = Circle((0, 0), 2).move_to(a.anchor("east"))
     group = Group((Drawing(a), Drawing(b)))
     placed = Drawing(group, transform=Transform.translate(30, 20))
     assert canvas.bounds(placed).left == 25
@@ -100,7 +99,7 @@ def test_viewport_policy_and_queries_agree(mode: str) -> None:
 
     policy = cast(Literal["fit", "auto_size", "clip"], mode)
     canvas = Canvas(100, 60, mode=policy, padding=5)
-    rect = Entity(Rectangle((200, 100), 20, 10), style=Style(stroke=None))
+    rect = Rectangle((200, 100), 20, 10).set_style(Style(stroke=None))
     canvas.draw(rect)
     output = ET.fromstring(canvas.render())
     box = canvas.bounds(rect)
@@ -144,7 +143,7 @@ def test_empty_geometry_does_not_expand_nonempty_bounds() -> None:
 
 
 def test_shared_entity_is_captured_in_every_occurrence() -> None:
-    a = Entity(Circle((0, 0), 2)).move_to((10, 10))
+    a = Circle((0, 0), 2).move_to((10, 10))
     canvas = Canvas(100, 60)
     canvas.draw(Group((Drawing(a), Drawing(a))))
     a.translate(70, 0)
@@ -158,8 +157,8 @@ def test_capture_does_not_require_font_measurement(monkeypatch: pytest.MonkeyPat
         raise AssertionError("Authoring must not request fonts")
 
     monkeypatch.setattr(configuration, "default_fonts", unavailable)
-    a = Entity(Node(Text("A")))
-    b = Entity(Circle((0, 0), 2)).move_to(a.anchor("west"))
+    a = Node(Text("A"))
+    b = Circle((0, 0), 2).move_to(a.anchor("west"))
     canvas = Canvas(100, 60)
     canvas.draw(b)
     canvas.draw(a)

@@ -5,7 +5,6 @@ from pdl import (
     Color,
     Cylinder,
     CylinderSurface,
-    Drawing,
     Group,
     OrthographicCamera,
     Point3D,
@@ -38,7 +37,7 @@ probe_2d = Scene3D((probe,), camera, light=None, sort_faces=False).project()
 
 canvas = Canvas(150, 85)
 # Keep the unmodified background beside the assembled illustration.
-canvas.draw(Drawing(material_2d, transform=Transform.translate(38, 38)))
+canvas.draw(material_2d.copy().apply_transform(Transform.translate(38, 38)))
 assembly = Group()
 assembly.add(material_2d)
 assembly.add(probe_2d)  # Later 2D drawing covers the material, regardless of depth.
@@ -49,7 +48,7 @@ assembly.add(
         Style(fill=Color(0.65, 0.22, 0.08), stroke=None)
     )
 )
-canvas.draw(Drawing(assembly, transform=Transform.translate(112, 38)))
+canvas.draw(assembly.copy().apply_transform(Transform.translate(112, 38)))
 # tutorial-end
 
 if __name__ == "__main__":

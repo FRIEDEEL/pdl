@@ -95,7 +95,7 @@ def _capture[T](value: T, memo: dict[int, object]) -> T:
     if (
         isinstance(value, Entity)
         and not value.description_only
-        and (type(value) is Entity or "_entity_state" in value.__dict__)
+        and "_entity_state" in value.__dict__
     ):
         result = value.snapshot()
         memo[id(value)] = result
@@ -314,6 +314,14 @@ class Around:
     def decompose(self) -> tuple[Drawing, ...]:
         with layout_session() as context:
             return (Drawing(self.content, transform=self.matrix.around(context.point(self.pivot))),)
+
+
+class DrawingEntity(Entity):
+    """Internal editable member for a captured Drawing, including custom composites."""
+
+    def __init__(self, drawing: Drawing) -> None:
+        self._entity_state = PlacementState(drawing.geometry, style=drawing.style)
+        self._entity_state.placement = Placement(capture(drawing))
 
 
 class InstanceSpace(CoordinateSystem):

@@ -124,11 +124,7 @@ class LayoutContext:
         if (
             isinstance(graphic, Entity)
             and not graphic.description_only
-            and (
-                type(graphic) is Entity
-                or "_entity_state" in graphic.__dict__
-                or type(graphic).__name__ == "Group"
-            )
+            and ("_entity_state" in graphic.__dict__ or type(graphic).__name__ == "Group")
         ):
             return self.bounds(capture(graphic))
         if isinstance(graphic, Node):
@@ -161,11 +157,7 @@ class LayoutContext:
         if (
             isinstance(geometry, Entity)
             and not geometry.description_only
-            and (
-                type(geometry) is Entity
-                or "_entity_state" in geometry.__dict__
-                or type(geometry).__name__ == "Group"
-            )
+            and ("_entity_state" in geometry.__dict__ or type(geometry).__name__ == "Group")
         ):
             return self._drawing_bounds(
                 Drawing(capture(geometry), drawing.style, drawing.transform), ancestors

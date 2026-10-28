@@ -2,7 +2,7 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Entity, Gather, Group, Layer
+from pdl import Canvas, Circle, Gather, Group, Layer
 
 
 def radius(canvas: Canvas) -> list[float]:
@@ -13,7 +13,7 @@ def radius(canvas: Canvas) -> list[float]:
 
 def test_integer_assignment_capture_and_layer_insertions() -> None:
     canvas = Canvas(100, 100)
-    a, b = Entity(Circle((10, 10), 1)), Entity(Circle((10, 10), 2))
+    a, b = Circle((10, 10), 1), Circle((10, 10), 2)
     a.set_layer(1)
     canvas.draw(a)
     canvas.draw(b)
@@ -32,7 +32,7 @@ def test_integer_assignment_capture_and_layer_insertions() -> None:
 def test_group_uses_highest_layer_and_preserves_internal_order() -> None:
     canvas = Canvas(100, 100)
     bottom, top = canvas.layers[0], canvas.layers[1]
-    a, b = Entity(Circle((10, 10), 1)), Entity(Circle((10, 10), 2))
+    a, b = Circle((10, 10), 1), Circle((10, 10), 2)
     bottom.add(a)
     top.add(b)
     group = Group((b, a))
@@ -54,10 +54,10 @@ def test_layer_membership_and_invalid_drawables() -> None:
     from pdl.scene.composition import Graphic
 
     layer = Layer(1)
-    a = Entity(Circle((0, 0), 1))
+    a = Circle((0, 0), 1)
     layer.add(a)
     selection = layer.to_gather()
-    b = Entity(Circle((0, 0), 2))
+    b = Circle((0, 0), 2)
     layer.add(b)
     assert selection.members == (a,)
     canvas = Canvas(100, 100)

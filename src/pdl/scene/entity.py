@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pdl.geometry.primitives import Path, Position
     from pdl.geometry.transforms import Transform
     from pdl.scene.authoring import Placement, PlacementState
-    from pdl.scene.composition import Graphic, Group
+    from pdl.scene.composition import Group
     from pdl.scene.frames import Frame
     from pdl.scene.layers import Layer
     from pdl.scene.paint import Style
@@ -26,8 +26,7 @@ class Entity:
     ``Canvas.draw`` captures state, so subsequent edits affect future draws only.
     Stroke widths stay in canvas millimeters under scaling.
 
-    Direct ``Entity(geometry)`` construction remains a compatibility adapter;
-    prefer operating on Circle, Line, Text and other concrete objects directly.
+    Construct concrete drawing or reference objects; this base is not a wrapper.
     """
 
     _entity_state: PlacementState
@@ -35,17 +34,9 @@ class Entity:
     description_only: bool = False
     automatic_layer: bool = False
 
-    def __init__(
-        self,
-        geometry: Graphic,
-        *,
-        style: Style | None = None,
-        space: CoordinateSystem | None = None,
-    ) -> None:
-        from pdl.scene.authoring import PlacementState
-        from pdl.scene.spaces import WORLD
-
-        self._entity_state = PlacementState(geometry, style=style, space=space or WORLD)
+    def __init__(self) -> None:
+        if type(self) is Entity:
+            raise TypeError("Entity is a base class; construct a concrete drawing object.")
 
     def to_path(self) -> Path:
         """Require concrete geometry to supply its path representation."""
@@ -65,10 +56,8 @@ class Entity:
         else:
             from pdl.scene.authoring import refresh_description
 
-            self._entity_state.placement = (
-                refresh_description(self._entity_state.placement, description(self))
-                if type(self) is not Entity
-                else self._entity_state.placement
+            self._entity_state.placement = refresh_description(
+                self._entity_state.placement, description(self)
             )
         return self._entity_state
 
@@ -126,8 +115,19 @@ class Entity:
 
     @property
     def space(self) -> CoordinateSystem:
-        """Capture the current placed frame for legacy coordinate APIs."""
+        """Capture the current placed coordinate frame."""
         return self._state().space
+
+    def in_space(self, space: CoordinateSystem) -> Self:
+        """Interpret this placement in an explicit authoring coordinate system.
+
+        This changes coordinate placement; it does not assign the independent
+        operation reference exposed by ``frame``. Canvas mappings may override it.
+        """
+        from dataclasses import replace
+
+        self.placement = replace(self.placement, space=space)
+        return self
 
     def snapshot(self) -> Placement:
         return self._state().snapshot()
@@ -181,14 +181,13 @@ class Entity:
         angle: float,
         *,
         about: PointSource | None = None,
-        center: Position | None = None,
     ) -> Self:
         """Rotate in degrees around an explicit world pivot or the object center.
 
-        ``center`` is a compatibility alias. A missing pivot is captured as a
-        deferred center anchor, so text measurement is not required here.
+        A missing pivot is captured as a deferred center anchor, so text
+        measurement is not required here.
         """
-        return self._around("rotate", angle, None, about, center)
+        return self._around("rotate", angle, None, about)
 
     def scale(
         self,
@@ -196,10 +195,9 @@ class Entity:
         y: float | None = None,
         *,
         about: PointSource | None = None,
-        center: Position | None = None,
     ) -> Self:
         """Scale around an explicit world pivot or the deferred object center."""
-        return self._around("scale", x, y, about, center)
+        return self._around("scale", x, y, about)
 
     def _around(
         self,
@@ -207,18 +205,12 @@ class Entity:
         x: float,
         y: float | None,
         about: PointSource | None,
-        center: Position | None,
     ) -> Self:
         from pdl.geometry.transforms import Transform
         from pdl.scene.authoring import Around, Placement, capture
         from pdl.scene.composition import Drawing
 
-        if about is not None and center is not None:
-            raise TypeError("Specify either about or center, not both.")
-        pivot = about if about is not None else center
-        # Preserve the historical world-origin default of the compatibility wrapper.
-        if pivot is None:
-            pivot = (0, 0) if type(self) is Entity else self.anchor()
+        pivot = about if about is not None else self.anchor()
         matrix = Transform.rotate(x) if operation == "rotate" else Transform.scale(x, y)
         state = self.snapshot()
         parent = self.parent
@@ -237,7 +229,7 @@ class Entity:
     def copy(self) -> Self:
         """Copy independently, detaching a grouped object without moving it.
 
-        Group copies include independent members. External immutable legacy
+        Group copies include independent members. External immutable
         CoordinateSystem identities retain their existing mapping semantics.
         """
         result = deepcopy(self)
