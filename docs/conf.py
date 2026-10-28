@@ -56,6 +56,7 @@ def generate_examples(app: Sphinx) -> None:
         "examples.spatial.curved_solids",
         "examples.spatial.d10",
         "examples.spatial.visibility",
+        "examples.spatial.material_probe",
     ):
         subprocess.run([sys.executable, "-m", module], cwd=ROOT, check=True)
 

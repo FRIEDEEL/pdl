@@ -68,4 +68,4 @@ ordering errors, crossings, a three-ribbon cycle and transparent intersections.
   Partitioning may split disjoint polygons because supporting planes are infinite;
   heavily overlapping inputs can produce many fragments and increase output time.
 
-[Previous: Transparency and depth order](25-depth-order.md)
+[Previous: Transparency and depth order](25-depth-order.md) · [Next: Cylindrical surfaces](27-cylinder-surfaces.md)

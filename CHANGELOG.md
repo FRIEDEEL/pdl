@@ -17,6 +17,14 @@
 
 ### Added
 
+- Smooth `CylinderSurface` angular patches and closed `AnnularCylinder` washers
+  for orthographic illustrations, with uniform fills, open bores, visible
+  boundaries and similarity transforms; no mesh edges or new dependencies.
+- A cylindrical-material/probe cutaway example and bilingual step-by-step
+  tutorials for curved geometry and independently projected 2D layers. Shared
+  camera/world coordinates align snapshots; Canvas order controls their overlap.
+  Curves remain outside BSP and perspective projection support.
+
 - Detailed microscope focus-drive recipes: rack/pinion, guides, stage saddle,
   knurled controls, fasteners, and a separate exposed-mechanism comparison.
 

@@ -20,6 +20,8 @@ from examples.relationships.instances import example as instances
 from examples.spatial.curved_solids import example as curved_solids
 from examples.spatial.curved_solids import views as curved_views
 from examples.spatial.d10 import example as d10
+from examples.spatial.material_probe import example as material_probe
+from examples.spatial.material_probe import views as material_views
 from examples.spatial.microscope import example as microscope
 from examples.spatial.microscope import focus_detail
 from examples.spatial.planes import example as planes
@@ -57,6 +59,7 @@ def main() -> None:
         curved_solids,
         d10,
         visibility,
+        material_probe,
         microscope,
     ):
         canvas = build()
@@ -65,6 +68,12 @@ def main() -> None:
         if build is tex:
             export_embedding(canvas)
         compile_tikz(base)
+        if build is material_probe:
+            views_base = base.with_name("material_probe-views")
+            study = material_views()
+            study.save(views_base.with_suffix(".svg"))
+            study.save(views_base.with_suffix(".tex"), backend="tikz", tikz_mode="tex")
+            compile_tikz(views_base)
         if build is microscope:
             detail_base = base.with_name("microscope-focus")
             detail = focus_detail()

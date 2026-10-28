@@ -156,3 +156,17 @@ keeps stage brackets and rack travel together. `microscope-focus` exports a
 pale simplified reference beside an exposed mechanism detail. Gear teeth and
 fine-focus coupling illustrate construction; they are not engineering or
 kinematic specifications.
+
+## Cylindrical materials and probe layers
+
+Use `CylinderSurface` for an open half-cylinder and `AnnularCylinder` for a closed
+washer. Both project smooth, uniformly colored vector boundaries with an
+OrthographicCamera. See the [curved-surface tutorial](docs/tutorial/en/27-cylinder-surfaces.md)
+and [projected layers tutorial](docs/tutorial/en/28-projected-layers.md).
+
+Run `uv run python -m examples.spatial.material_probe` for the
+[material/probe cutaway](examples/spatial/material_probe.py). It shares one camera
+across independent projections, then draws material, interior, probe and labels
+in explicit 2D order. BSP is confined to each supported polygon scene; independent
+snapshots never compute mutual visibility. Curves do not support perspective or
+cross-object BSP clipping.

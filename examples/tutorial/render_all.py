@@ -47,6 +47,9 @@ MODULES = (
     "spatial.perspective",
     "spatial.depth_order",
     "spatial.visibility",
+    "spatial.cylinder_surface",
+    "spatial.washer",
+    "spatial.projected_layers",
 )
 
 

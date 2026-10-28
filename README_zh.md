@@ -136,3 +136,16 @@ SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数�
 粗细调焦轮；`make_focus_drive` 将齿条与载物台托架的升降关联。
 额外导出 `microscope-focus`，用浅色简化旧结构对照打开近侧旋钮后的机构细节。
 齿形和微调连接表达构造意图，不作为工程齿形或运动学规格。
+
+## 圆柱材料与 probe 图层
+
+`CylinderSurface` 表示开放半圆柱面，`AnnularCylinder` 表示封闭垫圈。
+两者使用 OrthographicCamera，输出纯色、平滑矢量边界。
+见[曲面教程](docs/tutorial/zh/27-cylinder-surfaces.md)与
+[投影图层教程](docs/tutorial/zh/28-projected-layers.md)。
+
+运行 `uv run python -m examples.spatial.material_probe` 生成
+[材料／probe 剖面示意图](examples/spatial/material_probe.py)。
+独立投影共用相机，之后按材料、内部截面、probe、标注的二维顺序绘制。
+BSP 仅在每个受支持的多边形场景内处理，不计算独立快照之间的遮挡。
+曲面暂不支持透视或跨对象 BSP 裁切。

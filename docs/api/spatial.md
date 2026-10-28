@@ -133,3 +133,21 @@ All 3D positions use right-handed millimeter coordinates.
    :undoc-members:
    :member-order: bysource
 ```
+
+## CylinderSurface
+
+```{eval-rst}
+.. autoclass:: pdl.CylinderSurface
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```
+
+## AnnularCylinder
+
+```{eval-rst}
+.. autoclass:: pdl.AnnularCylinder
+   :members:
+   :undoc-members:
+   :member-order: bysource
+```
