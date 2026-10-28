@@ -131,3 +131,8 @@ SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数�
 中调整，玻片细节见 `make_stage`，物镜和目镜见 `make_optics`。
 示例内的 `Assembly` 是局部组合配方，不是公共 Group3D API。
 圆形部件使用多面体近似，完整场景先用 BSP 处理遮挡，再生成二维绘图对象。
+
+调焦机构细分为导轨、升降齿条／滑座、横向传动轴、示意小齿轮和带握纹的
+粗细调焦轮；`make_focus_drive` 将齿条与载物台托架的升降关联。
+额外导出 `microscope-focus`，用浅色简化旧结构对照打开近侧旋钮后的机构细节。
+齿形和微调连接表达构造意图，不作为工程齿形或运动学规格。

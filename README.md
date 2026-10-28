@@ -149,3 +149,10 @@ Edit `make_microscope` for placement, `make_stage` for slide details, and
 `make_optics` for objectives and eyepieces. The local `Assembly` recipe is an
 example helper, not a public Group3D API. Round parts are faceted polyhedra;
 the complete scene uses BSP visibility before becoming a 2D drawing.
+
+The focus drive includes guide rails, a moving rack/saddle, a transverse shaft,
+a schematic pinion, and knurled coarse/fine handwheels. `make_focus_drive`
+keeps stage brackets and rack travel together. `microscope-focus` exports a
+pale simplified reference beside an exposed mechanism detail. Gear teeth and
+fine-focus coupling illustrate construction; they are not engineering or
+kinematic specifications.

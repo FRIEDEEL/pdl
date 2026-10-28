@@ -21,6 +21,7 @@ from examples.spatial.curved_solids import example as curved_solids
 from examples.spatial.curved_solids import views as curved_views
 from examples.spatial.d10 import example as d10
 from examples.spatial.microscope import example as microscope
+from examples.spatial.microscope import focus_detail
 from examples.spatial.planes import example as planes
 from examples.spatial.platonic_solids import example as platonic_solids
 from examples.spatial.visibility import example as visibility
@@ -64,6 +65,12 @@ def main() -> None:
         if build is tex:
             export_embedding(canvas)
         compile_tikz(base)
+        if build is microscope:
+            detail_base = base.with_name("microscope-focus")
+            detail = focus_detail()
+            detail.save(detail_base.with_suffix(".svg"))
+            detail.save(detail_base.with_suffix(".tex"), backend="tikz", tikz_mode="tex")
+            compile_tikz(detail_base)
         if build is anchors:
             for variant in export_variants(canvas):
                 compile_tikz(variant)

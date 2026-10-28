@@ -17,6 +17,9 @@
 
 ### Added
 
+- Detailed microscope focus-drive recipes: rack/pinion, guides, stage saddle,
+  knurled controls, fasteners, and a separate exposed-mechanism comparison.
+
 - A parameterized microscope example with named nested component recipes,
   assembled/exploded views, and BSP visibility for all polygonal parts.
 
