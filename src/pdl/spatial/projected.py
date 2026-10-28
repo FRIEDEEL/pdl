@@ -22,6 +22,11 @@ class ProjectedScene:
     independent of splitting. visibility reports bsp, centroid, or manual;
     reordered snapshots report manual. Hand-built snapshots may omit source_faces.
 
+    Separate snapshots are ordinary 2D layers: later Canvas draws cover earlier
+    draws, with no shared depth buffer, BSP tree or cross-snapshot splitting.
+    Matching camera/world coordinates align their projected points, provided
+    subsequent 2D placements also match. Two-dimensional edits do not update 3D.
+
     vertices and face_centers keep source object/face indices independent of
     that order; non-polyhedra have empty entries. Projected points are fixed
     local millimeter coordinates, not

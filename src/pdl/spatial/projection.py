@@ -14,6 +14,12 @@ from pdl.spatial.coordinates import Point3D, Vector3D
 from pdl.spatial.curves import Cylinder, Sphere, project_cylinder, project_sphere
 from pdl.spatial.projected import ProjectedScene
 from pdl.spatial.solids import Plane3D, Polyhedron, Surface3D, centroid, face_normal
+from pdl.spatial.surfaces import (
+    AnnularCylinder,
+    CylinderSurface,
+    project_annular_cylinder,
+    project_cylinder_surface,
+)
 
 
 @dataclass(frozen=True)
@@ -156,10 +162,12 @@ class Scene3D:
     BSP uses floating predicates, not exact arithmetic. A 500-level tree safety
     limit and the fragment budget raise ValueError; no fallback is attempted.
     New cut edges receive no stroke. Near-plane crossings still raise errors.
-    Face artwork clipping and analytic curved-surface visibility are not provided.
+    Face artwork clipping and inter-object curved-surface visibility are not provided.
     """
 
-    objects: tuple[Polyhedron | Surface3D | Sphere | Cylinder, ...]
+    objects: tuple[
+        Polyhedron | Surface3D | Sphere | Cylinder | CylinderSurface | AnnularCylinder, ...
+    ]
     camera: OrthographicCamera | PerspectiveCamera = OrthographicCamera()
     light: DirectionalLight | None = DirectionalLight()
     sort_faces: bool = True
@@ -265,8 +273,13 @@ class Scene3D:
         """Capture a 2D authoring snapshot without measuring text or rendering.
 
         Projection fixes camera, geometry, lighting and painter order for this
-        snapshot. Add 2D legends and references afterward, then let Canvas
-        resolve the complete 2D description. Re-project to change the view.
+        snapshot. BSP sorting and face splitting are confined to this call's
+        objects. Independently projected scenes never participate in each other's
+        visibility calculations: Canvas paint order controls their overlap.
+        Share a camera and world frame to align separate projections; apply the
+        same 2D placement to keep them aligned. Add 2D legends and references
+        afterward, then let Canvas resolve the complete 2D description. Re-project
+        to change geometry or view; 2D edits never modify the source scene.
         """
         source = capture(self)
         return source._project()
@@ -336,14 +349,17 @@ class Scene3D:
                         overlay = self._plane_drawing(surface, artwork)
                         drawing = Drawing(GroupDescription((drawing, overlay)))
                     items.append((self.camera.depth(centroid(points)), drawing, (object_index, i)))
-            elif isinstance(obj, (Sphere, Cylinder)):
+            elif isinstance(obj, (Sphere, Cylinder, CylinderSurface, AnnularCylinder)):
                 if isinstance(self.camera, PerspectiveCamera):
-                    raise ValueError("Sphere and Cylinder currently require OrthographicCamera.")
-                drawing = (
-                    project_sphere(obj, self.camera, self.light)
-                    if isinstance(obj, Sphere)
-                    else project_cylinder(obj, self.camera, self.light)
-                )
+                    raise ValueError("Curved objects currently require OrthographicCamera.")
+                if isinstance(obj, Sphere):
+                    drawing = project_sphere(obj, self.camera, self.light)
+                elif isinstance(obj, Cylinder):
+                    drawing = project_cylinder(obj, self.camera, self.light)
+                elif isinstance(obj, CylinderSurface):
+                    drawing = project_cylinder_surface(obj, self.camera)
+                else:
+                    drawing = project_annular_cylinder(obj, self.camera)
                 items.append((self.camera.depth(obj.center), drawing, None))
             else:
                 items.append(
