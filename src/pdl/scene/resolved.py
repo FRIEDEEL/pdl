@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from pdl.scene.canvas import Canvas
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class MeasuredText(Text):
     """Text retaining native identity with a fixed shaping result."""
 
@@ -30,7 +30,7 @@ class MeasuredText(Text):
         return self.measured
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class MeasuredTeX(TeX):
     """TeX retaining source identity and a fixed measured fragment."""
 
@@ -173,7 +173,7 @@ class Query:
 def resolve_geometry(graphic: Graphic | Drawing) -> ResolvedGraphic:
     """Resolve dependencies without discarding native shape and node identity."""
     from pdl.components.nodes import Node
-    from pdl.scene.authoring import Entity, Placement, capture
+    from pdl.scene.authoring import Around, Entity, Placement, capture, description
 
     with layout_session() as context:
 
@@ -197,8 +197,22 @@ def resolve_geometry(graphic: Graphic | Drawing) -> ResolvedGraphic:
             if id(geometry) in ancestors:
                 raise ValueError("Cyclic composite graph during resolution.")
             ancestors = ancestors | {id(geometry)}
-            if isinstance(geometry, Entity):
-                geometry = geometry.snapshot()
+            if isinstance(geometry, Entity) and not geometry.description_only:
+                geometry = (
+                    geometry.snapshot()
+                    if type(geometry) is Entity or "_entity_state" in geometry.__dict__
+                    else description(geometry)
+                )
+            if isinstance(geometry, Around):
+                child = geometry.decompose()[0]
+                return visit(
+                    Drawing(
+                        child.geometry,
+                        drawing.style if drawing.style is not None else child.style,
+                        drawing.transform @ child.transform,
+                    ),
+                    ancestors,
+                )
             if isinstance(geometry, Placement):
                 placed = geometry.placed()
                 return visit(
@@ -222,6 +236,8 @@ def resolve_geometry(graphic: Graphic | Drawing) -> ResolvedGraphic:
                 geometry = Group(
                     tuple(visit(child, ancestors) for child in context.decompose(geometry))
                 )
+            if isinstance(geometry, Entity):
+                geometry.description_only = True
             return Drawing(capture(geometry), drawing.style, drawing.transform)
 
         root = graphic if isinstance(graphic, Drawing) else Drawing(graphic)

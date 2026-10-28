@@ -17,6 +17,7 @@ from xml.etree import ElementTree as ET
 from pdl.geometry.bounds import Bounds
 from pdl.geometry.primitives import Path, Position, point
 from pdl.geometry.transforms import Transform, transform_path
+from pdl.scene.entity import Entity
 from pdl.typography.plain import PT_TO_MM
 
 BP_TO_MM = 25.4 / 72
@@ -222,8 +223,8 @@ def _read_layout(serialized: str) -> TeXLayout:
     return TeXLayout(numbers[0], numbers[1], numbers[2], svg, numbers[3], numbers[4])
 
 
-@dataclass(frozen=True)
-class TeX:
+@dataclass(eq=False)
+class TeX(Entity):
     """LaTeX source typeset at a baseline position.
 
     Args:

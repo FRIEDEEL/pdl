@@ -22,6 +22,7 @@ from pdl.rendering.config import RendererConfig
 from pdl.scene.authoring import Entity
 from pdl.scene.canvas import BLACK, Canvas, Color, Style
 from pdl.scene.composition import Drawing, Group, bounds
+from pdl.scene.frames import Frame, ReferencePoint
 from pdl.scene.gather import Gather
 from pdl.scene.layers import Layer, LayerStack
 from pdl.scene.paint import ColorStop, LinearGradient, RadialGradient
@@ -111,3 +112,5 @@ __all__ += ["ProjectedScene"]
 __all__ += ["PerspectiveCamera"]
 
 __all__ += ["CylinderSurface", "AnnularCylinder"]
+
+__all__ += ["Frame", "ReferencePoint"]

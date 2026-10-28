@@ -5,14 +5,15 @@ from math import hypot, isfinite
 
 from pdl.geometry.primitives import Point, Polygon, Polyline, point
 from pdl.scene.composition import Drawing
+from pdl.scene.entity import Entity
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
 from pdl.scene.references import AnchorRef, PointSource
 from pdl.scene.spaces import SpacePoint
 
 
-@dataclass(frozen=True)
-class Connection:
+@dataclass(eq=False)
+class Connection(Entity):
     """A manually routed polyline with optional filled triangular arrowheads.
 
     Args:

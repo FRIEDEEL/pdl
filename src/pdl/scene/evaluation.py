@@ -64,12 +64,14 @@ class LayoutContext:
 
     def anchor(self, reference: AnchorRef) -> Point:
         from pdl.components.nodes import Node
-        from pdl.scene.authoring import Placement
+        from pdl.scene.authoring import Around, Placement
         from pdl.scene.composition import Drawing
 
         target, name = reference.target, reference.name
 
         def compute() -> Point:
+            if isinstance(target, Around):
+                return self.point(AnchorRef(target.decompose()[0], name))
             if isinstance(target, Placement):
                 return self.point(AnchorRef(target.placed(), name))
             if isinstance(target, Drawing):
@@ -113,10 +115,22 @@ class LayoutContext:
 
     def bounds(self, graphic: Graphic | Drawing) -> Bounds:
         from pdl.components.nodes import Node
+        from pdl.scene.authoring import capture
         from pdl.scene.composition import Composite, Drawing
+        from pdl.scene.entity import Entity
         from pdl.typography.plain import Text
         from pdl.typography.tex import TeX
 
+        if (
+            isinstance(graphic, Entity)
+            and not graphic.description_only
+            and (
+                type(graphic) is Entity
+                or "_entity_state" in graphic.__dict__
+                or type(graphic).__name__ == "Group"
+            )
+        ):
+            return self.bounds(capture(graphic))
         if isinstance(graphic, Node):
             return self.node_bounds(graphic)
 
@@ -141,6 +155,25 @@ class LayoutContext:
         from pdl.typography.tex import TeX
 
         geometry = drawing.geometry
+        from pdl.scene.authoring import capture
+        from pdl.scene.entity import Entity
+
+        if (
+            isinstance(geometry, Entity)
+            and not geometry.description_only
+            and (
+                type(geometry) is Entity
+                or "_entity_state" in geometry.__dict__
+                or type(geometry).__name__ == "Group"
+            )
+        ):
+            return self._drawing_bounds(
+                Drawing(capture(geometry), drawing.style, drawing.transform), ancestors
+            )
+        from pdl.components.nodes import Node
+
+        if isinstance(geometry, Node):
+            return self.node_bounds(geometry).transformed(drawing.transform)
         if isinstance(geometry, Composite):
             if id(geometry) in ancestors:
                 raise ValueError(f"Cyclic composite graph: {type(geometry).__name__}.")

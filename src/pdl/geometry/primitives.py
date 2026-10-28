@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from math import atan2, ceil, cos, degrees, hypot, isfinite, pi, radians, sin, sqrt, tan
 from typing import Protocol, Self
 
+from pdl.scene.entity import Entity
+
 
 @dataclass(frozen=True)
 class Point:
@@ -76,7 +78,7 @@ class Geometry(Protocol):
     def to_path(self) -> Path: ...
 
 
-class Path:
+class Path(Entity):
     """A mutable builder for absolute line, curve, and arc commands.
 
     Call ``move_to`` before adding lines or Bezier curves. Builder methods
@@ -96,7 +98,8 @@ class Path:
     def commands(self) -> tuple[Command, ...]:
         return tuple(self._commands)
 
-    def move_to(self, end: Position) -> Self:
+    # Path.move_to keeps its established builder meaning; use place() for placement.
+    def move_to(self, end: Position) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Start a new subpath without drawing a connecting line.
 
         Args:
@@ -220,8 +223,8 @@ class Path:
         return result
 
 
-@dataclass(frozen=True)
-class Line:
+@dataclass(eq=False)
+class Line(Entity):
     """A straight segment between two local positions in millimeters.
 
     Args:
@@ -236,8 +239,8 @@ class Line:
         return Path().move_to(self.start).line_to(self.end)
 
 
-@dataclass(frozen=True)
-class Polyline:
+@dataclass(eq=False)
+class Polyline(Entity):
     """An open chain joining the supplied points in order.
 
     Args:
@@ -257,7 +260,7 @@ class Polyline:
         return path
 
 
-@dataclass(frozen=True)
+@dataclass(eq=False)
 class Polygon(Polyline):
     """A closed chain joining the supplied vertices in order.
 
@@ -270,8 +273,8 @@ class Polygon(Polyline):
         return path.close() if self.points else path
 
 
-@dataclass(frozen=True)
-class Rectangle:
+@dataclass(eq=False)
+class Rectangle(Entity):
     """An axis-aligned rectangle positioned by its lower-left corner.
 
     Args:
@@ -304,8 +307,8 @@ class Rectangle:
         ).to_path()
 
 
-@dataclass(frozen=True)
-class Arc:
+@dataclass(eq=False)
+class Arc(Entity):
     """An elliptical arc with counterclockwise-positive degree angles.
 
     Args:
@@ -446,8 +449,8 @@ class Arc:
         return path
 
 
-@dataclass(frozen=True)
-class Circle:
+@dataclass(eq=False)
+class Circle(Entity):
     """A circle described by its center and radius.
 
     Args:

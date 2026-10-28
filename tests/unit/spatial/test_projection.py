@@ -52,13 +52,14 @@ def test_global_depth_sort_manual_order_and_capture() -> None:
     far = Plane3D(Point3D(-5, 0, 0)).place(Circle((0, 0), 2))
     camera = OrthographicCamera(0, 0)
     scene = Scene3D((near, far), camera, visibility="centroid")
-    assert scene.decompose()[0].geometry == far.drawing.geometry
-    assert (
+    first = scene.decompose()[0].geometry
+    assert isinstance(first, Circle) and first.radius == 2
+    first_manual = (
         Scene3D((near, far), camera, sort_faces=False, visibility="centroid")
         .decompose()[0]
         .geometry
-        == near.drawing.geometry
     )
+    assert isinstance(first_manual, Circle) and first_manual.radius == 1
     path = Path().move_to((0, 0)).line_to((10, 0)).line_to((0, 10)).close()
     canvas = Canvas(50, 50, mode="fit", padding=3)
     canvas.draw(

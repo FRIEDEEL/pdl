@@ -168,9 +168,15 @@ class Canvas:
         if isinstance(target, (Entity, Group)) and target.root is not target:
             raise ValueError("Draw the outermost Group, not an individual grouped member.")
         layer = target.layer if isinstance(target, (Entity, Group)) else 0
+        automatic = isinstance(layer, int) or (
+            isinstance(target, Entity) and target.root.automatic_layer
+        )
+        if automatic and isinstance(layer, Layer):
+            layer = layer.position
         selected = self.layers[layer] if isinstance(layer, int) else self.layers.adopt(layer)
         if isinstance(target, (Entity, Group)):
             target.set_layer(selected)
+            target.root.automatic_layer = automatic
         geometry = capture(geometry)
         self._drawing_layers.append(selected)
         if isinstance(geometry, Drawing):

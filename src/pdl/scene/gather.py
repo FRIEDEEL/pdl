@@ -10,6 +10,7 @@ from pdl.geometry.transforms import Transform
 from pdl.scene.authoring import Entity
 from pdl.scene.composition import Group
 from pdl.scene.paint import Style
+from pdl.scene.references import PointSource
 
 type Target = Entity | Group
 
@@ -78,25 +79,49 @@ class Gather:
 
     def transform(self, transform: Transform) -> Self:
         """Apply one world-space matrix once per current operation unit."""
+        from pdl.scene.authoring import Placement
+        from pdl.scene.composition import Drawing
+
         targets = self.members
+        # Capture every starting state before editing any shared reference target.
+        states = {id(member): member.snapshot() for member in targets}
         for member in targets:
-            if isinstance(member, Group):
-                member.apply_transform(transform)
-            else:
-                member.transform(transform)
+            if not isinstance(member, Group):
+                member.placement = Placement(Drawing(states[id(member)]))
+            member.apply_transform(transform)
         return self
 
     def translate(self, x: float, y: float) -> Self:
         """Translate each target by world millimeters."""
         return self.transform(Transform.translate(x, y))
 
-    def rotate(self, angle: float, *, center: Position = (0, 0)) -> Self:
-        """Rotate targets together about one world pivot, in degrees."""
-        return self.transform(Transform.rotate(angle).around(center))
+    def rotate(
+        self, angle: float, *, about: PointSource | None = None, center: Position | None = None
+    ) -> Self:
+        """Rotate together around one world pivot, defaulting to the world origin."""
+        return self.transform(Transform.rotate(angle).around(self._pivot(about, center)))
 
-    def scale(self, x: float, y: float | None = None, *, center: Position = (0, 0)) -> Self:
-        """Scale targets together about one world pivot."""
-        return self.transform(Transform.scale(x, y).around(center))
+    def scale(
+        self,
+        x: float,
+        y: float | None = None,
+        *,
+        about: PointSource | None = None,
+        center: Position | None = None,
+    ) -> Self:
+        """Scale together around one world pivot, defaulting to the world origin."""
+        return self.transform(Transform.scale(x, y).around(self._pivot(about, center)))
+
+    @staticmethod
+    def _pivot(about: PointSource | None, center: Position | None) -> Position:
+        from pdl.scene.evaluation import layout_session
+
+        if about is not None and center is not None:
+            raise TypeError("Specify either about or center, not both.")
+        with layout_session() as context:
+            return context.point(
+                about if about is not None else center if center is not None else (0, 0)
+            )
 
     def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
         """Reflect targets about one world line."""
@@ -131,7 +156,7 @@ class Gather:
         for member in self.members:
             style = member.style if isinstance(member, Group) else member.placement.paint
             default = Style()
-            if isinstance(member, Entity):
+            if not isinstance(member, Group):
                 geometry = member.placement.drawing.geometry
                 while isinstance(geometry, Placement):
                     geometry = geometry.drawing.geometry

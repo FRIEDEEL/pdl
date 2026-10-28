@@ -44,7 +44,8 @@ def test_dependency_order_is_independent_of_paint_order(font: Font) -> None:
     output = ET.fromstring(canvas.render(renderer=RendererConfig(fonts=(font,))))[0]
     assert output[0].tag.endswith("path")
     assert any(element.tag.endswith("text") for element in output[-1].iter())
-    assert canvas.drawings[0].geometry is route
+    assert canvas.drawings[0].geometry is not route
+    assert canvas.bounds(canvas.drawings[0]) == canvas.bounds(route)
     with canvas.typography((font,)), layout_session() as context:
         start = context.point(source.anchor("east"))
         assert context.point(destination.anchor()) == Point(start.x + 40, start.y)
@@ -95,7 +96,8 @@ def test_placed_instances_have_distinct_transformed_anchors(font: Font) -> None:
     canvas.draw(Connection(first.anchor("east"), second.anchor("east")))
     canvas.draw(first)
     canvas.draw(second)
-    assert canvas.drawings[1] is first
+    assert canvas.drawings[1] is not first
+    assert canvas.bounds(canvas.drawings[1]) == canvas.bounds(first)
     assert canvas.render().count("<circle") == 2
 
 
@@ -121,7 +123,10 @@ def test_nested_child_anchor_uses_the_complete_instance_transform(font: Font) ->
         local = context.point(node.anchor("west"))
         expected = (instance.transform @ outer.transform @ inner.transform).apply(local)
         assert context.point(port.anchor("west")) == expected
-    assert port.geometry is node
+    assert isinstance(port.geometry, Node)
+    assert port.geometry is not node
+    assert isinstance(port.geometry.label, Text) and isinstance(node.label, Text)
+    assert port.geometry.label.text == node.label.text
     with pytest.raises(TypeError, match="Group"):
         port.child(0)
 

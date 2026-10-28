@@ -8,12 +8,13 @@ from typing import Literal
 from pdl.geometry.bounds import Anchor
 from pdl.geometry.primitives import Point
 from pdl.scene.composition import Drawing
+from pdl.scene.entity import Entity
 from pdl.scene.references import AnchorRef
 from pdl.spatial.coordinates import Point3D
 
 
-@dataclass(frozen=True)
-class ProjectedScene:
+@dataclass(eq=False)
+class ProjectedScene(Entity):
     """A reusable 2D authoring composite, before layout or font measurement.
 
     children contain projected drawings in paint order. source_faces maps each
@@ -72,7 +73,7 @@ class ProjectedScene:
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Reference the 2D bounds, including layout-dependent face artwork."""
-        return AnchorRef(self, name)
+        return AnchorRef(self, name) if self.description_only else super().anchor(name)
 
     def point(self, point: Point3D) -> Point:
         """Project a world point using this snapshot's fixed camera basis."""

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextvars import ContextVar
 from dataclasses import dataclass, fields, is_dataclass, replace
 from typing import TYPE_CHECKING, Self, cast
 
@@ -10,13 +11,43 @@ if TYPE_CHECKING:
     from pdl.scene.layers import Layer
 
 from pdl.geometry.bounds import Anchor
-from pdl.geometry.primitives import Path, Position
+from pdl.geometry.primitives import Path
 from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing, Graphic
+from pdl.scene.entity import Entity
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
 from pdl.scene.references import AnchorRef, PointSource
 from pdl.scene.spaces import WORLD, CoordinateSystem, SpacePoint
+
+
+def description[T](value: T) -> T:
+    """Copy local geometry parameters without mutable authoring state."""
+    from copy import copy
+
+    result = value.to_path() if isinstance(value, Path) else copy(value)
+    if isinstance(result, Entity):
+        result.__dict__.pop("_entity_state", None)
+        result.__dict__.pop("_reference_frame", None)
+        result.description_only = True
+    return cast(T, result)
+
+
+def refresh_description(placement: Placement, geometry: Graphic) -> Placement:
+    """Refresh local content without changing captured pivots or older draws."""
+    content = placement.drawing.geometry
+    if isinstance(content, Placement):
+        content = refresh_description(content, geometry)
+    elif isinstance(content, Around):
+        if isinstance(content.content, Placement):
+            content = replace(content, content=refresh_description(content.content, geometry))
+    elif type(content) is type(geometry):
+        content = geometry
+    return replace(placement, drawing=replace(placement.drawing, geometry=content))
+
+
+_capture_owners: ContextVar[list[object]] = ContextVar("pdl_capture_owners", default=[])
+_capture_memo: ContextVar[dict[int, object] | None] = ContextVar("pdl_capture", default=None)
 
 
 def capture[T](value: T) -> T:
@@ -26,13 +57,32 @@ def capture[T](value: T) -> T:
     required by the decomposition protocol. Built-in mutable paths and Entity
     handles are detached recursively.
     """
-    return _capture(value, {})
+    current = _capture_memo.get()
+    if current is not None:
+        return _capture(value, current)
+    memo: dict[int, object] = {}
+    token = _capture_memo.set(memo)
+    owners_token = _capture_owners.set([])
+    try:
+        return _capture(value, memo)
+    finally:
+        _capture_memo.reset(token)
+        _capture_owners.reset(owners_token)
 
 
 def _capture[T](value: T, memo: dict[int, object]) -> T:
+    # Refreshing authoring descriptions creates temporary objects; retain their
+    # owners throughout capture so Python cannot reuse a memoized identity.
+    _capture_owners.get().append(value)
     if id(value) in memo:
         return cast(T, memo[id(value)])
     memo[id(value)] = value
+    from pdl.scene.frames import FrameSpace
+
+    if isinstance(value, FrameSpace):
+        result = CoordinateSystem(transform=value.to_world(), name=value.name)
+        memo[id(value)] = result
+        return cast(T, result)
     if isinstance(value, CoordinateSystem):
         return value
     from pdl.components.flowchart import FlowNode
@@ -42,12 +92,17 @@ def _capture[T](value: T, memo: dict[int, object]) -> T:
         return cast(T, value.snapshot())
     if isinstance(value, Group):
         return cast(T, value.snapshot())
-    if isinstance(value, Entity):
+    if (
+        isinstance(value, Entity)
+        and not value.description_only
+        and (type(value) is Entity or "_entity_state" in value.__dict__)
+    ):
         result = value.snapshot()
         memo[id(value)] = result
         return cast(T, result)
     if isinstance(value, Path):
         result = value.to_path()
+        result.description_only = True
         memo[id(value)] = result
         return cast(T, result)
     if isinstance(value, tuple):
@@ -67,7 +122,15 @@ def _capture[T](value: T, memo: dict[int, object]) -> T:
                 copied = _capture(original, memo)
                 if copied is not original:
                     changes[field.name] = copied
-        result = replace(value, **changes) if changes else value
+        if isinstance(value, Entity):
+            from copy import copy
+
+            result = copy(value)
+            for name, copied in changes.items():
+                setattr(result, name, copied)
+            result.description_only = True
+        else:
+            result = replace(value, **changes) if changes else value
         memo[id(value)] = result
         return cast(T, result)
     return value
@@ -108,8 +171,12 @@ class Placement:
             result = Drawing(
                 self.drawing.geometry, self.drawing.style, self.space.to_world() @ transform
             )
-            while isinstance(result.geometry, Placement):
-                inner = result.geometry.placed()
+            while isinstance(result.geometry, (Placement, Around)):
+                inner = (
+                    result.geometry.placed()
+                    if isinstance(result.geometry, Placement)
+                    else result.geometry.decompose()[0]
+                )
                 result = Drawing(
                     inner.geometry,
                     result.style if result.style is not None else inner.style,
@@ -117,11 +184,23 @@ class Placement:
                 )
             return result
 
+    def child(self, index: int) -> Drawing:
+        """Address a child of a captured group."""
+        return Drawing(self).child(index)
+
+    def anchor(self, name: Anchor = "center") -> AnchorRef:
+        """Return a deferred reference to this captured description."""
+        return AnchorRef(self, name)
+
+    def transformed(self, transform: Transform) -> Placement:
+        """Return a captured description with an outer world-space matrix."""
+        return Placement(Drawing(self, transform=transform))
+
     def decompose(self) -> tuple[Drawing, ...]:
         return (self.placed(),)
 
 
-class Entity:
+class PlacementState:
     """A mutable handle for placing geometry and assigning instance paint.
 
     Args:
@@ -168,7 +247,7 @@ class Entity:
         return capture(self.placement)
 
     @property
-    def root(self) -> Entity | Group:
+    def root(self) -> PlacementState | Group:
         """Return the outermost selectable instance."""
         return self if self.parent is None else self.parent.root
 
@@ -176,13 +255,6 @@ class Entity:
     def layer(self) -> int | Layer:
         """Return the effective layer of this instance or its outermost Group."""
         return self.root.assigned_layer
-
-    def set_layer(self, layer: int | Layer) -> Self:
-        """Set the outermost instance layer; grouped children promote with a warning."""
-        from pdl.scene.layers import assign_layer
-
-        assign_layer(self, layer)
-        return self
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Capture an anchor of the current state for later evaluation.
@@ -212,7 +284,7 @@ class Entity:
                 Drawing(target, transform=self.parent.world_transform.inverse())
             )
             return self
-        self.placement = Placement(self.placement.drawing, self.placement.space, capture(position))
+        self.placement = Placement(self.placement.drawing, self.placement.space, position)
         return self
 
     def transform(self, transform: Transform) -> Self:
@@ -230,43 +302,18 @@ class Entity:
         self.placement = Placement(Drawing(self.local_snapshot(), transform=local))
         return self
 
-    def translate(self, x: float, y: float) -> Self:
-        """Move by x and y millimeters in authoring world; return this Entity."""
-        return self.transform(Transform.translate(x, y))
 
-    def rotate(self, angle: float, *, center: Position = (0, 0)) -> Self:
-        """Rotate in degrees about a world point; return this Entity.
+@dataclass(frozen=True)
+class Around:
+    """A captured affine operation with a deferred world-space pivot."""
 
-        Args:
-            angle: Counterclockwise-positive angle in degrees.
-            center: World pivot, defaulting to the world origin, not the object center.
-        """
-        return self.transform(Transform.rotate(angle).around(center))
-
-    def scale(self, x: float, y: float | None = None, *, center: Position = (0, 0)) -> Self:
-        """Scale about a world point; return this Entity.
-
-        Args:
-            x: Horizontal scale factor.
-            y: Vertical scale factor; ``None`` uses x for uniform scaling.
-            center: World pivot, defaulting to the world origin.
-
-        Negative factors reflect; zero factors allow degenerate forward geometry.
-        Stroke widths remain in Canvas millimeters.
-        """
-        return self.transform(Transform.scale(x, y).around(center))
-
-    def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
-        """Mirror about a world line; return this Entity.
-
-        Args:
-            angle: Line direction in counterclockwise-positive degrees from the x axis.
-            origin: A world point on the mirror line.
-        """
-        return self.transform(Transform.reflect(angle, origin))
+    content: Graphic
+    matrix: Transform
+    pivot: PointSource
 
     def decompose(self) -> tuple[Drawing, ...]:
-        return self.snapshot().decompose()
+        with layout_session() as context:
+            return (Drawing(self.content, transform=self.matrix.around(context.point(self.pivot))),)
 
 
 class InstanceSpace(CoordinateSystem):
