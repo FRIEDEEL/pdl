@@ -2,7 +2,7 @@
 
 from examples._shared import LABEL, chinese_font, cjk_font, export, latin_font
 from pdl import Canvas, Text
-from pdl.components.debug import debug_overlay
+from pdl.extensions.diagrams.debug import debug_overlay
 
 SHOW_DEBUG = True
 

@@ -40,7 +40,7 @@ def test_compile_images_and_gradients_after_moving_export(tmp_path: Path) -> Non
     canvas.save(original / "drawing.tex", backend="tikz", tikz_mode="tex")
     moved = tmp_path / "moved"
     original.rename(moved)
-    from pdl.rendering.tikz.compiler import compile_pdf
+    from pdl.backends.tikz.compiler import compile_pdf
 
     pdf = compile_pdf(moved / "drawing.tex", mode="pdf")
     assert pdf is not None and pdf.read_bytes().startswith(b"%PDF")

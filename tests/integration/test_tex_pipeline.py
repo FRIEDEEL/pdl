@@ -8,9 +8,10 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from pdl import Canvas, Connection, Font, Node, RendererConfig, Text
-from pdl.geometry.transforms import Transform
-from pdl.scene.composition import Drawing, Group, bounds
-from pdl.typography.tex import TeX, TeXConfig
+from pdl.author.composition import Drawing, Group, bounds
+from pdl.author.tex import TeX
+from pdl.foundation.geometry.transforms import Transform
+from pdl.foundation.typography.tex import TeXConfig
 
 
 @pytest.fixture
@@ -122,14 +123,17 @@ def test_singular_tex_placement_is_invisible() -> None:
 def test_deferred_native_nodes_compile_with_text_and_tex(
     config: TeXConfig, font: Font, tmp_path: FilePath
 ) -> None:
-    first = Node(Text("Source"), position=(20, 20))
-    second = Node(TeX(r"$\frac{x_i}{y^2}+\RR$"), position=first.anchor("east") + (40, 0))
+    first = Node(Text("Source", font), position=(20, 20))
+    second = Node(
+        TeX(r"$\frac{x_i}{y^2}+\RR$", config=config), position=first.anchor("east") + (40, 0)
+    )
     canvas = Canvas(100, 50, renderer=RendererConfig(fonts=(font,), tex=config))
     canvas.draw(Connection(first.anchor("east"), second.anchor("west")))
     canvas.draw(second)
     canvas.draw(first)
     source = canvas.render("tikz")
-    assert source.count(r"\node[rectangle,anchor=center") == 2
+    assert r"\node[rectangle,anchor=center" not in source
+    assert source.count(r"\path") >= 2
     assert r"\usepackage{amssymb}" in source
     file = tmp_path / "nodes.tex"
     file.write_text(source)

@@ -2,7 +2,7 @@
 
 from examples._shared import BLUE, LABEL, PALE, export
 from pdl import Canvas, Connection, Node, Style, TeX, Text
-from pdl.components.debug import debug_overlay
+from pdl.extensions.diagrams.debug import debug_overlay
 
 SHOW_DEBUG = False
 

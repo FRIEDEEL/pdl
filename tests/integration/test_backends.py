@@ -35,7 +35,7 @@ def test_tikz_keeps_intermediates_when_requested(tmp_path: FilePath) -> None:
 
 
 def test_compilation_failure_keeps_source_without_auxiliary_files(tmp_path: FilePath) -> None:
-    from pdl.rendering.tikz.compiler import compile_pdf
+    from pdl.backends.tikz.compiler import compile_pdf
 
     if shutil.which("xelatex") is None:
         pytest.skip("xelatex is not installed")
