@@ -4,7 +4,6 @@ from pdl import (
     Circle,
     Color,
     ColorStop,
-    Entity,
     LinearGradient,
     RadialGradient,
     Rectangle,
@@ -19,9 +18,9 @@ stops = (
 linear = LinearGradient(stops)
 diagonal = LinearGradient(stops, start=(0, 0), end=(1, 1))
 radial = RadialGradient(stops)
-bar = Entity(Rectangle((5, 8), 35, 18), style=Style(fill=linear, line_width=0.3))
-square = Entity(Rectangle((48, 8), 20, 20), style=Style(fill=diagonal, line_width=0.3))
-disc = Entity(Circle((88, 18), 11), style=Style(fill=radial, line_width=0.3))
+bar = Rectangle((5, 8), 35, 18).set_style(Style(fill=linear, line_width=0.3))
+square = Rectangle((48, 8), 20, 20).set_style(Style(fill=diagonal, line_width=0.3))
+disc = Circle((88, 18), 11).set_style(Style(fill=radial, line_width=0.3))
 
 canvas = Canvas(105, 65)
 canvas.draw(bar)

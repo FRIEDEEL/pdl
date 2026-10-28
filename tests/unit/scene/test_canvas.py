@@ -13,7 +13,10 @@ def test_order_and_native_identity() -> None:
     circle = Circle((5, 5), 3)
     canvas.draw(circle)
     canvas.draw(Rectangle((0, 0), 2, 2))
-    assert canvas.drawings[0].geometry is circle
+    captured = canvas.resolve(canvas.drawings[0]).decompose()[0].geometry
+    assert isinstance(captured, Circle)
+    assert captured is not circle
+    assert captured.radius == 3
     root = ET.fromstring(canvas.render())
     assert root.attrib["width"] == "30mm"
     group = root[0]

@@ -6,7 +6,6 @@ from pdl import (
     Cylinder,
     CylinderSurface,
     Drawing,
-    Entity,
     Group,
     OrthographicCamera,
     Point3D,
@@ -41,14 +40,13 @@ canvas = Canvas(150, 85)
 # Keep the unmodified background beside the assembled illustration.
 canvas.draw(Drawing(material_2d, transform=Transform.translate(38, 38)))
 assembly = Group()
-assembly.add(Entity(material_2d))
-assembly.add(Entity(probe_2d))  # Later 2D drawing covers the material, regardless of depth.
+assembly.add(material_2d)
+assembly.add(probe_2d)  # Later 2D drawing covers the material, regardless of depth.
 # A 2D annotation uses the same snapshot to project the world-space probe tip.
 probe_tip = material_2d.point(Point3D(0, 0, 28))
 assembly.add(
-    Entity(
-        Text("probe", position=(probe_tip.x + 3, probe_tip.y), size=10),
-        style=Style(fill=Color(0.65, 0.22, 0.08), stroke=None),
+    Text("probe", position=(probe_tip.x + 3, probe_tip.y), size=10).set_style(
+        Style(fill=Color(0.65, 0.22, 0.08), stroke=None)
     )
 )
 canvas.draw(Drawing(assembly, transform=Transform.translate(112, 38)))

@@ -34,6 +34,10 @@ class Layer:
         self.stack: LayerStack | None = None
         self.registrations: WeakValueDictionary[int, Entity | Group] = WeakValueDictionary()
 
+    def __deepcopy__(self, memo: dict[int, object]) -> Layer:
+        """Keep layer identity when copying graphics, like captured draw records."""
+        return self
+
     @property
     def position(self) -> int:
         """Current stack position, or the initial position before adoption."""

@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Entity, Rectangle, Style
+from pdl import Canvas, Circle, Color, Rectangle, Style
 
-box = Entity(Rectangle((15, 15), width=20, height=10))
+box = Rectangle((15, 15), width=20, height=10)
 ghost = Style(stroke=Color(0.65, 0.65, 0.65), line_width=0.3)
 blue = Style(fill=Color(0.6, 0.8, 1), line_width=0.5)
 pivot = Circle((25, 20), radius=0.7)

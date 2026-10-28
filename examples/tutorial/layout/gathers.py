@@ -1,10 +1,10 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Entity, Gather, Group, Rectangle, Style
+from pdl import Canvas, Circle, Color, Gather, Group, Rectangle, Style
 
-body = Entity(Rectangle((10, 10), 16, 10), style=Style(fill=Color(0.6, 0.8, 1)))
-port = Entity(Circle((29, 15), 2), style=Style(fill=Color(1, 0.7, 0.35)))
+body = Rectangle((10, 10), 16, 10).set_style(Style(fill=Color(0.6, 0.8, 1)))
+port = Circle((29, 15), 2).set_style(Style(fill=Color(1, 0.7, 0.35)))
 component = Group((body, port))
-marker = Entity(Circle((45, 15), 4), style=Style(fill=Color(0.6, 0.9, 0.7)))
+marker = Circle((45, 15), 4).set_style(Style(fill=Color(0.6, 0.9, 0.7)))
 first = Gather(component, marker)
 second = Gather(component)
 combined = Gather(first, second)

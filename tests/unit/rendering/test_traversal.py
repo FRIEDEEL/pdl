@@ -27,4 +27,6 @@ def test_unsupported_object_falls_back_in_original_order() -> None:
     first, second = Rectangle((0, 0), 1, 1), Rectangle((3, 0), 1, 1)
     group = Group((Drawing(first), Drawing(second)))
     result = tuple(prepare((Drawing(group),), lambda _: False))
-    assert [drawing.geometry for drawing in result] == [first, second]
+    assert [
+        drawing.geometry.origin for drawing in result if isinstance(drawing.geometry, Rectangle)
+    ] == [(0, 0), (3, 0)]

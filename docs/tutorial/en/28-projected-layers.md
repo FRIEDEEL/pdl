@@ -22,7 +22,7 @@ distance/focal length) and the same world coordinate frame to align snapshots.
 Do not independently center or fit each one. Apply the same 2D placement to
 related layers, for example by putting them in one Group.
 
-`assembly.add(Entity(material_2d))` precedes the probe, so the probe covers it.
+`assembly.add(material_2d)` precedes the probe, so the probe covers it.
 Canvas also respects explicit layers; at the same layer, draw order determines
 coverage. Neither Group nor Canvas combines the original scenes' depth data.
 The ordering is intentional even when one source lies behind another in 3D.

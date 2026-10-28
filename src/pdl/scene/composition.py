@@ -7,12 +7,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, Self, runtime_checkable
 
 if TYPE_CHECKING:
-    from pdl.scene.authoring import Entity
+    from pdl.scene.authoring import Placement
     from pdl.scene.layers import Layer
+    from pdl.scene.references import PointSource
+    from pdl.scene.spaces import CoordinateSystem
 
 from pdl.geometry.bounds import Anchor, Bounds
-from pdl.geometry.primitives import Geometry
+from pdl.geometry.primitives import Geometry, Position
 from pdl.geometry.transforms import Transform
+from pdl.scene.entity import Entity
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import Style
 from pdl.scene.references import AnchorRef
@@ -133,7 +136,7 @@ class GroupDescription:
         return AnchorRef(self, name)
 
 
-class Group:
+class Group(Entity):
     """An editable, single-parent assembly with local coordinates.
 
     Args:
@@ -161,8 +164,9 @@ class Group:
         from pdl.scene.authoring import Entity, Placement
         from pdl.scene.layers import highest_layer
 
-        self.parent: Group | None = None
+        self.parent = None
         self.transform = transform
+        self._operations: list[tuple[Transform, PointSource]] = []
         self.style = style
         self._members: list[Entity | Group] = []
         from pdl.scene.layers import layer_position
@@ -171,7 +175,7 @@ class Group:
         children = tuple(
             sorted(children, key=lambda c: 0 if isinstance(c, Drawing) else layer_position(c.layer))
         )
-        self.assigned_layer: int | Layer = highest_layer(candidates) if layer is None else layer
+        self.assigned_layer = highest_layer(candidates) if layer is None else layer
         self._dismissed = False
         for child in children:
             if isinstance(child, Drawing):
@@ -184,6 +188,34 @@ class Group:
             else:
                 self.add(child)
         self.set_layer(self.assigned_layer)
+
+    @property
+    def parent(self) -> Group | None:
+        return self._parent
+
+    @parent.setter
+    def parent(self, value: Group | None) -> None:
+        self._parent = value
+
+    @property
+    def assigned_layer(self) -> int | Layer:
+        return self._assigned_layer
+
+    @assigned_layer.setter
+    def assigned_layer(self, value: int | Layer) -> None:
+        self._assigned_layer = value
+
+    def copy(self) -> Self:
+        """Copy the assembly and members independently, retaining world placement."""
+        from copy import deepcopy
+
+        result = deepcopy(self)
+        result.parent = None
+        if self.parent is not None:
+            result.transform = self.world_transform
+            result._operations = []
+        result.style = self.effective_style
+        return result
 
     @property
     def dismissed(self) -> bool:
@@ -218,9 +250,13 @@ class Group:
     @property
     def world_transform(self) -> Transform:
         """Return the accumulated local-to-world matrix."""
-        return (
+        result = (
             self.transform if self.parent is None else self.parent.world_transform @ self.transform
         )
+        with layout_session() as context:
+            for matrix, pivot in self._operations:
+                result = matrix.around(context.point(pivot)) @ result
+        return result
 
     @property
     def effective_style(self) -> Style | None:
@@ -230,12 +266,25 @@ class Group:
             else self.parent.effective_style
         )
 
-    def _description(self) -> GroupDescription:
-        return GroupDescription(self.children, self.transform, self.style)
+    def _description(self) -> Graphic:
+        if not self._operations:
+            return GroupDescription(self.children, self.transform, self.style)
+        from pdl.scene.authoring import Placement
 
-    def snapshot(self) -> GroupDescription:
+        inverse = Transform() if self.parent is None else self.parent.world_transform.inverse()
+        return Placement(Drawing(self.snapshot(), transform=inverse))
+
+    def snapshot(self) -> Placement:
         """Capture world placement and inherited paint without measuring text."""
-        return GroupDescription(self.children, self.world_transform, self.effective_style)
+        from pdl.scene.authoring import Around, Placement, capture
+
+        base = (
+            self.transform if self.parent is None else self.parent.world_transform @ self.transform
+        )
+        result = Placement(Drawing(GroupDescription(self.children, base, self.effective_style)))
+        for matrix, pivot in self._operations:
+            result = Placement(Drawing(Around(result, matrix, capture(pivot))))
+        return result
 
     def decompose(self) -> tuple[Drawing, ...]:
         return self.snapshot().decompose()
@@ -271,6 +320,7 @@ class Group:
         from pdl.scene.layers import assign_layer
 
         assign_layer(self, layer)
+        self.root.automatic_layer = False
         return self
 
     def add(self, member: Entity | Group) -> Self:
@@ -297,6 +347,7 @@ class Group:
             member.parent.remove(member)
         if isinstance(member, Group):
             member.transform = inverse @ world
+            member._operations = []
             member.style = paint
         else:
             member.placement = Placement(Drawing(state, transform=inverse))
@@ -315,6 +366,7 @@ class Group:
             world, paint = member.world_transform, member.effective_style
             member.parent = None
             member.transform, member.style = world, paint
+            member._operations = []
         else:
             state = member.snapshot()
             member.parent = None
@@ -351,6 +403,9 @@ class Group:
         """Apply an affine matrix in authoring world space."""
         if self._dismissed:
             raise ValueError("Cannot transform a dismissed Group.")
+        if self._operations:
+            self._operations.append((transform, (0, 0)))
+            return self
         parent = Transform() if self.parent is None else self.parent.world_transform
         self.transform = parent.inverse() @ transform @ parent @ self.transform
         return self
@@ -359,23 +414,63 @@ class Group:
         """Translate by world millimeters."""
         return self.apply_transform(Transform.translate(x, y))
 
-    def rotate(self, angle: float, *, center: tuple[float, float] = (0, 0)) -> Self:
-        """Rotate in degrees about a world point, defaulting to the origin."""
-        return self.apply_transform(Transform.rotate(angle).around(center))
+    def rotate(
+        self, angle: float, *, about: PointSource | None = None, center: Position | None = None
+    ) -> Self:
+        """Rotate about a world point, defaulting to the visible group center."""
+        self._operations.append((Transform.rotate(angle), self._pivot(about, center)))
+        return self
 
     def scale(
-        self, x: float, y: float | None = None, *, center: tuple[float, float] = (0, 0)
+        self,
+        x: float,
+        y: float | None = None,
+        *,
+        about: PointSource | None = None,
+        center: Position | None = None,
     ) -> Self:
-        """Scale about a world point; stroke widths remain Canvas millimeters."""
-        return self.apply_transform(Transform.scale(x, y).around(center))
+        """Scale about a world point; line widths stay in canvas millimeters."""
+        self._operations.append((Transform.scale(x, y), self._pivot(about, center)))
+        return self
 
-    def reflect(self, angle: float = 0, *, origin: tuple[float, float] = (0, 0)) -> Self:
+    def _pivot(self, about: PointSource | None, center: Position | None) -> PointSource:
+        if about is not None and center is not None:
+            raise TypeError("Specify either about or center, not both.")
+        return about if about is not None else center if center is not None else self.anchor()
+
+    def reflect(self, angle: float = 0, *, origin: Position = (0, 0)) -> Self:
         """Reflect about a world line."""
         return self.apply_transform(Transform.reflect(angle, origin))
 
-    def transformed(self, transform: Transform) -> GroupDescription:
+    def move_to(self, end: PointSource) -> Self:
+        """Move the visible group center to an authoring-world target."""
+        with layout_session() as context:
+            target, current = context.point(end), context.point(self.anchor())
+        return self.translate(target.x - current.x, target.y - current.y)
+
+    def place(self, end: PointSource) -> Self:
+        return self.move_to(end)
+
+    @property
+    def space(self) -> CoordinateSystem:
+        from pdl.scene.authoring import InstanceSpace
+
+        return InstanceSpace(self.snapshot())
+
+    def local_snapshot(self) -> Placement:
+        from pdl.scene.authoring import Placement
+
+        return Placement(Drawing(self._description()))
+
+    def set_style(self, style: Style) -> Self:
+        self.style = style
+        return self
+
+    def transformed(self, transform: Transform) -> Placement:
         """Return an independent captured description with an outer transform."""
-        return self.snapshot().transformed(transform)
+        from pdl.scene.authoring import Placement
+
+        return Placement(Drawing(self.snapshot(), transform=transform))
 
 
 def walk(

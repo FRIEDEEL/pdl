@@ -1,8 +1,8 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Entity, Group, Rectangle, Style
+from pdl import Canvas, Circle, Color, Group, Rectangle, Style
 
-body = Entity(Rectangle((10, 12), 18, 12), style=Style(fill=Color(0.6, 0.8, 1)))
-port = Entity(Circle((31, 18), 3), style=Style(fill=Color(1, 0.7, 0.35)))
+body = Rectangle((10, 12), 18, 12).set_style(Style(fill=Color(0.6, 0.8, 1)))
+port = Circle((31, 18), 3).set_style(Style(fill=Color(1, 0.7, 0.35)))
 component = Group((body, port))
 
 canvas = Canvas(90, 45)

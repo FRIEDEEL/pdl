@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import WORLD, Canvas, Color, Entity, Rectangle, Style
+from pdl import WORLD, Canvas, Color, Rectangle, Style
 
-box = Entity(Rectangle((-10, -5), width=20, height=10)).move_to((30, 20))
+box = Rectangle((-10, -5), width=20, height=10).move_to((30, 20))
 box.rotate(30, center=(30, 20))
 
 canvas = Canvas(65, 45)

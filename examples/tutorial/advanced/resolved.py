@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Entity, Node, Text
+from pdl import Canvas, Node, Text
 
-label = Entity(Node(Text("Snapshot"))).move_to((25, 15))
+label = Node(Text("Snapshot")).move_to((25, 15))
 
 canvas = Canvas(80, 45)
 canvas.draw(label)

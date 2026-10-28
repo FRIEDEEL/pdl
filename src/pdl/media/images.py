@@ -11,6 +11,7 @@ from tempfile import gettempdir
 from typing import Literal
 
 from pdl.geometry.primitives import Path, Position, Rectangle, point
+from pdl.scene.entity import Entity
 
 
 def image_size(data: bytes) -> tuple[int, int, str]:
@@ -45,8 +46,8 @@ def image_size(data: bytes) -> tuple[int, int, str]:
     raise ValueError("Expected a PNG or baseline/progressive JPEG with valid dimensions.")
 
 
-@dataclass(frozen=True)
-class Image:
+@dataclass(eq=False)
+class Image(Entity):
     """An image captured from disk, placed inside an explicit rectangular viewport.
 
     Args:

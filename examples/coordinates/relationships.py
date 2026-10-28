@@ -37,13 +37,13 @@ def example(mode: Literal["fit", "auto_size", "clip"] = "fit") -> Canvas:
     row = world.child(Transform.translate(18, 70), name="original-row")
 
     square = Entity(Rectangle((-8, -8), 16, 16), style=BLUE, space=row)
-    triangle = Entity(Polygon(((-7, -6), (7, -6), (0, 8))), style=ORANGE)
+    triangle = Polygon(((-7, -6), (7, -6), (0, 8))).set_style(ORANGE)
     triangle.move_to(square.space.point(30, 0))
-    circle = Entity(Circle((0, 0), 7), style=GREEN)
+    circle = Circle((0, 0), 7).set_style(GREEN)
     circle.move_to(triangle.anchor("east") + (18, 0))
 
     # Capture the original relation before moving the source square.
-    fixed_marker = Entity(Circle((0, 0), 2), style=ORANGE)
+    fixed_marker = Circle((0, 0), 2).set_style(ORANGE)
     fixed_marker.move_to(square.anchor("north") + (0, 6))
     original_square = square.snapshot()
     original_east = square.anchor("east")
@@ -51,7 +51,7 @@ def example(mode: Literal["fit", "auto_size", "clip"] = "fit") -> Canvas:
     # New state: rotate and translate only the square. Existing dependents
     # keep their captured source state. A new attachment uses the new state.
     square.rotate(25, center=(18, 70)).translate(0, -34)
-    new_attachment = Entity(Circle((0, 0), 3), style=GREEN)
+    new_attachment = Circle((0, 0), 3).set_style(GREEN)
     new_attachment.move_to(square.anchor("east") + (8, 0))
 
     # Reuse the original three-part assembly under a reflected, rotated frame.

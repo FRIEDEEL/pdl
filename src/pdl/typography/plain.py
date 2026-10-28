@@ -17,6 +17,7 @@ import uharfbuzz as hb
 from pdl.geometry.bounds import Bounds, geometry_bounds
 from pdl.geometry.primitives import Path, Position, point
 from pdl.geometry.transforms import Transform, transform_path
+from pdl.scene.entity import Entity
 from pdl.typography.fonts import glyph_path
 
 # Use TeX points consistently for both ordinary text and TeX fragments.
@@ -230,8 +231,8 @@ def _layout(
     )
 
 
-@dataclass(frozen=True)
-class Text:
+@dataclass(eq=False)
+class Text(Entity):
     """Literal Unicode text at a first-line baseline reference.
 
     Args:

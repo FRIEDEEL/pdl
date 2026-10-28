@@ -1,9 +1,9 @@
 # tutorial-start
-from pdl import Canvas, Color, Entity, Rectangle, Style
+from pdl import Canvas, Color, Rectangle, Style
 
-blue = Entity(Rectangle((8, 8), 28, 25), style=Style(fill=Color(0.4, 0.7, 1)))
-gold = Entity(Rectangle((20, 15), 28, 25), style=Style(fill=Color(1, 0.8, 0.3)))
-red = Entity(Rectangle((32, 22), 28, 25), style=Style(fill=Color(1, 0.5, 0.45)))
+blue = Rectangle((8, 8), 28, 25).set_style(Style(fill=Color(0.4, 0.7, 1)))
+gold = Rectangle((20, 15), 28, 25).set_style(Style(fill=Color(1, 0.8, 0.3)))
+red = Rectangle((32, 22), 28, 25).set_style(Style(fill=Color(1, 0.5, 0.45)))
 canvas = Canvas(75, 60)
 background = canvas.layers[0]
 foreground = canvas.layers[1]

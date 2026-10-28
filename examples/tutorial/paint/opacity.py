@@ -1,8 +1,8 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Entity, Gather, Style
+from pdl import Canvas, Circle, Color, Gather, Style
 
-left = Entity(Circle((22, 20), 12), style=Style(stroke=None, fill=Color(0.1, 0.4, 0.8)))
-right = Entity(Circle((36, 20), 12), style=Style(stroke=None, fill=Color(0.1, 0.4, 0.8)))
+left = Circle((22, 20), 12).set_style(Style(stroke=None, fill=Color(0.1, 0.4, 0.8)))
+right = Circle((36, 20), 12).set_style(Style(stroke=None, fill=Color(0.1, 0.4, 0.8)))
 Gather(left, right).set_opacity(0.5)
 
 canvas = Canvas(60, 40)

@@ -1,10 +1,10 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Connection, Entity, Rectangle, Style
+from pdl import Canvas, Circle, Color, Connection, Rectangle, Style
 
-box = Entity(Rectangle((-10, -5), width=20, height=10)).move_to((20, 20))
-old_attachment = Entity(Circle((0, 0), radius=3)).move_to(box.anchor("east") + (10, 0))
+box = Rectangle((-10, -5), width=20, height=10).move_to((20, 20))
+old_attachment = Circle((0, 0), radius=3).move_to(box.anchor("east") + (10, 0))
 box.translate(0, 20)
-new_attachment = Entity(Circle((0, 0), radius=3)).move_to(box.anchor("east") + (10, 0))
+new_attachment = Circle((0, 0), radius=3).move_to(box.anchor("east") + (10, 0))
 link = Connection(box.anchor("east"), new_attachment.anchor("west"))
 
 canvas = Canvas(65, 55)

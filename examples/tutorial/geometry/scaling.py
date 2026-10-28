@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Entity, Style
+from pdl import Canvas, Circle, Color, Style
 
-circle = Entity(Circle((25, 20), radius=8))
+circle = Circle((25, 20), radius=8)
 ghost = Style(stroke=Color(0.65, 0.65, 0.65), line_width=0.3)
 blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.5)
 

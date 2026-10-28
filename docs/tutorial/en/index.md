@@ -43,6 +43,7 @@ groups-layers-gathers
 26-visibility
 27-cylinder-surfaces
 28-projected-layers
+29-entities-and-frames
 ```
 
 [中文版](../zh/index.md) · [API reference](../../api/index.md)

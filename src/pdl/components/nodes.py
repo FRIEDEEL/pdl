@@ -10,6 +10,7 @@ from pdl.geometry.bounds import Anchor, Bounds
 from pdl.geometry.primitives import Circle, Rectangle, point
 from pdl.geometry.transforms import Transform
 from pdl.scene.composition import Drawing
+from pdl.scene.entity import Entity
 from pdl.scene.evaluation import layout_session
 from pdl.scene.paint import BLACK, Style
 from pdl.scene.references import AnchorRef, PointSource
@@ -18,8 +19,8 @@ from pdl.typography.plain import Text
 from pdl.typography.tex import TeX
 
 
-@dataclass(frozen=True)
-class Node:
+@dataclass(eq=False)
+class Node(Entity):
     """A text label inside an automatically sized rectangle or circle.
 
     Args:
@@ -60,14 +61,18 @@ class Node:
     def bounds(self) -> Bounds:
         """Measure the node's authoring shape bounds using the current font context."""
         with layout_session() as context:
-            return context.node_bounds(self)
+            return (
+                context.node_bounds(self)
+                if self.description_only
+                else context.bounds(self.snapshot())
+            )
 
     def anchor(self, name: Anchor = "center") -> AnchorRef:
         """Describe a center or compass point on the shape boundary, excluding stroke.
 
         The returned AnchorRef is measured with the eventual font configuration.
         """
-        return AnchorRef(self, name)
+        return AnchorRef(self, name) if self.description_only else super().anchor(name)
 
     def decompose(self) -> tuple[Drawing, ...]:
         box = self.bounds
