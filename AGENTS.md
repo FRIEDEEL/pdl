@@ -236,6 +236,19 @@
 
 ## Architecture Boundaries
 
+- Treat the architecture in this section and `docs/architecture.md` as mandatory
+  implementation constraints. Read the architecture document before designing
+  or changing implementation, and identify the owning module and allowed
+  dependencies before adding a feature.
+- Implement new functionality within these boundaries. Do not work around them
+  with function-local imports, dynamic imports, hidden state, duplicate object
+  models, or backend-specific exceptions to Author semantics.
+- If a requirement cannot be met within the agreed architecture, explain the
+  concrete conflict, alternatives, and affected boundaries before implementation.
+  Obtain explicit user approval for an architecture change; ordinary feature
+  authorization does not authorize silently changing the architecture.
+- During review, verify responsibilities and dependency direction as well as
+  behavior. Passing tests alone does not establish architectural compliance.
 - Author is the sole drawing object model. Do not introduce a parallel Resolved
   scene hierarchy. Anchors and placement inputs are evaluated immediately from
   the referenced object's current state; later edits do not create live bindings.
