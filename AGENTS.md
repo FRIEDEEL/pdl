@@ -141,13 +141,24 @@
 
 - Use `DEVLOG.md` to record project motivation, ideas, design discussions,
   decisions, and open questions.
+- Keep the formal log concise. Record durable conclusions and meaningful
+  milestones rather than chat transcripts, temporary task status, or repetitive
+  validation reports.
 - Organize content by topic as needed. No fixed set of sections is required.
 - Use Mermaid diagrams, including class diagrams and flowcharts, when they
   help explain the discussion.
 - When adding dated notes, place them under `Dated Note` with headings in
-  the format `### YYYY-MM-DD HH:mm:ss`, using local time.
+  the format `### YYYY-MM-DD HH:mm:ss`, using local time (Asia/Tokyo).
+- Keep all dated notes in reverse chronological order, newest first. Sort by
+  the full timestamp, including times within the same day, and insert each new
+  entry at its correct position rather than appending it at the bottom.
 - Distinguish tentative ideas from agreed decisions.
-- Preserve dated history and record subsequent changes in new entries.
+- Preserve useful dated history and record subsequent changes in new entries;
+  remove or rewrite historical entries only when the user authorizes cleanup.
+- Use `refactor_note.md` as temporary guidance for the current refactor branch.
+  At branch completion, consolidate confirmed decisions and branch outcomes into
+  `DEVLOG.md` and update the relevant architecture documentation before removing
+  the temporary note. Do not treat the note as implementation authorization.
 
 ## Changelog
 
@@ -236,9 +247,10 @@
 
 ## Architecture Boundaries
 
-- Before each new design proposal, consult the "Author 设计讨论草稿" section
-  in `DEVLOG.md`. Identify related decision IDs and report whether the proposal
-  is compatible, a compatible extension, conflicting, or insufficiently defined.
+- Before each new design proposal, consult `refactor_note.md` while it exists,
+  along with relevant confirmed decisions in `DEVLOG.md`. Reference decision IDs
+  where available and report whether the proposal is compatible, a compatible
+  extension, conflicting, or insufficiently defined.
   Keep confirmed decisions, pending suggestions, rejected alternatives, and the
   current implementation distinct. Do not promote an assistant suggestion to a
   decision without explicit user confirmation or silently replace prior decisions.
