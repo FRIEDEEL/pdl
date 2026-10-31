@@ -236,6 +236,12 @@
 
 ## Architecture Boundaries
 
+- Before each new design proposal, consult the "Author 设计讨论草稿" section
+  in `DEVLOG.md`. Identify related decision IDs and report whether the proposal
+  is compatible, a compatible extension, conflicting, or insufficiently defined.
+  Keep confirmed decisions, pending suggestions, rejected alternatives, and the
+  current implementation distinct. Do not promote an assistant suggestion to a
+  decision without explicit user confirmation or silently replace prior decisions.
 - Treat the architecture in this section and `docs/architecture.md` as mandatory
   implementation constraints. Read the architecture document before designing
   or changing implementation, and identify the owning module and allowed
