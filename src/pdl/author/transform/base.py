@@ -1,6 +1,13 @@
 """Minimal numerical contract for general two-dimensional transformations."""
 
 from abc import ABC, abstractmethod
+from typing import Protocol, Self
+
+
+class TransformTarget(Protocol):
+    """An editable target that delegates conversion to the transform package."""
+
+    def apply_transform(self, transform: "Transform") -> Self: ...
 
 
 class Transform(ABC):
@@ -27,3 +34,8 @@ class Transform(ABC):
                 or the result cannot be represented as finite coordinates.
         """
         raise NotImplementedError
+
+    def apply_to[T: TransformTarget](self, target: T) -> T:
+        """Apply immediately to a target and return that same target."""
+        target.apply_transform(self)
+        return target

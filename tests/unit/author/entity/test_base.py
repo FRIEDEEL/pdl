@@ -1,5 +1,7 @@
 """Direct geometry ownership, explicit sharing, and per-type style fallback."""
 
+from typing import cast
+
 import pytest
 
 from pdl.author.entity.base import Entity
@@ -9,11 +11,11 @@ from pdl.author.style.color import Color
 from pdl.author.style.style import Style
 
 
-class BlueEntity(Entity[Point]):
+class BlueEntity(Entity):
     default_style = Style(stroke=None, fill=Color(0, 0, 1))
 
 
-class RedEntity(Entity[Point]):
+class RedEntity(Entity):
     default_style = Style(stroke=None, fill=Color(1, 0, 0))
 
 
@@ -22,8 +24,8 @@ def test_constructor_retains_mutable_geometry_without_copying() -> None:
     entity = Entity(source)
     assert entity.geometry is source
     source.line_to((2, 3))
-    assert entity.geometry.current_point == Point(2, 3)
-    entity.geometry.line_to((5, 6))
+    assert cast(Path, entity.geometry).current_point == Point(2, 3)
+    cast(Path, entity.geometry).line_to((5, 6))
     assert source.current_point == Point(5, 6)
 
 
@@ -32,17 +34,17 @@ def test_reusing_a_geometry_explicitly_shares_its_edits() -> None:
     first, second = Entity(source), Entity(source)
     assert first is not second
     assert first.geometry is second.geometry is source
-    first.geometry.line_to((10, 20))
-    assert second.geometry.current_point == Point(10, 20)
+    cast(Path, first.geometry).line_to((10, 20))
+    assert cast(Path, second.geometry).current_point == Point(10, 20)
 
 
 def test_explicit_geometry_copy_provides_independence() -> None:
     source = Path().move_to((0, 0))
     first, second = Entity(source), Entity(source.copy())
-    first.geometry.line_to((10, 20))
-    assert second.geometry.current_point == Point(0, 0)
-    second.geometry.line_to((30, 40))
-    assert first.geometry.current_point == Point(10, 20)
+    cast(Path, first.geometry).line_to((10, 20))
+    assert cast(Path, second.geometry).current_point == Point(0, 0)
+    cast(Path, second.geometry).line_to((30, 40))
+    assert cast(Path, first.geometry).current_point == Point(10, 20)
 
 
 def test_reading_a_default_does_not_materialize_instance_style() -> None:

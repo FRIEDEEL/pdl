@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import cos, isfinite, radians, sin
 
+from pdl.author.geometry.point import Point, Position, Vector, as_point
 from pdl.author.transform.base import Transform
 
 
@@ -77,6 +78,19 @@ class AffineTransform(Transform):
             raise ValueError("Transformed coordinates must be finite.")
         return result
 
+    def map(self, position: Position) -> Point:
+        """Map a domain point without retaining it or any object state."""
+        p = as_point(position)
+        return Point(*self.apply((p.x, p.y)))
+
+    def apply_vector(self, vector: Vector) -> Vector:
+        """Map a displacement, omitting translation."""
+        return Vector(self.a * vector.x + self.c * vector.y, self.b * vector.x + self.d * vector.y)
+
+    @property
+    def determinant(self) -> float:
+        return self.a * self.d - self.b * self.c
+
     def __matmul__(self, other: object) -> AffineTransform:
         """Compose affine matrices; apply other first, then this matrix.
 
@@ -121,7 +135,7 @@ class AffineTransform(Transform):
             ia, ib, ic, id_, -(ia * self.e + ic * self.f), -(ib * self.e + id_ * self.f)
         )
 
-    def around(self, pivot: tuple[float, float]) -> AffineTransform:
+    def around(self, pivot: Position) -> AffineTransform:
         """Express this mapping relative to an explicitly supplied pivot.
 
         Returns T(pivot) @ self @ T(-pivot). For rotation and scaling the pivot
@@ -134,7 +148,8 @@ class AffineTransform(Transform):
         Returns:
             A new affine matrix using the supplied pivot.
         """
-        x, y = pivot
+        p = as_point(pivot)
+        x, y = p.x, p.y
         return Translation(x, y) @ self @ Translation(-x, -y)
 
 
@@ -189,3 +204,31 @@ class Reflection(AffineTransform):
             raise ValueError("Reflection angle must be finite.")
         c, s = cos(2 * radians(angle)), sin(2 * radians(angle))
         super().__init__(a=c, b=s, c=s, d=-c)
+
+
+class Rescale(Scaling):
+    """Uniform scaling, optionally including stroke width.
+
+    Args:
+        factor: Finite uniform factor, including zero or negative values.
+        include_linewidth: Scale stroke width by abs(factor), default False.
+
+    Nonuniform scaling uses Scaling and has no line-width option. This explicit
+    operation may materialize an inherited style on its target when requested.
+    """
+
+    def __init__(self, factor: float, *, include_linewidth: bool = False) -> None:
+        super().__init__(factor)
+        object.__setattr__(self, "include_linewidth", include_linewidth)
+        object.__setattr__(self, "factor", factor)
+
+    include_linewidth: bool
+    factor: float
+
+    def around(self, pivot: Position) -> Rescale:
+        """Keep the uniform scale's paint option when choosing a pivot."""
+        matrix = super().around(pivot)
+        result = Rescale(self.factor, include_linewidth=self.include_linewidth)
+        object.__setattr__(result, "e", matrix.e)
+        object.__setattr__(result, "f", matrix.f)
+        return result
