@@ -37,8 +37,14 @@ class Entity:
     default_style: ClassVar[Style] = Style()
 
     def __init__(
-        self, geometry: object, *, style: Style | None = None, reference: Position | None = None
+        self,
+        geometry: object,
+        *,
+        style: Style | None = None,
+        reference: Position | None = None,
+        default_style: Style | None = None,
     ) -> None:
+        self._default_style = default_style
         self._geometry = geometry
         self._style = style
         self._reference = as_point(reference) if reference is not None else None
@@ -66,7 +72,7 @@ class Entity:
             if ancestor.style is not None:
                 return ancestor.style
             ancestor = ancestor.parent
-        return type(self).default_style
+        return self._default_style or type(self).default_style
 
     def set_style(self, style: Style | None) -> Self:
         """Set only this instance; None restores parent/type fallback."""

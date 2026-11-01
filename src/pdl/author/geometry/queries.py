@@ -3,6 +3,7 @@
 from typing import Protocol, runtime_checkable
 
 from pdl.author.geometry.bounds import Bounds, geometry_bounds
+from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.path import Move, Path
 from pdl.author.geometry.point import Point, as_point
 from pdl.author.geometry.protocols import PathSource
@@ -36,6 +37,8 @@ def reference_of(geometry: object) -> Point:
     """Return a cheap default pivot; never measure text to find it."""
     if isinstance(geometry, Point):
         return geometry
+    if isinstance(geometry, Frame):
+        return as_point(geometry.origin)
     if isinstance(geometry, (Circle, Arc)):
         return as_point(geometry.center)
     if isinstance(geometry, Line):

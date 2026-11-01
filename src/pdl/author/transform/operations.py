@@ -5,6 +5,8 @@ from dataclasses import replace
 from math import hypot, isclose
 from typing import Protocol, runtime_checkable
 
+from pdl.author.geometry.frame import Frame
+from pdl.author.geometry.image import Image
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.shapes import Arc, Circle, Line, Polygon, Polyline, Rectangle
@@ -33,6 +35,19 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
         raise TypeError("This geometry currently requires an affine transform.")
     if transform == AffineTransform():
         return geometry
+    if isinstance(geometry, Frame):
+        return Frame(
+            transform.map(geometry.origin),
+            transform.apply_vector(geometry.x_axis),
+            transform.apply_vector(geometry.y_axis),
+            geometry.name,
+        )
+    if isinstance(geometry, Image):
+        result = copy(geometry)
+        p, q, u, v = geometry.corners
+        result.corners = (transform.map(p), transform.map(q), transform.map(u), transform.map(v))
+        result.position = result.corners[0]
+        return result
     if isinstance(geometry, Circle):
         sx, sy = hypot(transform.a, transform.b), hypot(transform.c, transform.d)
         orthogonal = isclose(
