@@ -5,12 +5,12 @@
 - Discuss work with the user in Chinese. Write this file in English.
 - The AI owns implementation, routine design choices, testing, and documentation
   within the agreed project goals. Routine implementation steps do not require
-  separate approval. Git commits require user review as specified below.
+  separate approval. Git commits follow the scope-specific delegation rules below.
 - The user performs acceptance between stages, reviewing architecture, example
   code, and rendered results. Once stage goals are agreed, handle internal
   design and implementation decisions autonomously rather than introducing
   additional implementation approval checkpoints within the stage. This does not
-  waive the separate requirement for user review before Git commits.
+  waive review requirements outside an explicitly delegated scope.
 - Explain significant approaches and trade-offs concisely. Ask before changes
   that materially exceed the agreed stage scope; report decisions and concrete
   examples and outputs at the stage acceptance checkpoint.
@@ -194,6 +194,10 @@
 - Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 - Use the format `<type>[optional scope][optional !]: <description>`, with a
   short description and optional body and footers separated by blank lines.
+- Include a concise body describing the concrete changes rather than relying
+  only on the subject. When a commit includes added or updated tests, say so
+  explicitly in the body. Report executed validation accurately and keep the
+  detail proportional to the change.
 - Scopes are optional. Include one when it helps readers understand the area
   affected by the change; omit it when the description is already clear.
 - Choose scopes by meaning rather than mechanically mapping them to files or
@@ -277,21 +281,29 @@
 - Author is the sole drawing object model. Do not introduce a parallel Resolved
   scene hierarchy. Anchors and placement inputs are evaluated immediately from
   the referenced object's current state; later edits do not create live bindings.
-- Keep geometric descriptions and their own numerical queries in
-  `author/geometry/`, without a shared Geometry base class or dependencies on
-  Entity, Style, Canvas, backends, or extensions. Geometry may use
-  `author/transform/` and util.
-- Keep general transformation contracts and concrete affine transformations in
-  `author/transform/`, alongside geometry and entity. Transform works on
-  numerical coordinate pairs and must not depend on geometry, style, entity,
-  Canvas, backends, or extensions. Object types define their own supported
-  transformation behavior; general Transform does not require a matrix or inverse.
-- Keep pure numerical helpers and external font/TeX interfaces in
-  `author/util/`. Util must not depend on geometry, style, entity, Canvas,
-  backends, or extensions; it accepts explicit data and returns ordinary data.
-- Keep styles in `author/style/` and editable drawing behavior and object
-  relationships in `author/entity/`. Entity may use geometry, style, transform,
-  and util, but must not import output adapters.
+- Keep geometric descriptions and numerical queries in `author/geometry/`.
+  Do not require a shared Geometry base. Geometry stores current shape data,
+  not accumulated transformations, ownership, or paint.
+- Keep mapping contracts, affine matrices, and geometry-conversion decisions in
+  `author/transform/`. Transform applies immediately to an Entity and replaces
+  its current Geometry as necessary; it may use geometry, style, and util.
+  Avoid runtime dependency cycles through narrow structural target contracts.
+- Keep reusable calculations and explicit font/TeX tool interfaces in
+  `author/util/`. It is infrastructure, not an object manager, drawing model,
+  or repository for relationship and conversion policies.
+- Keep styles in `author/style/` and drawing instances, Group ownership,
+  Gather selections, and positioning relationships in `author/entity/`.
+  Entity delegates transformation policy to the transform package and must
+  not import Canvas, output adapters, or extensions.
+- Drawing constructors such as `Circle(...)` may be factory functions returning
+  Entity instances around pure geometric descriptions. No CircleEntity class
+  is required. Group is an Entity; Gather is a separate collection, and Layer
+  belongs to Canvas.
+- Default transformations leave line width unchanged. Uniform Rescale may
+  explicitly include line width. Nonuniform scaling cannot use that option.
+- The user delegates local commits for the complete refactor on the current
+  branch. Keep focused commits with explanatory bodies and explicit test notes.
+  This delegation does not authorize merging into dev, pushing, or releasing.
 - Place 3D and advanced diagram components under `extensions/`; core 2D must not
   depend on these extensions. Capture expands extensions into core descriptions.
 - Canvas owns submissions, ordering, and viewport policy. Backends consume the

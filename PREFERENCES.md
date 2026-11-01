@@ -34,3 +34,10 @@
   validation results, and known incomplete work. Keep unrelated user edits out.
 - Previous autonomous commit and merge authorization is revoked. Obtain explicit
   merge approval separately from approval of individual commits.
+- Prefer commit messages with a concise body explaining concrete changes.
+  Explicitly mention included test additions or updates, and distinguish them
+  from checks that were actually run.
+
+- For the complete architecture refactor on the current branch, the user has
+  explicitly delegated local commits again. Keep focused commits with bodies;
+  merging into dev, pushing, and release publication remain separate actions.
