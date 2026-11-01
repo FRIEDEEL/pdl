@@ -1,5 +1,37 @@
 # 源码架构
 
+## 当前重构边界
+
+旧实现和测试已移至 `src/pdl_old` 与 `tests_old`，新 `src/pdl` 按依赖关系逐步重建。
+当前确定的 Author 分工如下：
+
+| 包 | 职责 | 允许依赖 |
+| --- | --- | --- |
+| `author.geometry` | 各类独立几何描述及自身的数学查询 | 标准库，必要时使用 util |
+| `author.style` | 样式描述 | 标准库，必要时使用 util |
+| `author.entity` | 绘图实例、对象关系及用户操作 | geometry、style、util |
+| `author.util` | 纯数值函数及字体／TeX 等外部工具接口 | 标准库、第三方库与外部工具；不依赖其他 pdl 层 |
+
+首批实现为 `point.py` 与 `path.py`。Point 是不可变的有限坐标值；Path 是可变构造器，
+提供不可变的路径命令快照。二者不继承共同 Geometry 基类，不依赖 Entity、Style、
+绘图后端或旧包。普通坐标默认相对 Author 世界，不附带隐式局部参考系。
+几何描述是否可变由具体类型定义，不通过共同基类统一规定。
+
+此阶段通过具体模块导入：
+
+```python
+from pdl.author.geometry.point import Point
+from pdl.author.geometry.path import Path
+```
+
+变换、参考点查询、边界、字体排版、Entity、Canvas 和后端尚未重建。
+当前几何测试位于 `tests/unit/author/geometry/`；不通过导入 `pdl_old` 补齐功能。
+设计结论及未定问题见临时的 `refactor_note.md`。
+
+## 旧架构（仅供参考）
+
+下文描述重构前、现位于 `src/pdl_old` 的实现，不代表新 `pdl` 已实现的接口或定位契约。
+
 Author 是唯一绘图对象模型。测量是一种操作，不是第二套场景表示。
 锚点立即返回当前状态的数值点，后续修改不改变旧结果。字体和 TeX 测量可以在
 Author 阶段执行，与最后输出和遮挡顺序无关。

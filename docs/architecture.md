@@ -1,5 +1,42 @@
 # Source architecture
 
+## Current refactor boundary
+
+The previous implementation and tests now live in `src/pdl_old` and `tests_old`.
+The new `src/pdl` package is rebuilt incrementally. Its agreed Author structure is:
+
+| Package | Owns | May depend on |
+| --- | --- | --- |
+| `author.geometry` | Independent geometric descriptions and their numerical queries | Standard library and util when needed |
+| `author.style` | Style descriptions | Standard library and util when needed |
+| `author.entity` | Drawing instances, object relationships, and user operations | Geometry, style, and util |
+| `author.util` | Pure numerical functions and external font/TeX interfaces | Standard library, external libraries and tools; no other pdl layer |
+
+The first implemented geometry modules are `point.py` and `path.py`. Point is an
+immutable finite coordinate value. Path is a mutable builder with immutable
+command snapshots. Neither inherits a common Geometry base or depends on Entity,
+styles, output adapters, or the old package. Ordinary coordinates default to the
+authoring world; no implicit local frame is attached. Geometry mutation policies
+are defined per type rather than imposed by a common base.
+
+Use the explicit module imports during this checkpoint:
+
+```python
+from pdl.author.geometry.point import Point
+from pdl.author.geometry.path import Path
+```
+
+Transformations, reference-point queries, bounds, typography, Entity, Canvas, and
+backends have not yet been rebuilt. The current geometry tests live under
+`tests/unit/author/geometry/`. Do not import `pdl_old` to fill these gaps. Agreed
+design and remaining questions are recorded in the temporary `refactor_note.md`.
+
+## Legacy architecture (reference only)
+
+The remaining sections describe the pre-refactor implementation under
+`src/pdl_old`. They are historical reference, not implemented APIs or placement
+contracts of the new `pdl` package.
+
 Author is the sole drawing object model. A measurement is an operation, not a
 second scene representation. Anchors return fixed numerical points; later edits
 to the queried object do not change previous results. Font and TeX measurement

@@ -1,0 +1,183 @@
+"""Absolute path commands and a mutable geometric path builder."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Self
+
+from pdl.author.geometry.point import Point, Position, as_point
+
+
+@dataclass(frozen=True)
+class Move:
+    """Start a subpath at an absolute position without drawing a segment."""
+
+    end: Point
+
+
+@dataclass(frozen=True)
+class Segment:
+    """Draw a straight segment from the current position to an absolute endpoint."""
+
+    end: Point
+
+
+@dataclass(frozen=True)
+class Quadratic:
+    """Draw a quadratic Bezier segment using one absolute control point."""
+
+    control: Point
+    end: Point
+
+
+@dataclass(frozen=True)
+class Cubic:
+    """Draw a cubic Bezier segment using two absolute control points."""
+
+    control1: Point
+    control2: Point
+    end: Point
+
+
+@dataclass(frozen=True)
+class Close:
+    """Close the current subpath back to its initial Move position."""
+
+
+type Command = Move | Segment | Quadratic | Cubic | Close
+
+
+class Path:
+    """A mutable sequence of absolute geometric commands, in millimeters.
+
+    Builder methods modify this path and return it for chaining. Start each
+    subpath with ``move_to`` before adding segments or closing it. ``close``
+    returns the current position to that subpath's start; a subsequent segment
+    continues from there. Multiple open or closed subpaths are supported.
+
+    ``commands`` returns a tuple snapshot containing immutable commands and
+    points. ``copy`` creates an independently editable path. Coordinates use
+    the authoring world unless explicitly converted elsewhere. This description
+    has no style, Entity state, implicit frame, or output behavior. Transform,
+    reference-point queries, and bounds are not implemented in this checkpoint.
+    """
+
+    def __init__(self) -> None:
+        self._commands: list[Command] = []
+        self._current: Point | None = None
+        self._start: Point | None = None
+
+    @property
+    def commands(self) -> tuple[Command, ...]:
+        """Return a read-only snapshot unaffected by subsequent builder edits."""
+        return tuple(self._commands)
+
+    @property
+    def current_point(self) -> Point | None:
+        """Return the current position, or None while the path is empty."""
+        return self._current
+
+    def move_to(self, end: Position) -> Self:
+        """Start a subpath at an absolute Point or pair of millimeter coordinates.
+
+        This builds geometry; it does not reposition an existing drawing object.
+        """
+        position = as_point(end)
+        self._commands.append(Move(position))
+        self._current = self._start = position
+        return self
+
+    def _require_current(self) -> None:
+        if self._current is None:
+            raise ValueError("Start a subpath with move_to first.")
+
+    def line_to(self, end: Position) -> Self:
+        """Append a straight segment; require a previously started subpath.
+
+        Args:
+            end: Absolute endpoint in millimeters.
+
+        Returns:
+            This modified path.
+
+        Raises:
+            ValueError: The subpath has not started or coordinates are nonfinite.
+        """
+        self._require_current()
+        position = as_point(end)
+        self._commands.append(Segment(position))
+        self._current = position
+        return self
+
+    def quadratic_to(self, control: Position, end: Position) -> Self:
+        """Append a quadratic Bezier segment from the current position.
+
+        Args:
+            control: Absolute control point in millimeters.
+            end: Absolute endpoint in millimeters.
+
+        Returns:
+            This modified path.
+
+        Raises:
+            ValueError: The subpath has not started or coordinates are nonfinite.
+        """
+        self._require_current()
+        command = Quadratic(as_point(control), as_point(end))
+        self._commands.append(command)
+        self._current = command.end
+        return self
+
+    def cubic_to(self, control1: Position, control2: Position, end: Position) -> Self:
+        """Append a cubic Bezier segment from the current position.
+
+        Args:
+            control1: First absolute control point in millimeters.
+            control2: Second absolute control point in millimeters.
+            end: Absolute endpoint in millimeters.
+
+        Returns:
+            This modified path.
+
+        Raises:
+            ValueError: The subpath has not started or coordinates are nonfinite.
+        """
+        self._require_current()
+        command = Cubic(as_point(control1), as_point(control2), as_point(end))
+        self._commands.append(command)
+        self._current = command.end
+        return self
+
+    def close(self) -> Self:
+        """Close the current subpath and return its cursor to the start.
+
+        Raises:
+            ValueError: No subpath has been started with move_to.
+        """
+        self._require_current()
+        self._commands.append(Close())
+        self._current = self._start
+        return self
+
+    def extend(self, other: Path) -> Self:
+        """Append another path's subpaths without adding a connecting segment.
+
+        Args:
+            other: Path whose commands are captured now; later edits are independent.
+                Extending with an empty path leaves this builder's cursor unchanged.
+
+        Returns:
+            This modified path. Extending with itself appends its commands once.
+        """
+        commands = other.commands
+        if commands:
+            self._commands.extend(commands)
+            self._current, self._start = other._current, other._start
+        return self
+
+    def copy(self) -> Path:
+        """Return an independent path with the same commands and builder cursor."""
+        result = Path()
+        result._commands = self._commands.copy()
+        result._current, result._start = self._current, self._start
+        return result
