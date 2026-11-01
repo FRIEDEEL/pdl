@@ -18,8 +18,8 @@ class Style:
     Style is a value description, not an object relationship or rendering
     operation. Fields describe a complete style; they do not request field-wise
     inheritance. ``stroke=None`` and ``fill=None`` explicitly disable those
-    paints. This is distinct from an Entity storing ``style=None``, which will
-    request its Group or type default once Entities are implemented.
+    paints. This is distinct from an Entity storing ``style=None``, which requests
+    its type default. Group fallback is a separate, not-yet-implemented behavior.
 
     The constructor defaults to a black 1 mm outline and no fill. These are
     Style-constructor defaults, not prescribed defaults for every Entity type.

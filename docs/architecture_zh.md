@@ -39,15 +39,16 @@ coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
 ```
 
 变换包不导入 Point、Path、Entity 或 Style。Geometry／Entity 自行将数据适配为数值坐标对，
-并定义所支持的应用行为。路径变换、参考点查询、边界、字体排版、Entity、Canvas 和后端尚未重建。
+并定义所支持的应用行为。路径变换、参考点查询、边界、字体排版、Canvas 和后端尚未重建。
 非线性／网格变换及其组合、路径近似策略留待后续讨论。
 
 `author.style.color.Color` 是通道范围为 [0, 1] 的不可变 RGB 值。
 `author.style.style.Style` 描述纯色填充／描边、毫米线宽、端点／连接样式、填充规则和透明度。
 它是完整的不可变值，不包含几何、对象归属、输出编码或默认值／继承解析。
-Style 内部的 None 表示关闭对应填充或描边，与未来 Entity 的 `style=None` 使用 Group 或类型默认值不同。
+Style 内部的 None 表示关闭对应填充或描边，与 Entity 的 `style=None` 使用类型默认值不同；
+Group 回退仍待实现。
 Style 构造器默认黑色 1 mm 描边、无填充，不强制所有 Entity 类型采用这些默认值。
-本步不实现渐变、字体属性、类型默认值和 Group 合成语义。
+本步不实现渐变、字体属性和 Group 合成语义。
 
 ```python
 from pdl.author.style.color import Color
@@ -56,7 +57,25 @@ from pdl.author.style.style import Style
 paint = Style(stroke=None, fill=Color(0.2, 0.4, 0.8), opacity=0.75)
 ```
 
-当前测试在 `tests/unit/author/` 下镜像 geometry、transform、style；不通过导入 `pdl_old` 补齐功能。
+`author.entity.base.Entity[GeometryT]` 直接持有构造时传入的几何描述与可选显式 Style。
+初始化不隐式复制、登记独占所有权、要求共同 Geometry 基类或转换几何。
+具体绘图构造器通常创建自己的几何；底层允许主动传入同一可变描述，共享其几何编辑效果。
+需要独立描述时，由调用者显式传入 `geometry.copy()`。
+
+`style` 为未设置的实例保留 None。`effective_style` 读取显式值或当前类型的 `default_style`，
+不把默认值写回实例；子类可以覆盖类型默认值。`set_style(style)` 只修改自身并返回自身，
+共享几何也不会导致其他实体样式改变。None 重置、Entity 复制、变换保存与应用、锚点、
+Group／Gather、捕获及渲染仍不属于当前最小实现。
+
+```python
+from pdl.author.entity.base import Entity
+
+description = Path().move_to((0, 0)).line_to((10, 0))
+instance = Entity(description, style=paint)
+assert instance.geometry is description
+```
+
+当前测试在 `tests/unit/author/` 下镜像 geometry、transform、style、entity；不通过导入 `pdl_old` 补齐功能。
 设计结论及未定问题见临时的 `refactor_note.md`。
 
 ## 旧架构（仅供参考）

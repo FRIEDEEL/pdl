@@ -104,9 +104,20 @@ Entity 的排版边界、基线和字形轮廓仍需测量，不能直接以 Poi
 “几何与样式分开描述”不代表所有测量都能脱离样式完成。
 基础轮廓、排版尺寸、描边后的可见边界与定位锚点，需要分别明确含义。
 
+### Entity 持有 Geometry 的方式
+
+- Entity 初始化时直接持有传入的 Geometry，不自动复制，也不反向给 Geometry 登记所有者。
+- 用户通常通过 Circle 等具体 Entity 构造器创建对象，由这些构造器创建各自的几何描述。
+- 日常多对象批量变换通过 Gather 表达，不依赖隐式共享几何实现联动。
+- 底层仍允许显式将同一份 Geometry 传给多个 Entity；修改可变 Geometry 时，共享者都会看到修改。
+- 需要独立几何时显式复制。初始化不自动承担复制开销，Entity 的 `copy()` 是否复制几何仍待确定。
+- 共享 Geometry 不等于共享 Entity 的变换状态；变换保存与应用行为另行设计。
+
+这替换了助手此前提出的“Entity 构造时复制几何”建议。
+
 ### 尚未确定
 
-- Geometry 是否不可变，以及共享 Geometry 的修改语义。不可变值是助手建议，尚未确认。
+- 各类 Geometry 的可变性分别定义；不建立统一不可变政策。当前 Point 不可变，Path 为可变构造器。
 - 具体位置查询的方法名称，以及显式 Frame 的坐标转换 API。
 - 字体、字号等排版参数的准确归属与 Style 的字段范围。
 - Frame 几何描述及其可视化 Entity 的准确类型与构造接口。
@@ -171,13 +182,19 @@ Entity 的排版边界、基线和字形轮廓仍需测量，不能直接以 Poi
 如果测量依赖样式，也需要使用有效样式。查询、提交与渲染之间如何保持配置一致，仍需设计。
 `set_style(None)` 的准确重置语义、默认值的配置和修改时机尚未展开。
 
+当前最小 Entity 位于 `author/entity/base.py`，以泛型保留具体几何类型，不要求共同 Geometry 基类。
+它直接持有几何与显式样式；未设置的样式保持 None，查询时读取类型的 `default_style`。
+子类可以分别覆盖类型默认值，查询不会将默认值写回对象。`set_style(style)` 只修改自身并返回自身。
+本步不实现 Entity 复制、变换保存／应用、锚点、Group／Gather 或文字；`set_style` 暂不接受 None 重置。
+
 ### 当前基础实现
 
 `author/style/color.py` 定义不可变的 RGB Color，`style.py` 定义不可变的基础 Style。
 本步仅实现纯色填充／描边、毫米线宽、端点与连接样式、填充规则及透明度，以及输入校验。
 Style 构造器默认黑色 1 mm 描边、无填充；这是 Style 自身的默认构造值，不是所有 Entity 的全局默认。
 Style 的 `stroke=None`／`fill=None` 表示关闭相应绘制，不表示字段继承。
-本步不实现 Entity 默认值、Group 回退、渐变或字体参数归属；Style 不依赖 geometry、transform 或 Entity。
+Style 本身不解析 Entity 默认值或 Group 回退，也不包含渐变或字体参数；
+Style 不依赖 geometry、transform 或 Entity。
 
 ### Group：归属关系下的样式回退
 
