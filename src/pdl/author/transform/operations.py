@@ -9,9 +9,11 @@ from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.image import Image
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.protocols import PathSource
+from pdl.author.geometry.queries import bounds_of
 from pdl.author.geometry.shapes import Arc, Circle, Line, Polygon, Polyline, Rectangle
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
+from pdl.author.style.gradient import LinearGradient, RadialGradient
 from pdl.author.style.style import Style
 from pdl.author.transform.affine import AffineTransform, Rescale
 from pdl.author.transform.base import Transform
@@ -99,8 +101,25 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
     raise TypeError(f"No transform conversion for {type(geometry).__name__}.")
 
 
-def transform_style(explicit: Style | None, effective: Style, transform: Transform) -> Style | None:
-    """Apply the operation's explicit paint policy independently of geometry."""
+def transform_style(
+    explicit: Style | None, effective: Style, transform: Transform, geometry: object
+) -> Style | None:
+    """Bake paint coordinates and apply explicitly requested line-width scaling."""
+    result = explicit
+    fill = effective.fill
+    if (
+        isinstance(fill, (LinearGradient, RadialGradient))
+        and isinstance(transform, AffineTransform)
+        and not isinstance(geometry, Point)
+        and transform != AffineTransform()
+    ):
+        frame = fill.frame
+        if frame is None:
+            box = bounds_of(geometry)
+            frame = ((box.left, box.bottom), (box.right, box.bottom), (box.left, box.top))
+        frame = (transform.apply(frame[0]), transform.apply(frame[1]), transform.apply(frame[2]))
+        result = replace(effective, fill=replace(fill, frame=frame))
     if isinstance(transform, Rescale) and transform.include_linewidth:
-        return replace(effective, line_width=effective.line_width * abs(transform.factor))
-    return explicit
+        paint = effective if result is None else result
+        result = replace(paint, line_width=paint.line_width * abs(transform.factor))
+    return result

@@ -52,3 +52,14 @@ def reference_of(geometry: object) -> Point:
     if isinstance(geometry, Positioned):
         return as_point(geometry.position)
     return Point(0, 0)
+
+
+@runtime_checkable
+class InkMeasured(Protocol):
+    @property
+    def ink_bounds(self) -> Bounds: ...
+
+
+def ink_bounds_of(geometry: object) -> Bounds:
+    """Query actual text outlines only when explicitly requested."""
+    return geometry.ink_bounds if isinstance(geometry, InkMeasured) else bounds_of(geometry)

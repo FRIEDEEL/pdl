@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import replace
-from typing import TYPE_CHECKING, ClassVar, Self
+from typing import TYPE_CHECKING, ClassVar, Protocol, Self, runtime_checkable
 
 from pdl.author.geometry.bounds import Anchor, Bounds
 from pdl.author.geometry.point import Point, Position, as_point
-from pdl.author.geometry.queries import bounds_of, reference_of
+from pdl.author.geometry.queries import bounds_of, ink_bounds_of, reference_of
 from pdl.author.style.style import Style
 from pdl.author.transform.affine import (
     Reflection,
@@ -94,7 +94,7 @@ class Entity:
 
     @property
     def ink_bounds(self) -> Bounds:
-        return self.bounds
+        return ink_bounds_of(self.geometry)
 
     def anchor(self, name: Anchor = "center") -> Point:
         return self.bounds.anchor(name)
@@ -129,7 +129,9 @@ class Entity:
             reference = target.reference
             geometry = transform_geometry(target.geometry, transform)
             new_reference = Point(*transform.apply((reference.x, reference.y)))
-            style = transform_style(target.style, target.effective_style, transform)
+            style = transform_style(
+                target.style, target.effective_style, transform, target.geometry
+            )
             plans.append((target, geometry, new_reference, style))
         return plans
 
@@ -191,9 +193,30 @@ class Entity:
     def set_opacity(self, opacity: float) -> Self:
         return self.set_style(replace(self.effective_style, opacity=opacity))
 
+    @property
+    def root(self) -> Entity:
+        result: Entity = self
+        while result.parent is not None:
+            result = result.parent
+        return result
+
+    @property
+    def layer(self) -> object:
+        value = self.root._layer
+        return 0 if value is None else value
+
     def set_layer(self, layer: object) -> Self:
-        self._layer = layer
+        """Assign a paint layer to the outermost ownership unit."""
+        root = self.root
+        root._layer = layer
+        if isinstance(layer, LayerRegistration):
+            layer.register(root)
         return self
 
 
 type TransformEdit = tuple[Entity, object, Point, Style | None]
+
+
+@runtime_checkable
+class LayerRegistration(Protocol):
+    def register(self, member: Entity) -> None: ...

@@ -47,9 +47,13 @@ class LinearGradient:
     stops: tuple[ColorStop, ...]
     start: tuple[float, float] = (0, 0)
     end: tuple[float, float] = (1, 0)
+    frame: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] | None = None
 
     def __post_init__(self) -> None:
         validate_stops(self.stops)
+        if self.frame is not None:
+            for point in self.frame:
+                validate_pair(point)
         validate_pair(self.start)
         validate_pair(self.end)
         if self.start == self.end:
@@ -72,9 +76,13 @@ class RadialGradient:
     stops: tuple[ColorStop, ...]
     center: tuple[float, float] = (0.5, 0.5)
     radius: float = 0.5
+    frame: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] | None = None
 
     def __post_init__(self) -> None:
         validate_stops(self.stops)
+        if self.frame is not None:
+            for point in self.frame:
+                validate_pair(point)
         validate_pair(self.center)
         if not isfinite(self.radius) or self.radius <= 0:
             raise ValueError("Radial gradient radius must be positive and finite.")
