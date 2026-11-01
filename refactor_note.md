@@ -229,10 +229,10 @@ member.set_style(group.style)
 
 ## 10. 目录职责与依赖方向
 
-用户已在 `src/pdl_new` 建立目录草稿：
+用户已建立目录草稿，最初位于 `src/pdl_new`，现已改名为 `src/pdl`：
 
 ```text
-src/pdl_new/
+src/pdl/
   author/
     geometry/
     style/
@@ -278,6 +278,7 @@ util → 标准库、必要第三方库、外部工具
 
 ```text
 src/pdl     → src/pdl_old
+tests       → tests_old
 src/pdl_new → src/pdl
 ```
 
@@ -295,4 +296,7 @@ src/pdl_new → src/pdl
 - 旧代码内部仍导入 `pdl`，仅改名为 `pdl_old` 不会自动成为独立可运行的旧包。
 - 新实现应明确迁移所需内容，避免通过导入 `pdl_old` 将新旧对象和语义混用。
 
-上述目录切换尚未执行。本次仅更新讨论笔记，不开始迁移代码。
+2026-11-01 已执行第一步：将旧实现移至 `src/pdl_old`，旧测试移至 `tests_old`，文件内容不变。
+用户随后已将 `src/pdl_new` 草稿改名为 `src/pdl`。新目录目前只有空的组织骨架，尚无实现文件。
+此阶段允许导入、测试及构建暂时不可用，
+不为恢复旧测试而补兼容入口；后续按依赖关系逐步建立新实现并迁移测试。
