@@ -17,7 +17,10 @@
 
 # Design Discussions
 
-- Maintain the discussion draft under a second-level heading in `DEVLOG.md`.
-  For each new design question or proposal, check consistency with earlier
-  decisions and explain conflicts or compatible extensions. Distinguish explicit
-  user decisions from assistant suggestions and unresolved questions.
+- `DEVLOG.md` is written by the user or edited under the user's explicit
+  direction. Do not automatically append conversations, implementation progress,
+  decisions, or test reports. Write only the content the user asks to record.
+- Use `refactor_note.md` as temporary discussion guidance on the current
+  refactor branch. Check new proposals against confirmed decisions and
+  distinguish user decisions, assistant suggestions, and unresolved questions.
+  Consolidating the note into `DEVLOG.md` also requires explicit user direction.

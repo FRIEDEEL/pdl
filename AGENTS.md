@@ -139,8 +139,9 @@
 
 ## Development Log
 
-- Use `DEVLOG.md` to record project motivation, ideas, design discussions,
-  decisions, and open questions.
+- `DEVLOG.md` is user-authored. Edit it only when the user explicitly directs
+  what to write or change, and stay within that scope. Do not automatically add
+  discussions, implementation progress, decisions, or validation results.
 - Keep the formal log concise. Record durable conclusions and meaningful
   milestones rather than chat transcripts, temporary task status, or repetitive
   validation reports.
@@ -157,8 +158,9 @@
   remove or rewrite historical entries only when the user authorizes cleanup.
 - Use `refactor_note.md` as temporary guidance for the current refactor branch.
   At branch completion, consolidate confirmed decisions and branch outcomes into
-  `DEVLOG.md` and update the relevant architecture documentation before removing
-  the temporary note. Do not treat the note as implementation authorization.
+  `DEVLOG.md` only under the user's explicit direction, and update the relevant
+  architecture documentation before removing the temporary note. Do not treat
+  the note as implementation authorization.
 
 ## Changelog
 
