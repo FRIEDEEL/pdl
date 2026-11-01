@@ -111,3 +111,74 @@ from pdl.canvas.layers import LayerStack as LayerStack
 from pdl.canvas.query import Query as Query
 
 __all__ = ["PathGeometry"]
+
+
+# Optional extensions are loaded only through this explicit public facade.
+from importlib import import_module
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pdl.extensions.spacial.coordinates import (
+        CoordinateSystem3D as CoordinateSystem3D,
+    )
+    from pdl.extensions.spacial.coordinates import (
+        Point3D as Point3D,
+    )
+    from pdl.extensions.spacial.coordinates import (
+        Transform3D as Transform3D,
+    )
+    from pdl.extensions.spacial.coordinates import (
+        Vector3D as Vector3D,
+    )
+    from pdl.extensions.spacial.curves import Cylinder as Cylinder
+    from pdl.extensions.spacial.curves import Sphere as Sphere
+    from pdl.extensions.spacial.projected import ProjectedScene as ProjectedScene
+    from pdl.extensions.spacial.projection import (
+        DirectionalLight as DirectionalLight,
+    )
+    from pdl.extensions.spacial.projection import (
+        OrthographicCamera as OrthographicCamera,
+    )
+    from pdl.extensions.spacial.projection import (
+        PerspectiveCamera as PerspectiveCamera,
+    )
+    from pdl.extensions.spacial.projection import (
+        Scene3D as Scene3D,
+    )
+    from pdl.extensions.spacial.solids import (
+        Plane3D as Plane3D,
+    )
+    from pdl.extensions.spacial.solids import (
+        Polyhedron as Polyhedron,
+    )
+    from pdl.extensions.spacial.solids import (
+        Surface3D as Surface3D,
+    )
+    from pdl.extensions.spacial.solids import (
+        regular_polyhedron as regular_polyhedron,
+    )
+    from pdl.extensions.spacial.surfaces import (
+        AnnularCylinder as AnnularCylinder,
+    )
+    from pdl.extensions.spacial.surfaces import (
+        CylinderSurface as CylinderSurface,
+    )
+
+_EXTENSIONS = {
+    name: "pdl.extensions.spacial." + module
+    for module, names in (
+        ("coordinates", ("Point3D", "Vector3D", "Transform3D", "CoordinateSystem3D")),
+        ("curves", ("Sphere", "Cylinder")),
+        ("projection", ("Scene3D", "OrthographicCamera", "PerspectiveCamera", "DirectionalLight")),
+        ("projected", ("ProjectedScene",)),
+        ("solids", ("Plane3D", "Polyhedron", "Surface3D", "regular_polyhedron")),
+        ("surfaces", ("CylinderSurface", "AnnularCylinder")),
+    )
+    for name in names
+}
+
+
+def __getattr__(name: str) -> object:
+    if name not in _EXTENSIONS:
+        raise AttributeError(name)
+    return getattr(import_module(_EXTENSIONS[name]), name)
