@@ -279,13 +279,19 @@
   the referenced object's current state; later edits do not create live bindings.
 - Keep geometric descriptions and their own numerical queries in
   `author/geometry/`, without a shared Geometry base class or dependencies on
-  Entity, Style, Canvas, backends, or extensions.
+  Entity, Style, Canvas, backends, or extensions. Geometry may use
+  `author/transform/` and util.
+- Keep general transformation contracts and concrete affine transformations in
+  `author/transform/`, alongside geometry and entity. Transform works on
+  numerical coordinate pairs and must not depend on geometry, style, entity,
+  Canvas, backends, or extensions. Object types define their own supported
+  transformation behavior; general Transform does not require a matrix or inverse.
 - Keep pure numerical helpers and external font/TeX interfaces in
   `author/util/`. Util must not depend on geometry, style, entity, Canvas,
   backends, or extensions; it accepts explicit data and returns ordinary data.
 - Keep styles in `author/style/` and editable drawing behavior and object
-  relationships in `author/entity/`. Entity may use geometry, style, and util,
-  but must not import output adapters.
+  relationships in `author/entity/`. Entity may use geometry, style, transform,
+  and util, but must not import output adapters.
 - Place 3D and advanced diagram components under `extensions/`; core 2D must not
   depend on these extensions. Capture expands extensions into core descriptions.
 - Canvas owns submissions, ordering, and viewport policy. Backends consume the

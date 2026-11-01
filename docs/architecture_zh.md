@@ -7,9 +7,10 @@
 
 | 包 | 职责 | 允许依赖 |
 | --- | --- | --- |
-| `author.geometry` | 各类独立几何描述及自身的数学查询 | 标准库，必要时使用 util |
+| `author.geometry` | 各类独立几何描述及自身的数学查询 | 标准库、transform，必要时使用 util |
 | `author.style` | 样式描述 | 标准库，必要时使用 util |
-| `author.entity` | 绘图实例、对象关系及用户操作 | geometry、style、util |
+| `author.entity` | 绘图实例、对象关系及用户操作 | geometry、style、transform、util |
+| `author.transform` | 广义空间变换契约及具体仿射矩阵 | 标准库和 util，不依赖其他 pdl 领域包 |
 | `author.util` | 纯数值函数及字体／TeX 等外部工具接口 | 标准库、第三方库与外部工具；不依赖其他 pdl 层 |
 
 首批实现为 `point.py` 与 `path.py`。Point 是不可变的有限坐标值；Path 是可变构造器，
@@ -24,8 +25,23 @@ from pdl.author.geometry.point import Point
 from pdl.author.geometry.path import Path
 ```
 
-变换、参考点查询、边界、字体排版、Entity、Canvas 和后端尚未重建。
-当前几何测试位于 `tests/unit/author/geometry/`；不通过导入 `pdl_old` 补齐功能。
+`author.transform` 与 geometry、entity 平级。Transform 只约定数值坐标对的映射，
+不要求所有变换具有矩阵、逆变换或对象类型分派。AffineTransform 保存有限的仿射矩阵；
+用户可通过 Translation、Rotation、Scaling、Shear、Reflection 子类创建变换。
+这些仿射类型的矩阵值不可变。`left @ right` 先应用 right，返回一般 AffineTransform；
+仿射类提供求逆，奇异矩阵明确报错。`around((x, y))` 接收显式支点，不读取对象参考点。
+
+```python
+from pdl.author.transform.affine import Rotation, Translation
+
+mapping = Translation(10, 0) @ Rotation(90)
+coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
+```
+
+变换包不导入 Point、Path、Entity 或 Style。Geometry／Entity 自行将数据适配为数值坐标对，
+并定义所支持的应用行为。路径变换、参考点查询、边界、字体排版、Entity、Canvas 和后端尚未重建。
+非线性／网格变换及其组合、路径近似策略留待后续讨论。
+当前测试在 `tests/unit/author/` 下镜像 geometry 和 transform；不通过导入 `pdl_old` 补齐功能。
 设计结论及未定问题见临时的 `refactor_note.md`。
 
 ## 旧架构（仅供参考）

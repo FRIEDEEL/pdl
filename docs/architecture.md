@@ -7,9 +7,10 @@ The new `src/pdl` package is rebuilt incrementally. Its agreed Author structure 
 
 | Package | Owns | May depend on |
 | --- | --- | --- |
-| `author.geometry` | Independent geometric descriptions and their numerical queries | Standard library and util when needed |
+| `author.geometry` | Independent geometric descriptions and their numerical queries | Standard library, transform, and util when needed |
 | `author.style` | Style descriptions | Standard library and util when needed |
-| `author.entity` | Drawing instances, object relationships, and user operations | Geometry, style, and util |
+| `author.entity` | Drawing instances, object relationships, and user operations | Geometry, style, transform, and util |
+| `author.transform` | General spatial-mapping contract and concrete affine matrices | Standard library and util; no other pdl domain package |
 | `author.util` | Pure numerical functions and external font/TeX interfaces | Standard library, external libraries and tools; no other pdl layer |
 
 The first implemented geometry modules are `point.py` and `path.py`. Point is an
@@ -26,9 +27,29 @@ from pdl.author.geometry.point import Point
 from pdl.author.geometry.path import Path
 ```
 
-Transformations, reference-point queries, bounds, typography, Entity, Canvas, and
-backends have not yet been rebuilt. The current geometry tests live under
-`tests/unit/author/geometry/`. Do not import `pdl_old` to fill these gaps. Agreed
+`author.transform` is a sibling of geometry and entity, not a geometry subpackage.
+`Transform` declares only numerical coordinate-pair mapping, without a required
+matrix, inverse, or object dispatch. `AffineTransform` stores a finite affine
+matrix. Its user-facing subclasses are `Translation`, `Rotation`, `Scaling`,
+`Shear`, and `Reflection`. All are immutable matrix values. `left @ right`
+applies right first and returns a general AffineTransform; inverse is available
+only on affine types and rejects singular matrices. `around((x, y))` supplies an
+explicit pivot without consulting object reference points.
+
+```python
+from pdl.author.transform.affine import Rotation, Translation
+
+mapping = Translation(10, 0) @ Rotation(90)
+coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
+```
+
+The transform package does not import Point, Path, Entity, or Style. Geometry and
+Entity adapt their data to numerical coordinate pairs and define their own
+supported application behavior. Path transformation, reference-point queries,
+bounds, typography, Entity, Canvas, and backends have not yet been rebuilt.
+Nonlinear/mesh mappings and their composition or path approximation are deferred.
+Tests mirror geometry and transform under `tests/unit/author/`.
+Do not import `pdl_old` to fill these gaps. Agreed
 design and remaining questions are recorded in the temporary `refactor_note.md`.
 
 ## Legacy architecture (reference only)

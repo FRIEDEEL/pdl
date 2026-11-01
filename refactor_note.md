@@ -125,6 +125,23 @@ Entity 的排版边界、基线和字形轮廓仍需测量，不能直接以 Poi
   其排版中心则可能需要测量；具体采用哪一种基线参考位置尚未确定。
 - 对文字变换时，累计矩阵作用于整个排版后的空间表达，不能只改写 Point，丢掉朝向和缩放信息。
 
+### Transform 与 AffineTransform
+
+- Transform 表示广义空间变换，包括未来可能支持的非线性变形与网格变换，不限定为矩阵。
+- 先定义 Transform 的最小抽象契约，并实现仿射子类 AffineTransform；不提前实现网格等变形算法。
+- 旋转、平移、缩放等提供具体子类作为用户入口，不只提供 `AffineTransform.rotate(...)` 等构造方法。
+- 各类 Geometry／Entity 分别定义怎样应用变换，不由 Transform 识别并修改对象。
+- Transform 与 geometry、entity 平级，位于 `author/transform/`。其基础映射接口接收和返回数值坐标对，
+  不导入 Point 或其他 Geometry／Entity 类型，避免几何描述与变换之间的循环依赖。
+- 不强迫所有 Transform 支持矩阵、求逆或所有几何类型。仿射变换的组合可合并为矩阵，
+  但广义变换的累计存储与组合方式仍需后续设计，不能将 Entity 永久限定为一个累计矩阵。
+- 仿射变换可以直接映射 Bézier 控制点；一般非线性变换不保证这种处理正确，
+  需要另行确定近似或拒绝策略，不能悄悄按仿射规则处理。
+
+当前实现包括抽象 Transform，以及 AffineTransform、Translation、Rotation、Scaling、Shear、Reflection。
+`left @ right` 先应用 right；求逆仅为仿射类型提供；`around` 显式指定支点，不决定对象默认参考点。
+本步未给 Point／Path 增加对象级变换行为，也未实现 Entity 或非仿射变形。
+
 ### 世界坐标与显式局部坐标系
 
 - 一般物体只保留相对世界的描述，不自动附带局部参考系，也不默认附送 `.space`／`.frame` 等对象。
@@ -237,6 +254,7 @@ src/pdl/
     geometry/
     style/
     entity/
+    transform/
     util/
   canvas/
   backends/
@@ -253,6 +271,7 @@ extensions 目前仅有目录，其内部设计未展开。
 | `geometry/` | 各类几何描述及自身的数学查询，包括 Point、Frame、形状、路径和变换描述 |
 | `style/` | 样式描述 |
 | `entity/` | 用户操作的绘图对象、对象关系的组织与计算 |
+| `transform/` | 独立的空间变换描述，供 geometry 与 entity 使用 |
 | `util/` | 纯函数式的数值处理，以及字体、typography、XeLaTeX 等外部工具接口 |
 
 util 不依赖 geometry、style、entity，也不依赖 Canvas、绘图后端或 extensions。
@@ -264,8 +283,9 @@ util 不依赖 geometry、style、entity，也不依赖 Canvas、绘图后端或
 util 不认识绘图对象，不解释对象关系，也不保存绘图对象状态。
 
 ```text
-entity → geometry / style / util
-geometry、style → util（确有需要时）
+entity → geometry / style / transform / util
+geometry → transform / util（确有需要时）
+style、transform → util（确有需要时）
 util → 标准库、必要第三方库、外部工具
 ```
 
@@ -300,6 +320,7 @@ src/pdl_new → src/pdl
 用户随后已将 `src/pdl_new` 草稿改名为 `src/pdl`。
 首批实现为 `author/geometry/point.py` 与 `path.py`：有限坐标值，以及包含移动、直线、
 二次／三次 Bézier、闭合、拼接和复制的基础路径描述。不引入统一 Geometry 基类或旧包依赖。
-本步不决定 Path 的默认参考点，也不实现 Transform、边界或 Entity；对应测试逐步建立在新 `tests` 中。
+Point／Path 的首步未决定默认参考点或增加变换、边界与 Entity；后续变换模块的进展见第 6 节。
+对应测试逐步建立在新 `tests` 中。
 此阶段允许其他导入、旧测试及完整构建暂时不可用，
 不为恢复旧测试而补兼容入口；后续按依赖关系逐步建立新实现并迁移测试。

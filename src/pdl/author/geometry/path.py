@@ -58,7 +58,7 @@ class Path:
     ``commands`` returns a tuple snapshot containing immutable commands and
     points. ``copy`` creates an independently editable path. Coordinates use
     the authoring world unless explicitly converted elsewhere. This description
-    has no style, Entity state, implicit frame, or output behavior. Transform,
+    has no style, Entity state, implicit frame, or output behavior. Applying transforms,
     reference-point queries, and bounds are not implemented in this checkpoint.
     """
 
