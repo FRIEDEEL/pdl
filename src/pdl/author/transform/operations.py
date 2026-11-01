@@ -8,6 +8,8 @@ from typing import Protocol, runtime_checkable
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.shapes import Arc, Circle, Line, Polygon, Polyline, Rectangle
+from pdl.author.geometry.tex import TeX
+from pdl.author.geometry.text import Text
 from pdl.author.style.style import Style
 from pdl.author.transform.affine import AffineTransform, Rescale
 from pdl.author.transform.base import Transform
