@@ -5,6 +5,7 @@ from math import isfinite
 from typing import Literal
 
 from pdl.author.style.color import BLACK, Color
+from pdl.author.style.gradient import Fill
 
 type LineCap = Literal["butt", "round", "square"]
 type LineJoin = Literal["miter", "round", "bevel"]
@@ -43,7 +44,7 @@ class Style:
     """
 
     stroke: Color | None = BLACK
-    fill: Color | None = None
+    fill: Fill | None = None
     line_width: float = 1
     line_cap: LineCap = "butt"
     line_join: LineJoin = "miter"
