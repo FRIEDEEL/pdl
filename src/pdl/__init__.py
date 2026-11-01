@@ -118,6 +118,20 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pdl.extensions.diagram.connections import Connection as Connection
+    from pdl.extensions.diagram.flowchart import (
+        Decision as Decision,
+    )
+    from pdl.extensions.diagram.flowchart import (
+        FlowEdge as FlowEdge,
+    )
+    from pdl.extensions.diagram.flowchart import (
+        FlowNode as FlowNode,
+    )
+    from pdl.extensions.diagram.flowchart import (
+        Terminal as Terminal,
+    )
+    from pdl.extensions.diagram.nodes import Node as Node
     from pdl.extensions.spacial.coordinates import (
         CoordinateSystem3D as CoordinateSystem3D,
     )
@@ -176,6 +190,17 @@ _EXTENSIONS = {
     )
     for name in names
 }
+
+_EXTENSIONS.update(
+    {
+        "Node": "pdl.extensions.diagram.nodes",
+        "Connection": "pdl.extensions.diagram.connections",
+        **{
+            name: "pdl.extensions.diagram.flowchart"
+            for name in ("FlowNode", "Decision", "Terminal", "FlowEdge")
+        },
+    }
+)
 
 
 def __getattr__(name: str) -> object:
