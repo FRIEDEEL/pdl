@@ -10,7 +10,7 @@ from pdl.author.geometry.text import Text
 from pdl.author.style import BLACK, Color, Style
 from pdl.author.style.font import Font
 from pdl.author.style.typography import current_renderer
-from pdl.author.transform.affine import AffineTransform as Transform
+from pdl.author.transform.affine import Rotation
 from pdl.author.util.tex import TeXConfig
 from pdl.backends.formatting import number
 from pdl.backends.tikz.geometry import color, coordinate
@@ -99,7 +99,7 @@ def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
         return ""
     if not isinstance(paint.fill, Color):
         raise ValueError("Native Text and TeX require solid color fills.")
-    t = Transform()
+    t = Rotation(text.rotation).around(point(text.position))
     if t.a * t.d - t.b * t.c == 0:
         return ""
     a, b, c, d, e, f = (number(v) for v in t.values)
@@ -121,7 +121,7 @@ def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
 
 
 def render_tex(tex: TeX, drawing: Drawing) -> str:
-    t = Transform()
+    t = Rotation(tex.rotation).around(point(tex.position))
     if t.a * t.d - t.b * t.c == 0:
         return ""
     paint = drawing.style or Style(stroke=None, fill=BLACK)
@@ -131,7 +131,7 @@ def render_tex(tex: TeX, drawing: Drawing) -> str:
         return ""
     if not isinstance(paint.fill, Color):
         raise ValueError("Native Text and TeX require solid color fills.")
-    a, b, c, d, e, f = (number(v) for v in Transform().values)
+    a, b, c, d, e, f = (number(v) for v in t.values)
     return (
         f"\\begin{{scope}}[cm={{{a},{b},{c},{d},({e},{f})}},transform shape]\n"
         + f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)},"

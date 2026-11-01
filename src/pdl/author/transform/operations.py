@@ -2,7 +2,7 @@
 
 from copy import copy
 from dataclasses import replace
-from math import hypot, isclose
+from math import atan2, degrees, hypot, isclose
 from typing import Protocol, runtime_checkable
 
 from pdl.author.geometry.frame import Frame
@@ -76,16 +76,20 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
         return Polyline(tuple(transform.map(p) for p in geometry.points))
     if isinstance(geometry, Arc):
         return geometry.to_path().mapped(transform)
-    if (
-        isinstance(geometry, (Text, TeX))
-        and transform.b == 0
-        and transform.c == 0
-        and transform.a == transform.d
-        and transform.a > 0
-    ):
-        return replace(
-            geometry, position=transform.map(geometry.position), size=geometry.size * transform.a
+    if isinstance(geometry, (Text, TeX)):
+        sx, sy = hypot(transform.a, transform.b), hypot(transform.c, transform.d)
+        orthogonal = isclose(
+            transform.a * transform.c + transform.b * transform.d,
+            0,
+            abs_tol=1e-12 * max(1.0, sx * sy),
         )
+        if sx > 0 and transform.determinant > 0 and isclose(sx, sy, rel_tol=1e-12) and orthogonal:
+            return replace(
+                geometry,
+                position=transform.map(geometry.position),
+                size=geometry.size * sx,
+                rotation=(geometry.rotation + degrees(atan2(transform.b, transform.a))) % 360,
+            )
     # A translation preserves native text/TeX without measuring or outlining it.
     if isinstance(geometry, Relocatable) and (
         transform.a,

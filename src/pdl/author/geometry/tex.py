@@ -11,7 +11,7 @@ from pdl.author.geometry.point import Position
 from pdl.author.geometry.point import as_point as point
 from pdl.author.geometry.tex_svg import outline_path
 from pdl.author.style.typography import current_renderer
-from pdl.author.transform.affine import Translation
+from pdl.author.transform.affine import Rotation, Translation
 from pdl.author.util.tex import TeXConfig, TeXLayout, measure
 
 
@@ -37,10 +37,14 @@ class TeX:
     size: float = 12
     config: TeXConfig | None = None
 
+    rotation: float = 0
+
     _measurement: TeXLayout | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         point(self.position)
+        if not isfinite(self.rotation):
+            raise ValueError("Text rotation must be finite.")
         if not isfinite(self.size) or self.size <= 0:
             raise ValueError("TeX size must be positive and finite.")
 
@@ -68,10 +72,10 @@ class TeX:
     def layout_bounds(self) -> Bounds:
         p = point(self.position)
         return Bounds(0, -self.layout.depth, self.layout.width, self.layout.height).transformed(
-            Translation(p.x, p.y)
+            Translation(p.x, p.y) @ Rotation(self.rotation)
         )
 
     def to_path(self) -> Path:
         """Lower monochrome TeX outlines; general SVG artwork is not supported."""
         p = point(self.position)
-        return outline_path(self.layout).mapped(Translation(p.x, p.y))
+        return outline_path(self.layout).mapped(Translation(p.x, p.y) @ Rotation(self.rotation))

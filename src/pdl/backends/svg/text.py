@@ -9,7 +9,7 @@ from pdl.author.geometry.text import Text
 from pdl.author.geometry.typography import PT_TO_MM
 from pdl.author.style import BLACK, Color, Style
 from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Scaling, Translation
+from pdl.author.transform.affine import Rotation, Scaling, Translation
 from pdl.author.util.fonts import font_family
 from pdl.backends.formatting import number
 from pdl.backends.svg.fragments import fragment_svg
@@ -29,7 +29,7 @@ def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
         raise ValueError("Native Text and TeX require solid color fills.")
     p = point(tex.position)
     result = fragment_svg(
-        tex.layout, Transform() @ Translation(p.x, p.y), prefix, color(paint.fill)
+        tex.layout, Translation(p.x, p.y) @ Rotation(tex.rotation), prefix, color(paint.fill)
     )
     return f'<g opacity="{number(paint.opacity)}">{result}</g>'
 
@@ -45,7 +45,7 @@ def render_text(text: Text, drawing: Drawing) -> str:
     if not isinstance(paint.fill, Color):
         raise ValueError("Native Text and TeX require solid color fills.")
     p = point(text.position)
-    transform = Transform() @ Scaling(1, -1)
+    transform = Rotation(text.rotation).around(p) @ Scaling(1, -1)
     matrix = " ".join(number(v) for v in transform.values)
     spans: list[str] = []
     for run in text.layout.runs:

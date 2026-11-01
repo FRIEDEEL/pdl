@@ -19,7 +19,7 @@ from pdl.author.geometry.typography import (
 from pdl.author.style.font import Font, FontStack
 from pdl.author.style.font_policy import font_policy
 from pdl.author.style.typography import default_fonts
-from pdl.author.transform.affine import Translation
+from pdl.author.transform.affine import Rotation, Translation
 
 
 @dataclass(eq=False)
@@ -54,10 +54,14 @@ class Text:
     align: Literal["left", "center", "right"] = "left"
     line_spacing: float = 1.25
 
+    rotation: float = 0
+
     _measurement: TextLayout | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         point(self.position)
+        if not isfinite(self.rotation):
+            raise ValueError("Text rotation must be finite.")
         if not all(isfinite(v) and v > 0 for v in (self.size, self.line_spacing)):
             raise ValueError("Font size and line spacing must be finite and positive.")
         if self.align not in ("left", "center", "right"):
@@ -92,7 +96,7 @@ class Text:
     @property
     def layout_bounds(self) -> Bounds:
         p = point(self.position)
-        return self.layout.box.transformed(Translation(p.x, p.y))
+        return self.layout.box.transformed(Translation(p.x, p.y) @ Rotation(self.rotation))
 
     @property
     def ink_bounds(self) -> Bounds:
@@ -100,4 +104,4 @@ class Text:
 
     def to_path(self) -> Path:
         p = point(self.position)
-        return self.layout.to_path().mapped(Translation(p.x, p.y))
+        return self.layout.to_path().mapped(Translation(p.x, p.y) @ Rotation(self.rotation))

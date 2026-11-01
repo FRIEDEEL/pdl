@@ -95,3 +95,20 @@ def test_positive_uniform_scale_retains_native_text(font: Font) -> None:
     assert isinstance(entity.geometry, Text)
     assert entity.geometry.size == 24
     assert entity.reference == Point(5, 6)
+
+
+def test_rotation_preserves_native_text_and_rotates_layout_bounds(font: Font) -> None:
+    from pdl import Canvas
+    from pdl import Text as DrawText
+
+    entity = DrawText("Wide label", font, position=(10, 20))
+    before = entity.bounds
+    entity.rotate(90)
+    assert isinstance(entity.geometry, Text)
+    assert entity.geometry.rotation == pytest.approx(90)
+    assert entity.bounds.width == pytest.approx(before.height)
+    assert entity.bounds.height == pytest.approx(before.width)
+    canvas = Canvas(50, 50).add(entity)
+    assert "Wide label</text>" in canvas.render()
+    assert "Wide label" in canvas.render("tikz")
+    assert "controls" not in canvas.render("tikz")
