@@ -3,13 +3,14 @@
 ## Communication and Change Authorization
 
 - Discuss work with the user in Chinese. Write this file in English.
-- The AI owns implementation, routine design choices, testing, documentation,
-  and local Git integration within the agreed project goals. Do not request
-  separate approval for each implementation step, commit, or feature merge.
+- The AI owns implementation, routine design choices, testing, and documentation
+  within the agreed project goals. Routine implementation steps do not require
+  separate approval. Git commits require user review as specified below.
 - The user performs acceptance between stages, reviewing architecture, example
   code, and rendered results. Once stage goals are agreed, handle internal
   design and implementation decisions autonomously rather than introducing
-  additional approval checkpoints within the stage.
+  additional implementation approval checkpoints within the stage. This does not
+  waive the separate requirement for user review before Git commits.
 - Explain significant approaches and trade-offs concisely. Ask before changes
   that materially exceed the agreed stage scope; report decisions and concrete
   examples and outputs at the stage acceptance checkpoint.
@@ -240,12 +241,16 @@
   when merging branches.
 - Do not rebase, squash, amend commits, or otherwise rewrite existing history
   unless explicitly instructed.
-- The user has granted standing authorization to create branches, make commits,
-  and merge completed feature work into `dev` for authorized project work.
-  Commit each feature or focused development step separately, follow the
-  message and granularity rules above, and use `git merge --no-ff`.
-- This standing authorization does not include push or release publication.
-  Perform those actions only when explicitly instructed.
+- Unless the user explicitly delegates committing for the current scope, every
+  commit requires user review and explicit approval before execution. Permission
+  to implement or edit files alone is not permission to commit them.
+- Before each proposed commit, provide its message, intended files, a concise
+  change summary, validation results, and any known incomplete work or failures.
+  Keep unrelated user changes outside the proposed scope.
+- The previous standing authorization for autonomous commits and merges no
+  longer applies. A merge also requires explicit approval; do not infer it from
+  approval of the feature's commits. Continue using `git merge --no-ff`.
+- Push and release publication require explicit instructions.
 
 ## Architecture Boundaries
 

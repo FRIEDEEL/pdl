@@ -24,3 +24,13 @@
   refactor branch. Check new proposals against confirmed decisions and
   distinguish user decisions, assistant suggestions, and unresolved questions.
   Consolidating the note into `DEVLOG.md` also requires explicit user direction.
+
+# Git Review
+
+- Unless the user explicitly delegates committing, present each proposed commit
+  for review and wait for explicit approval before execution. Implementation
+  authorization does not imply commit authorization.
+- Provide the proposed commit message, file scope, concise change summary,
+  validation results, and known incomplete work. Keep unrelated user edits out.
+- Previous autonomous commit and merge authorization is revoked. Obtain explicit
+  merge approval separately from approval of individual commits.
