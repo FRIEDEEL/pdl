@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Self
+from math import hypot
+from typing import TYPE_CHECKING, Self
+
+if TYPE_CHECKING:
+    from pdl.author.geometry.protocols import Mapping, PathSource
+    from pdl.author.geometry.shapes import Arc
 
 from pdl.author.geometry.point import Point, Position, as_point
 
@@ -159,7 +164,7 @@ class Path:
         self._current = self._start
         return self
 
-    def extend(self, other: Path) -> Self:
+    def extend(self, other: PathSource) -> Self:
         """Append another path's subpaths without adding a connecting segment.
 
         Args:
@@ -169,10 +174,11 @@ class Path:
         Returns:
             This modified path. Extending with itself appends its commands once.
         """
-        commands = other.commands
+        source = other.to_path()
+        commands = source.commands
         if commands:
             self._commands.extend(commands)
-            self._current, self._start = other._current, other._start
+            self._current, self._start = source._current, source._start
         return self
 
     def copy(self) -> Path:
@@ -180,4 +186,41 @@ class Path:
         result = Path()
         result._commands = self._commands.copy()
         result._current, result._start = self._current, self._start
+        return result
+
+    def to_path(self) -> Path:
+        """Return an independent current-shape snapshot."""
+        return self.copy()
+
+    def arc(self, arc: Arc) -> Self:
+        """Append an arc, connecting to its start only when needed."""
+        start = arc.at(arc.start_angle)
+        if self._current is None:
+            self.move_to(start)
+        elif hypot(self._current.x - start.x, self._current.y - start.y) > 1e-10:
+            self.line_to(start)
+        for command in arc.to_path().commands[1:]:
+            if isinstance(command, Cubic):
+                self.cubic_to(command.control1, command.control2, command.end)
+        return self
+
+    def mapped(self, mapping: Mapping) -> Path:
+        """Map affine control points to a new path; do not mutate this builder."""
+
+        def mapped(p: Point) -> Point:
+            return Point(*mapping.apply((p.x, p.y)))
+
+        result = Path()
+        for command in self.commands:
+            match command:
+                case Move(end):
+                    result.move_to(mapped(end))
+                case Segment(end):
+                    result.line_to(mapped(end))
+                case Quadratic(control, end):
+                    result.quadratic_to(mapped(control), mapped(end))
+                case Cubic(c1, c2, end):
+                    result.cubic_to(mapped(c1), mapped(c2), mapped(end))
+                case Close():
+                    result.close()
         return result

@@ -1,5 +1,7 @@
 """Finite Cartesian point values without implicit coordinate frames."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from math import isfinite
 
@@ -25,6 +27,23 @@ class Point:
     def __post_init__(self) -> None:
         if not isfinite(self.x) or not isfinite(self.y):
             raise ValueError("Point coordinates must be finite.")
+
+    def __add__(self, offset: Point | Vector | tuple[float, float]) -> Point:
+        """Return a displaced numerical point."""
+        p = offset if isinstance(offset, Vector) else as_point(offset)
+        return Point(self.x + p.x, self.y + p.y)
+
+
+@dataclass(frozen=True)
+class Vector:
+    """A finite displacement in millimeters."""
+
+    x: float
+    y: float
+
+    def __post_init__(self) -> None:
+        if not isfinite(self.x) or not isfinite(self.y):
+            raise ValueError("Vector components must be finite.")
 
 
 type Position = Point | tuple[float, float]
