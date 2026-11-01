@@ -57,6 +57,16 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
         return Polyline(tuple(transform.map(p) for p in geometry.points))
     if isinstance(geometry, Arc):
         return geometry.to_path().mapped(transform)
+    if (
+        isinstance(geometry, (Text, TeX))
+        and transform.b == 0
+        and transform.c == 0
+        and transform.a == transform.d
+        and transform.a > 0
+    ):
+        return replace(
+            geometry, position=transform.map(geometry.position), size=geometry.size * transform.a
+        )
     # A translation preserves native text/TeX without measuring or outlining it.
     if isinstance(geometry, Relocatable) and (
         transform.a,
