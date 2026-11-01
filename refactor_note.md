@@ -171,6 +171,14 @@ Entity 的排版边界、基线和字形轮廓仍需测量，不能直接以 Poi
 如果测量依赖样式，也需要使用有效样式。查询、提交与渲染之间如何保持配置一致，仍需设计。
 `set_style(None)` 的准确重置语义、默认值的配置和修改时机尚未展开。
 
+### 当前基础实现
+
+`author/style/color.py` 定义不可变的 RGB Color，`style.py` 定义不可变的基础 Style。
+本步仅实现纯色填充／描边、毫米线宽、端点与连接样式、填充规则及透明度，以及输入校验。
+Style 构造器默认黑色 1 mm 描边、无填充；这是 Style 自身的默认构造值，不是所有 Entity 的全局默认。
+Style 的 `stroke=None`／`fill=None` 表示关闭相应绘制，不表示字段继承。
+本步不实现 Entity 默认值、Group 回退、渐变或字体参数归属；Style 不依赖 geometry、transform 或 Entity。
+
 ### Group：归属关系下的样式回退
 
 - Group 是 Entity，可以在初始化时指定自己的 Style。

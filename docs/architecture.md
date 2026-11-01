@@ -48,7 +48,25 @@ Entity adapt their data to numerical coordinate pairs and define their own
 supported application behavior. Path transformation, reference-point queries,
 bounds, typography, Entity, Canvas, and backends have not yet been rebuilt.
 Nonlinear/mesh mappings and their composition or path approximation are deferred.
-Tests mirror geometry and transform under `tests/unit/author/`.
+
+`author.style.color.Color` is an immutable RGB value with channels in [0, 1].
+`author.style.style.Style` describes solid fill/stroke, line width in millimeters,
+line caps/joins, fill rule, and opacity. It is a complete immutable value, without
+geometry, object ownership, output encoding, or default/inheritance resolution.
+Within a Style, None disables the corresponding fill or stroke; an Entity's
+future `style=None` has a separate meaning of using a Group or type default.
+Style's own constructor defaults to a black 1 mm outline and no fill; Entity
+types are not required to use those defaults. Gradients, typography attributes,
+type-level defaults, and Group compositing are not implemented in this step.
+
+```python
+from pdl.author.style.color import Color
+from pdl.author.style.style import Style
+
+paint = Style(stroke=None, fill=Color(0.2, 0.4, 0.8), opacity=0.75)
+```
+
+Tests mirror geometry, transform, and style under `tests/unit/author/`.
 Do not import `pdl_old` to fill these gaps. Agreed
 design and remaining questions are recorded in the temporary `refactor_note.md`.
 

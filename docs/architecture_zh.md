@@ -41,7 +41,22 @@ coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
 变换包不导入 Point、Path、Entity 或 Style。Geometry／Entity 自行将数据适配为数值坐标对，
 并定义所支持的应用行为。路径变换、参考点查询、边界、字体排版、Entity、Canvas 和后端尚未重建。
 非线性／网格变换及其组合、路径近似策略留待后续讨论。
-当前测试在 `tests/unit/author/` 下镜像 geometry 和 transform；不通过导入 `pdl_old` 补齐功能。
+
+`author.style.color.Color` 是通道范围为 [0, 1] 的不可变 RGB 值。
+`author.style.style.Style` 描述纯色填充／描边、毫米线宽、端点／连接样式、填充规则和透明度。
+它是完整的不可变值，不包含几何、对象归属、输出编码或默认值／继承解析。
+Style 内部的 None 表示关闭对应填充或描边，与未来 Entity 的 `style=None` 使用 Group 或类型默认值不同。
+Style 构造器默认黑色 1 mm 描边、无填充，不强制所有 Entity 类型采用这些默认值。
+本步不实现渐变、字体属性、类型默认值和 Group 合成语义。
+
+```python
+from pdl.author.style.color import Color
+from pdl.author.style.style import Style
+
+paint = Style(stroke=None, fill=Color(0.2, 0.4, 0.8), opacity=0.75)
+```
+
+当前测试在 `tests/unit/author/` 下镜像 geometry、transform、style；不通过导入 `pdl_old` 补齐功能。
 设计结论及未定问题见临时的 `refactor_note.md`。
 
 ## 旧架构（仅供参考）
