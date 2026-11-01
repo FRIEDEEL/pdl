@@ -46,7 +46,7 @@ class PerspectiveArtwork:
                 raise TypeError("Expected a path-compatible leaf after composite traversal.")
             if isinstance(geometry, Image):
                 raise ValueError("Perspective artwork does not support embedded images.")
-            style = leaf.style
+            style = leaf.effective_style
             if isinstance(geometry, (Text, TeX)):
                 style = style or Style(stroke=None, fill=BLACK)
                 if style.stroke is not None:
