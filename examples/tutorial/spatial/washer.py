@@ -1,13 +1,13 @@
 """A closed washer with an open bore and smooth vector boundaries."""
 
-from pdl import AnnularCylinder, Canvas, Color, OrthographicCamera, Scene3D, Transform
+from pdl import AnnularCylinder, Canvas, Color, OrthographicCamera, Scene3D, Translation
 
 # tutorial-start
 washer = AnnularCylinder(outer_radius=18, inner_radius=10, height=7, color=Color(0.65, 0.77, 0.84))
 camera = OrthographicCamera(25, 35)
 washer_2d = Scene3D((washer,), camera, sort_faces=False).project()
 canvas = Canvas(70, 55)
-canvas.draw(washer_2d.copy().apply_transform(Transform.translate(35, 25)))
+canvas.draw(washer_2d.copy().apply_transform(Translation(35, 25)))
 # tutorial-end
 
 if __name__ == "__main__":

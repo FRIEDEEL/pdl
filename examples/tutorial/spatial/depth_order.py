@@ -12,7 +12,7 @@ from pdl import (
     Scene3D,
     Style,
     Text,
-    Transform,
+    Translation,
     Vector3D,
     regular_polyhedron,
 )
@@ -40,9 +40,9 @@ transparent_view = Scene3D((transparent,), view).project()
 
 canvas = Canvas(150, 135)
 for x, image in ((37, opaque_view), (112, transparent_view)):
-    canvas.draw(image.copy().apply_transform(Transform.translate(x, 103)))
+    canvas.draw(image.copy().apply_transform(Translation(x, 103)))
 for x, image in ((37, automatic), (112, manual)):
-    canvas.draw(image.copy().apply_transform(Transform.translate(x, 38)))
+    canvas.draw(image.copy().apply_transform(Translation(x, 38)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Opaque reference"), (87, "Opacity 0.25 / back faces kept")):
     canvas.draw(Text(title, position=(x, 129), size=10), ink)

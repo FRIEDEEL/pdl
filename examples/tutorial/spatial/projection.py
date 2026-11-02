@@ -7,10 +7,10 @@ from pdl import (
     Group,
     Line,
     OrthographicCamera,
+    Rotation,
     Scene3D,
     Style,
     Text,
-    Transform,
     regular_polyhedron,
 )
 
@@ -23,15 +23,13 @@ corner = projected.vertex(0, 7)
 leader = Line(corner, (25, 16))
 legend = Text("A projected vertex", position=(26, 15), size=10)
 component = Group(
-    (
-        projected.copy(),
-        leader.copy().set_style(Style(stroke=Color(0.3, 0.3, 0.3), line_width=0.25)),
-        legend.copy(),
-    )
+    projected.copy(),
+    leader.copy().set_style(Style(stroke=Color(0.3, 0.3, 0.3), line_width=0.25)),
+    legend.copy(),
 )
 
 canvas = Canvas(105, 60, mode="fit", padding=6)
-canvas.draw(component.copy().apply_transform(Transform.rotate(-8)))
+canvas.draw(component.copy().apply_transform(Rotation(-8)))
 # tutorial-end
 
 if __name__ == "__main__":

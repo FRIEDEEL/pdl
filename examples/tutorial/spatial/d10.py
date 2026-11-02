@@ -3,17 +3,7 @@
 from examples.spatial.d10 import die_geometry
 
 # tutorial-start
-from pdl import (
-    Canvas,
-    Color,
-    Group,
-    Line,
-    Node,
-    OrthographicCamera,
-    Scene3D,
-    Style,
-    Text,
-)
+from pdl import Canvas, Color, Group, Line, Node, OrthographicCamera, Scene3D, Style, Text
 
 # Geometry construction is linked separately: 12 vertices and 10 kite loops.
 die = die_geometry()
@@ -30,9 +20,7 @@ projected = Scene3D((die,), camera=OrthographicCamera(28, 22), visibility="centr
 center = projected.face_center(0, 0)
 leader = Line((center.x + 3, center.y), (38, 14))
 legend = Text("Face 1: a 2D legend", position=(40, 13), size=10)
-component = Group(
-    (projected.copy(), leader.copy().set_style(Style(line_width=0.25)), legend.copy())
-)
+component = Group(projected.copy(), leader.copy().set_style(Style(line_width=0.25)), legend.copy())
 
 canvas = Canvas(120, 85, mode="fit", padding=7)
 canvas.draw(component)

@@ -1,4 +1,4 @@
-"""Compare a flat chart and its inclined projection with native text."""
+"""Compare a flat chart and its inclined projection with text artwork."""
 
 # tutorial-start
 from pdl import (
@@ -12,15 +12,15 @@ from pdl import (
     Scene3D,
     Style,
     Text,
-    Transform,
     Transform3D,
+    Translation,
     Vector3D,
 )
 
 panel = Rectangle((-20, -10), 40, 20)
 label = Node(Text("Plane 123", size=17), padding=(0, 0), style=Style(stroke=None))
 artwork = Group(
-    (panel.copy().set_style(Style(fill=Color(0.78, 0.9, 1), line_width=0.3)), label.copy())
+    panel.copy().set_style(Style(fill=Color(0.78, 0.9, 1), line_width=0.3)), label.copy()
 )
 flat = Plane3D()
 tilted = flat.transformed(Transform3D.rotate(25) @ Transform3D.rotate(55, Vector3D(1, 0, 0)))
@@ -29,8 +29,8 @@ first = Scene3D((flat.place(artwork),), camera=camera, visibility="centroid").pr
 second = Scene3D((tilted.place(artwork),), camera=camera, visibility="centroid").project()
 
 canvas = Canvas(125, 50)
-canvas.draw(first.copy().apply_transform(Transform.translate(30, 26)))
-canvas.draw(second.copy().apply_transform(Transform.translate(91, 26)))
+canvas.draw(first.copy().apply_transform(Translation(30, 26)))
+canvas.draw(second.copy().apply_transform(Translation(91, 26)))
 canvas.draw(Text("Flat chart", position=(15, 5), size=10))
 canvas.draw(Text("Inclined chart", position=(76, 5), size=10))
 # tutorial-end
