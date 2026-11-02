@@ -11,3 +11,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Generated example artifacts
+examples/output/
+
+# Generated documentation
+docs/_build/

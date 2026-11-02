@@ -1,0 +1,20 @@
+/* The examples use black ink on transparent SVG canvases. Keep their paper
+   white in both site themes, and make small millimeter viewports readable. */
+article img {
+    display: block;
+    min-width: min(100%, 24rem);
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    background: white;
+}
+
+.language-switch {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.language-note {
+    font-size: 0.9rem;
+    color: var(--color-foreground-secondary);
+}

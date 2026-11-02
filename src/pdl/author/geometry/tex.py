@@ -1,0 +1,112 @@
+"""Editable LaTeX content backed by shared TeX measurement."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from math import isfinite
+
+from pdl.author.geometry.base import Geometry
+from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
+from pdl.author.geometry.path import Path
+from pdl.author.geometry.point import Point, Position
+from pdl.author.geometry.point import as_point as point
+from pdl.author.geometry.tex_svg import outline_path
+from pdl.author.style.typography import current_renderer
+from pdl.author.transform.affine import Rotation, Translation
+from pdl.author.util.tex import TeXConfig, TeXLayout, measure
+
+
+@dataclass(eq=False)
+class TeX(Geometry):
+    """LaTeX source typeset at a baseline position.
+
+    Args:
+        source: LaTeX content; include ``$...$`` or other delimiters for math.
+            Python raw strings preserve backslashes conveniently.
+        position: Left baseline reference in world millimeters.
+        size: Positive font size in TeX points (1/72.27 inch).
+        config: Explicit TeX environment, or the renderer's default environment.
+
+    Measurement requires XeLaTeX and dvisvgm, even when requesting TikZ source
+    without a final PDF. SVG embeds a converted fragment; TikZ retains native
+    LaTeX source. Shared native documents require compatible TeXConfig values.
+    Supply only fill paint, with ``stroke=None``, when setting a style.
+    Translation/rotation retain native source. Geometric scaling and deformation
+    lower measured monochrome artwork to paths rather than changing font size;
+    absolute TeX dimensions must scale too. Unsupported rich outlines raise.
+    """
+
+    source: str
+    position: Position = (0, 0)
+    size: float = 12
+    config: TeXConfig | None = None
+
+    rotation: float = 0
+
+    _measurement: TeXLayout | None = field(default=None, init=False, repr=False)
+
+    _measurement_key: tuple[object, ...] | None = field(default=None, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        point(self.position)
+        if not isfinite(self.rotation):
+            raise ValueError("Text rotation must be finite.")
+        if not isfinite(self.size) or self.size <= 0:
+            raise ValueError("TeX size must be positive and finite.")
+
+    @property
+    def environment(self) -> TeXConfig:
+        return self.config or current_renderer().tex or TeXConfig()
+
+    def latex_body(self) -> str:
+        return (
+            rf"\fontsize{{{self.size:.12g}}}{{{self.size * 1.25:.12g}}}\selectfont " + self.source
+        )
+
+    @property
+    def layout(self) -> TeXLayout:
+        if self._measurement is not None and self._measurement_key == (
+            self.source,
+            self.size,
+            self.config,
+        ):
+            return self._measurement
+        return measure(self)
+
+    def capture_layout(self) -> None:
+        """Fix measured layout on a captured description before output."""
+        self.config = self.environment
+        self._measurement = self.layout
+        self._measurement_key = (self.source, self.size, self.config)
+
+    @property
+    def layout_bounds(self) -> Bounds:
+        p = point(self.position)
+        return Bounds(0, -self.layout.depth, self.layout.width, self.layout.height).transformed(
+            Translation(p.x, p.y) @ Rotation(self.rotation)
+        )
+
+    @property
+    def ink_bounds(self) -> Bounds:
+        """Measure monochrome glyph/rule contours, excluding whitespace and stroke."""
+        return geometry_bounds(self.to_path())
+
+    def to_path(self) -> Path:
+        """Lower monochrome TeX outlines; general SVG artwork is not supported."""
+        p = point(self.position)
+        return outline_path(self.layout).mapped(Translation(p.x, p.y) @ Rotation(self.rotation))
+
+    @property
+    def reference(self) -> Point:
+        return point(self.position)
+
+    @property
+    def bounds(self) -> Bounds:
+        return self.layout_bounds
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)

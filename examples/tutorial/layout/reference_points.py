@@ -1,0 +1,21 @@
+# tutorial-start
+from pdl import Canvas, Color, Style, circle, rectangle
+from pdl.author.geometry import Point
+
+pivot = Point(15, 15)
+box = rectangle((15, 15), 20, 10)
+canvas = Canvas(55, 45)
+canvas.draw(box, Style(stroke=Color(0.7, 0.7, 0.7), line_width=0.3))
+box.rotate(30, origin=pivot)
+canvas.draw(box, Style(fill=Color(0.6, 0.8, 1), line_width=0.4))
+# The Point supplies coordinates; only its explicit marker is drawn.
+canvas.add(circle(pivot, 0.6, style=Style(stroke=None, fill=Color(0.8, 0.2, 0.2))))
+
+# tutorial-end
+
+if __name__ == "__main__":
+    from pathlib import Path as FilePath
+
+    output = FilePath(__file__).resolve().parents[2] / "output" / "tutorial" / "layout"
+    output.mkdir(parents=True, exist_ok=True)
+    canvas.save(output / "reference_points.svg")
