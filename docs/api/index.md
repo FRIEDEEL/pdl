@@ -1,50 +1,52 @@
-# API reference
+# API reference — pdl
 
-Drawing factories imported from `pdl` return Entity objects. Pure descriptions
-live in `pdl.author.geometry`; use them for geometric construction and explicit
-`Entity(geometry, style=...)` composition. There is no common Geometry base class.
+The reference follows the packages and modules under `src/pdl/`. Choose a package below, then open a module for its classes, functions, signatures, and source docstrings.
 
-## Import by capability
+Lengths and line widths use millimeters; text and TeX sizes use TeX points. Entity edits take effect immediately, position queries return fixed values, and Canvas captures submissions independently of subsequent edits.
 
-| Package | Public entrypoints |
-| --- | --- |
-| `pdl` | Drawing factories, Entity, Group, Gather, Canvas, Style, Color |
-| `pdl.author.geometry` | Pure Point, Path, shapes, text/image descriptions, Bounds, explicit Frame |
-| `pdl.author.style` | Paint, fonts, gradients, RendererConfig, measurement |
-| `pdl.author.transform` | Transform, affine matrices, explicit transform constructors |
-| `pdl.canvas` | Canvas, Layer, LayerStack, Query, Viewport, Page |
-| `pdl.extensions.diagram` | Node, Connection, growing flowchart classes |
-| `pdl.extensions.spatial` | 3D coordinates, solids, cameras, projections |
-| `pdl.author.util.tex` | TeXConfig and explicit TeX tool interfaces |
+The reference is maintained in English. [Start with the tutorial](../tutorial/en/index.md) for guided examples.
 
-The root does not re-export advanced capabilities. Subpackage imports expose
-selected public objects rather than implementation helpers. The former
-`extensions.spacial` spelling has been replaced by `extensions.spatial`.
+The root package exposes everyday drawing factories, Entity, Group, Gather,
+Canvas, Style, and Color. Use the owning subpackages for pure geometry,
+explicit transforms, advanced paint, Canvas helpers, and extensions.
 
-Coordinates and line widths use millimeters, x right and y up. Text/TeX size uses
-TeX points. Entity methods mutate and return the receiving object. Queries return
-fixed numerical values. Canvas submission captures geometry, effective paint,
-and typography independently of later edits.
+Source: `src/pdl/__init__.py`.
 
-| Name | Meaning |
-| --- | --- |
-| Position | Point or an `(x, y)` pair |
-| Anchor | center, north, south, east, west, or a spaced diagonal |
-| Entity | Current geometry, optional Style, reference point, and drawing operations |
-| Group | Entity owning ordered members with style fallback |
-| Gather | Explicit identity selection; no ownership or inherited paint |
-| Frame | Explicit numerical origin and basis; visualized with frame_axes |
+```{eval-rst}
+.. automodule:: pdl
+```
 
-说明来自英文 docstring；中文入门见[教程](../tutorial/zh/index.md)。
+## Packages and modules
 
 ```{toctree}
 :maxdepth: 1
 
-drawing
-geometry
-authoring
-coordinates
-flowcharts
-spatial
-text
+author/index
+backends/index
+canvas/index
+extensions/index
 ```
+
+## Re-exported names
+
+These imports link to their defining modules. Full member documentation is kept at the definition rather than repeated here.
+
+| Import | Defined in |
+| --- | --- |
+| `pdl.Canvas` | {py:obj}`pdl.canvas.canvas.Canvas` |
+| `pdl.Color` | {py:obj}`pdl.author.style.color.Color` |
+| `pdl.Entity` | {py:obj}`pdl.author.entity.base.Entity` |
+| `pdl.Gather` | {py:obj}`pdl.author.entity.gather.Gather` |
+| `pdl.Group` | {py:obj}`pdl.author.entity.group.Group` |
+| `pdl.Style` | {py:obj}`pdl.author.style.style.Style` |
+| `pdl.arc` | {py:obj}`pdl.author.entity.factories.arc` |
+| `pdl.circle` | {py:obj}`pdl.author.entity.factories.circle` |
+| `pdl.frame_axes` | {py:obj}`pdl.author.entity.factories.frame_axes` |
+| `pdl.image` | {py:obj}`pdl.author.entity.factories.image` |
+| `pdl.line` | {py:obj}`pdl.author.entity.factories.line` |
+| `pdl.path` | {py:obj}`pdl.author.entity.factories.path` |
+| `pdl.polygon` | {py:obj}`pdl.author.entity.factories.polygon` |
+| `pdl.polyline` | {py:obj}`pdl.author.entity.factories.polyline` |
+| `pdl.rectangle` | {py:obj}`pdl.author.entity.factories.rectangle` |
+| `pdl.tex` | {py:obj}`pdl.author.entity.factories.tex` |
+| `pdl.text` | {py:obj}`pdl.author.entity.factories.text` |

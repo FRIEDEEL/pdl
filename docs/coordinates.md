@@ -29,4 +29,4 @@ already numerical shapes. query.from_canvas supplies the inverse conversion.
 
 
 
-[Explicit axes lesson](tutorial/en/03-organize/07-frames.md) · [Query API](api/coordinates.md) · [中文说明](coordinates_zh.md)
+[Explicit axes lesson](tutorial/en/03-organize/07-frames.md) · [Query API](api/canvas/query.md)

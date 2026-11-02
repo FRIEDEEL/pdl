@@ -1,5 +1,27 @@
 # Documentation Preferences
 
+- Organize the API reference by the actual `src/pdl/` package/module structure.
+  Keep complete member documentation at its definition; package re-exports link
+  to that location instead of duplicating the reference under topic categories.
+- Tutorial prose should explain example code, including its purpose, key calls,
+  relevant parameters, and how they produce the visible result. Avoid overly
+  terse lessons that provide a few sentences and a code block with little
+  explanation. Add detail where it helps understanding, without requiring a
+  line-by-line walkthrough. Improve existing lessons gradually under user
+  direction rather than rewriting the whole tutorial at once.
+- Follow the user's documentation instructions by updating English first and
+  synchronizing Chinese in the same work cycle. Keep translated structure,
+  content, examples, and limitations mirrored in every commit, including WIP.
+- Check manual edits in either language and propagate their intent to the other
+  version. Preserve user edits; ask about conflicting or ambiguous changes.
+  English-first authoring does not override manual Chinese changes. The generated
+  API reference remains English-only, and commits still need explicit approval.
+- Keep Chinese and English documentation navigation separate. Each translated
+  page links to its counterpart in the other language. Share example sources
+  and rendered images; maintain the generated API reference in English only.
+- After each round of documentation changes, rebuild the Sphinx HTML site so
+  the user can review the updated pages directly in the browser. Report build
+  failures and any resulting stale output.
 - For examples involving changes, retain the original state as a visual
   comparison reference in the same figure as the changed result. Use a lighter
   color or lower opacity for the original state so readers can directly compare

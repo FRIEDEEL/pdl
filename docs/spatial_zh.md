@@ -32,4 +32,4 @@ Sphere、Cylinder、CylinderSurface、AnnularCylinder 通过平滑路径与渐�
 
 ![圆柱视角检查](../examples/output/spatial/curved_solids-views.svg)
 
-[3D 教程](tutorial/zh/05-spatial/index.md) · [API](api/spatial.md) · [English](spatial.md)
+[3D 教程](tutorial/zh/05-spatial/index.md) · <a href="../en/api/extensions/spatial/index.html">API 参考（英文）</a>

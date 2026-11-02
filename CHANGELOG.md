@@ -8,9 +8,11 @@
   Gather, Canvas, Style, and Color. Import geometry, explicit transforms,
   advanced paint, Canvas helpers, and extensions from their owning packages.
   `PathGeometry` becomes `Path` from `pdl.author.geometry`.
-- **Breaking:** the 3D package is now `pdl.extensions.spatial`; the previous
-  `spacial` package spelling is removed. Spatial, diagram, and Canvas packages
+- **Breaking:** the 3D package is now `pdl.extensions.spatial`; the misspelled
+  package name is removed. Spatial, diagram, and Canvas packages
   expose their selected public classes directly.
+- Organize the API reference by the source package/module tree, including
+  backend and utility modules, with re-exports linked to their definitions.
 - **Breaking:** drawing constructors such as `circle` and `text` are factory functions
   returning thin Entity objects. Pure descriptions live in author.geometry;
   explicit Entity(geometry, style=...) construction is supported.

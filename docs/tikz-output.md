@@ -27,4 +27,4 @@ Native font environments and shaping can produce different SVG/LaTeX pixels.
 Geometry and placement follow captured measurement policy; exact raster equality
 and readable generated-code structure are not promised.
 
-[Tutorial](tutorial/en/06-output/index.md) · [中文说明](tikz-output_zh.md)
+[Tutorial](tutorial/en/06-output/index.md)

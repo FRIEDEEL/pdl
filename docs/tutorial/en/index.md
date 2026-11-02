@@ -14,4 +14,4 @@ The seven parts use the current Entity/Geometry/Style API. Examples are runnable
 07-recipes/index
 ```
 
-[中文教程](../zh/index.md) · [API](../../api/index.md)
+[API](../../api/index.md)

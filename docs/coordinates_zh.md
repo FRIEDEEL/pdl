@@ -24,4 +24,4 @@ Canvas.query 默认返回最终页面坐标。`in_space=WORLD` 返回 Author 坐
 
 
 
-[显式坐标轴示例](tutorial/zh/03-organize/07-frames.md) · [查询 API](api/coordinates.md) · [English](coordinates.md)
+[显式坐标轴示例](tutorial/zh/03-organize/07-frames.md) · <a href="../en/api/canvas/query.html">查询 API（英文）</a>

@@ -117,13 +117,35 @@
 
 - Use Sphinx with MyST for the documentation site, autodoc for public API
   signatures/docstrings, and Napoleon for Google-style docstrings.
+- Mirror the `src/pdl/` package and module tree in the API reference. Package
+  pages summarize responsibilities and link to child modules and re-exports;
+  full class/function documentation belongs to its defining module only.
 - Maintain English tutorials under `docs/tutorial/en/` and corresponding Chinese
   versions under `docs/tutorial/zh/`. The shared API reference uses English
   source docstrings; do not present it as a translated Chinese reference.
+- Follow the user's instructions for documentation changes: update the English
+  page first, then synchronize its Chinese counterpart in the same work cycle.
+  Keep translated pages mirrored in structure, coverage, examples, behavior,
+  and limitations; natural wording may differ between languages.
+- Inspect existing changes in both languages before editing and before each
+  proposed commit. When the user manually edits either version, preserve the
+  intent of that edit and synchronize the corresponding content in the other
+  language. Do not overwrite a Chinese edit merely because English is primary.
+  Ask if independent edits conflict or their intended meaning is unclear.
+- Every commit affecting translated documentation, including WIP commits, must
+  include the corresponding updates in both languages. Check bilingual parity
+  before proposing the commit. The English-only generated API reference remains
+  an explicit exception; this workflow does not delegate commit approval.
 - Teach drawing step by step, introducing only a few new concepts per example.
   Use Manim Community tutorials for teaching rhythm and the PGF/TikZ manual
   for graphical explanations and terminology. Do not imply unsupported TikZ
   syntax or features are available in pdl.
+- Give tutorial examples enough explanation to connect the code to the drawing.
+  Describe the example's purpose, explain key calls and relevant parameters,
+  and point out their visible effects in the rendered output. A few summary
+  sentences followed by a code block are insufficient when the behavior needs
+  explanation. Use focused prose rather than mechanically explaining every line.
+  Improve existing lessons gradually as the user directs their revision.
 - Pair each tutorial step with runnable source under `examples/tutorial/` and
   its actual rendered output. Use axes, guide lines, control points, or
   before/after comparisons when they help explain the current topic.
@@ -134,9 +156,10 @@
   Path construction before advanced subpaths, fill rules, and backend lowering.
 - Document units, coordinate meanings, defaults, mutation/capture behavior, and
   material limitations in API docstrings, with short examples where useful.
-- Build with `uv run --group docs sphinx-build -W --keep-going -b html docs
-  docs/_build/html`. The build generates tutorial images; inspect the actual
-  output as well as checking build warnings. Keep generated artifacts out of Git.
+- Build both language sites with `uv run --group docs python docs/build.py`.
+  Keep their navigation and search indexes separate, and link translated pages
+  to their counterparts. The build generates shared tutorial images; inspect
+  actual output as well as build warnings. Keep generated artifacts out of Git.
 
 ## Development Log
 

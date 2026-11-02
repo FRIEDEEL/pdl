@@ -6,7 +6,7 @@
 纯几何从 author.geometry 导入，显式变换从 author.transform 导入，字体、渐变与资源策略从
 author.style 导入，Layer／Query 等从 canvas 导入。TeXConfig 使用所属 util.tex 模块。
 图示与 3D 分别由 extensions.diagram、extensions.spatial 提供明确的包入口；
-3D 实现及其镜像测试目录由 spacial 改为 spatial。此调整与既有领域模型兼容，
+3D 实现及其镜像测试目录的误拼已统一改为 spatial。此调整与既有领域模型兼容，
 不保留被移除的根入口别名，也不保留旧拼写的兼容包。
 
 ## 验收与清理（2026-11-02）
@@ -388,10 +388,10 @@ src/pdl/
   backends/
   extensions/
     diagram/
-    spacial/
+    spatial/
 ```
 
-`spacial` 是草稿当前名称；助手建议改为 `spatial`，尚未执行目录修改。
+目录拼写已按用户要求统一为 `spatial`。以下草稿说明保留当时的职责讨论。
 extensions 目前仅有目录，其内部设计未展开。
 
 | 目录 | 职责 |
