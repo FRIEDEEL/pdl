@@ -7,7 +7,7 @@ from pdl.author.geometry.point import as_point as point
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.geometry.typography import PT_TO_MM
-from pdl.author.style import BLACK, Color, Style
+from pdl.author.style import Color
 from pdl.author.transform.affine import AffineTransform as Transform
 from pdl.author.transform.affine import Rotation, Scaling, Translation
 from pdl.author.util.fonts import font_family
@@ -20,7 +20,7 @@ def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
     t = Transform()
     if t.a * t.d - t.b * t.c == 0:
         return ""
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("TeX supports fill-only paint; use Style(stroke=None, fill=...).")
     if paint.fill is None:
@@ -37,7 +37,7 @@ def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
 def render_text(text: Text, drawing: Drawing) -> str:
     """Keep ordinary labels as editable SVG text, referencing native fonts."""
 
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("Native Text supports fill-only paint; use fill and stroke=None.")
     if paint.fill is None:

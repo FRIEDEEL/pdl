@@ -20,9 +20,13 @@ class Group(Entity):
     """
 
     def __init__(
-        self, *members: Entity, style: Style | None = None, reference: Position = (0, 0)
+        self,
+        *members: Entity,
+        style: Style | None = None,
+        reference: Position = (0, 0),
+        default_style: Style | None = None,
     ) -> None:
-        super().__init__(Point(0, 0), style=style, reference=reference)
+        super().__init__(Point(0, 0), style=style, reference=reference, default_style=default_style)
         self._members: list[Entity] = []
         self.add(*members)
 

@@ -7,7 +7,7 @@ from pdl.author.entity.base import Entity as Drawing
 from pdl.author.geometry.point import as_point as point
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
-from pdl.author.style import BLACK, Color, Style
+from pdl.author.style import Color
 from pdl.author.style.font import Font
 from pdl.author.style.typography import current_renderer
 from pdl.author.transform.affine import Rotation
@@ -92,7 +92,7 @@ def _escape_text(text: str) -> str:
 
 def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
     """Emit native LaTeX text; font shaping belongs to the TeX engine."""
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("Native Text supports fill-only paint; use fill and stroke=None.")
     if paint.fill is None:
@@ -124,7 +124,7 @@ def render_tex(tex: TeX, drawing: Drawing) -> str:
     t = Rotation(tex.rotation).around(point(tex.position))
     if t.a * t.d - t.b * t.c == 0:
         return ""
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("Native TeX supports fill-only paint; use Style(stroke=None, fill=...).")
     if paint.fill is None:

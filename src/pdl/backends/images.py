@@ -15,7 +15,7 @@ def svg_image(image: Image, drawing: Drawing, prefix: str) -> str:
     matrix = " ".join(number(v) for v in image.mapping.values)
     encoded = b64encode(image.data).decode("ascii")
     clip = prefix + "image-clip"
-    opacity = 1 if drawing.style is None else drawing.style.opacity
+    opacity = drawing.effective_style.opacity
     return (
         f'<g opacity="{number(opacity)}" transform="matrix({matrix})"><defs><clipPath id="{clip}">'
         f'<rect x="{number(p.x)}" y="{number(p.y)}" width="{number(image.width)}" '
@@ -32,7 +32,7 @@ def tikz_image(image: Image, drawing: Drawing) -> str:
     x, y, width, height = image.content_box()
     a, b, c, d, e, f = (number(v) for v in image.mapping.values)
     clip = image.to_path()
-    opacity = 1 if drawing.style is None else drawing.style.opacity
+    opacity = drawing.effective_style.opacity
     return (
         f"\\begin{{scope}}[opacity={number(opacity)}]\n"
         f"\\clip {path_data(clip)};\n"

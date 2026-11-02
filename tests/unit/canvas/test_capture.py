@@ -2,7 +2,7 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Font, Gather, Group, Style, Text
+from pdl import Canvas, Circle, Color, Font, Gather, Group, Style, Text
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Circle as CircleGeometry
 from pdl.author.geometry.text import Text as TextGeometry
@@ -108,3 +108,55 @@ def test_ink_query_is_distinct_from_logical_layout(font: Font) -> None:
     canvas = Canvas(80, 30)
     text = Text(" x ", font)
     assert canvas.query().ink_bounds(text).width < canvas.query().bounds(text).width
+
+
+def test_snapshot_preserves_none_members_and_editable_group_fallback() -> None:
+    inherited = Circle((3, 3), 1)
+    explicit = Circle((8, 3), 1, style=Style(line_width=2))
+    group = Group(inherited, explicit, style=Style(line_width=3))
+    snapshot = Canvas(20, 20).snapshot(group)
+    assert isinstance(snapshot, Group)
+    assert snapshot.members[0].style is None
+    snapshot.set_style(Style(line_width=7))
+    assert snapshot.members[0].effective_style.line_width == 7
+    assert snapshot.members[1].effective_style.line_width == 2
+    assert inherited.effective_style.line_width == 3
+    rendered = Canvas(20, 20).add(snapshot).render()
+    assert 'stroke-width="7"' in rendered
+    assert 'stroke-width="2"' in rendered
+    member = snapshot.members[0]
+    snapshot.remove(member)
+    assert member.style is None
+    assert member.effective_style.line_width == 1
+
+
+def test_snapshot_fixes_defaults_without_materializing_member_styles(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from pdl import Entity
+    from pdl.author.geometry.shapes import Circle as CircleGeometry
+
+    group = Group(Circle((3, 3), 1), Text("Default", position=(8, 3)))
+    snapshot = Canvas(30, 20).snapshot(group)
+    assert isinstance(snapshot, Group)
+    assert snapshot.style is None
+    assert all(member.style is None for member in snapshot.members)
+    before = Canvas(30, 20).add(snapshot).render()
+    monkeypatch.setitem(Entity.geometry_defaults, CircleGeometry, Style(line_width=9))
+    assert Canvas(30, 20).add(snapshot).render() == before
+
+
+def test_native_text_uses_edited_snapshot_group_fallback(font: Font) -> None:
+    group = Group(
+        Text("Inherited native text", font, position=(3, 8)),
+        style=Style(stroke=None, fill=Color(0, 1, 0)),
+    )
+    snapshot = Canvas(60, 20).snapshot(group)
+    snapshot.set_style(Style(stroke=None, fill=Color(0, 0, 1), opacity=0.25))
+    assert isinstance(snapshot, Group)
+    assert snapshot.members[0].style is None
+    canvas = Canvas(60, 20).add(snapshot)
+    assert 'fill="rgb(0%,0%,100%)"' in canvas.render()
+    assert 'opacity="0.25"' in canvas.render()
+    assert "blue,1" in canvas.render("tikz")
+    assert "text opacity=0.25" in canvas.render("tikz")

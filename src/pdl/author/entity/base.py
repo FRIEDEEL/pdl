@@ -82,6 +82,11 @@ class Entity:
             if ancestor.style is not None:
                 return ancestor.style
             ancestor = ancestor.parent
+        return self.default_paint
+
+    @property
+    def default_paint(self) -> Style:
+        """Return the current own default before considering ancestor paint."""
         if self._default_style is not None:
             return self._default_style
         if type(self) is Entity:
@@ -195,8 +200,13 @@ class Entity:
             Reflection(angle).around(self.reference if origin is None else origin)
         )
 
-    def copy(self) -> Self:
-        """Deep-copy geometry and children, excluding ownership and layer identity."""
+    def copy(self, *, default_style: Style | None = None) -> Self:
+        """Copy geometry/members and detach root ownership and layer identity.
+
+        Args:
+            default_style: Optional own-default override, used when capture fixes
+                resource/default policy while preserving an unset explicit style.
+        """
         memo: dict[int, object] = {}
         if self.parent is not None:
             memo[id(self.parent)] = None
@@ -205,6 +215,8 @@ class Entity:
         result = deepcopy(self, memo)
         result._layer = None
         result._automatic_layer = True
+        if default_style is not None:
+            result._default_style = default_style
         return result
 
     def set_opacity(self, opacity: float) -> Self:
