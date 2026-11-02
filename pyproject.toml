@@ -3,6 +3,8 @@ name = "pdl"
 version = "0.2.0-dev2"
 description = "Static vector diagrams with native SVG and TikZ output"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "LiGuang", email = "guangli25@outlook.com" }
 ]
