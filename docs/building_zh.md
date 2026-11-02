@@ -38,6 +38,16 @@ PDL_DOCS_LANGUAGE=zh uv run --group docs sphinx-build -W --keep-going -b html do
 以上单独构建命令都会重新生成示例。`docs/build.py` 在英文构建中生成示例，
 随后中文构建显式复用这些产物。
 
+## 维护 API 参考
+
+`docs/api/` 镜像 `src/pdl/`：每个包的 `__init__.py` 对应 `index.md`，
+其他 Python 模块对应相同相对路径、相同文件名的 Markdown 页面。
+新增模块时同时添加参考页和父目录的 toctree 条目。包入口重导出表链接到定义所在模块，
+每个类或函数只在定义处维护完整参考。Autodoc 从当前源码读取签名和 docstring，
+范围也包括后端与基础设施模块。内部模块明确标注为实现细节。
+
+移动模块时，同步更新双语指南和中文 API 入口的链接。生成的 API 内容继续只维护英文。
+
 ```sh
 uv run ruff check .
 uv run ruff format --check .

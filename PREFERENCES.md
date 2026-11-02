@@ -1,5 +1,8 @@
 # Documentation Preferences
 
+- Organize the API reference by the actual `src/pdl/` package/module structure.
+  Keep complete member documentation at its definition; package re-exports link
+  to that location instead of duplicating the reference under topic categories.
 - Tutorial prose should explain example code, including its purpose, key calls,
   relevant parameters, and how they produce the visible result. Avoid overly
   terse lessons that provide a few sentences and a code block with little

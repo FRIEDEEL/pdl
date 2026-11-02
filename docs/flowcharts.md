@@ -24,4 +24,4 @@ standalone Connection evaluates endpoints once and has no live node binding.
 
 ![Growing flowchart](../examples/output/flowcharts/growing.svg)
 
-[API](api/flowcharts.md)
+[API](api/extensions/diagram/flowchart.md)

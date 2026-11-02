@@ -117,6 +117,9 @@
 
 - Use Sphinx with MyST for the documentation site, autodoc for public API
   signatures/docstrings, and Napoleon for Google-style docstrings.
+- Mirror the `src/pdl/` package and module tree in the API reference. Package
+  pages summarize responsibilities and link to child modules and re-exports;
+  full class/function documentation belongs to its defining module only.
 - Maintain English tutorials under `docs/tutorial/en/` and corresponding Chinese
   versions under `docs/tutorial/zh/`. The shared API reference uses English
   source docstrings; do not present it as a translated Chinese reference.

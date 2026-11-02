@@ -21,4 +21,4 @@ connect(existing) 连接已有节点而不移动它，返回可编辑 FlowEdge�
 
 ![Growing flowchart](../examples/output/flowcharts/growing.svg)
 
-<a href="../en/api/flowcharts.html">API 参考（英文）</a>
+<a href="../en/api/extensions/diagram/flowchart.html">API 参考（英文）</a>

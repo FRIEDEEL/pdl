@@ -43,4 +43,4 @@ illustration coverage, keeping reference views beside the final assembly.
 
 ![Cylinder camera checks](../examples/output/spatial/curved_solids-views.svg)
 
-[3D tutorial](tutorial/en/05-spatial/index.md) · [API](api/spatial.md)
+[3D tutorial](tutorial/en/05-spatial/index.md) · [API](api/extensions/spatial/index.md)

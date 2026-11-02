@@ -41,6 +41,19 @@ PDL_DOCS_LANGUAGE=zh uv run --group docs sphinx-build -W --keep-going -b html do
 These direct commands each regenerate examples. `docs/build.py` generates them
 in the English build and explicitly reuses them for the subsequent Chinese build.
 
+## Maintain the API reference
+
+Mirror `src/pdl/` under `docs/api/`: each package's `__init__.py` corresponds
+to `index.md`, and each other Python module corresponds to a Markdown page with
+the same relative path and stem. Add its page and parent toctree entry when adding
+a module. Keep package re-export tables linked to the defining module; document
+each class or function in full only at its definition. Autodoc reads signatures
+and docstrings from the active source tree, including backend and utility modules.
+Internal modules remain labeled as implementation details.
+
+When moving a module, update reference links in both language guides and the
+Chinese API entry page. The generated API content remains English-only.
+
 ```sh
 uv run ruff check .
 uv run ruff format --check .
