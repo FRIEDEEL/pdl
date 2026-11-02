@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+Preparing the first public alpha, `0.2.0-alpha.1`. APIs and output behavior
+remain provisional. Breaking changes below describe migration from earlier
+local development versions.
+
+### Added
+
+- Static vector drawing with 2D shapes, paths, Unicode text, TeX, images,
+  solid colors, and gradients, with SVG and TikZ/PDF output.
+- Editable Groups, explicit Gather selections, Canvas layers, numerical anchors,
+  and snapshot-based drawing submissions.
+- Optional diagram components and 3D projection with orthographic/perspective
+  cameras and visibility handling.
+- English and Chinese tutorials, runnable examples, and an API reference.
+- MIT license and a README quick start that produces SVG without fonts or TeX.
+
 ### Changed
 
 - **Breaking:** Entity now requires descriptions inheriting
