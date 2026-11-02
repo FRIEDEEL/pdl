@@ -21,6 +21,7 @@ MODULES = (
     "layout.rectangle_first",
     "text.labels",
     "text.formula",
+    "geometry.object_model",
     "geometry.translation",
     "geometry.copy_and_capture",
     "layout.reference_points",
