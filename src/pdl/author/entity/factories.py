@@ -5,12 +5,13 @@ from typing import Literal
 
 from pdl.author.entity.base import Entity
 from pdl.author.entity.capture import Composite
+from pdl.author.entity.frames import FrameAxes
 from pdl.author.entity.group import Group
 from pdl.author.geometry import shapes
 from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.image import Image as ImageGeometry
 from pdl.author.geometry.path import Path as PathGeometry
-from pdl.author.geometry.point import Position, as_point
+from pdl.author.geometry.point import Position
 from pdl.author.geometry.tex import TeX as TeXGeometry
 from pdl.author.geometry.text import Text as TextGeometry
 from pdl.author.style import Font, FontStack, Style
@@ -98,10 +99,26 @@ def Image(
     return Entity(ImageGeometry(source, width, height, position, fit), style=style)
 
 
-def frame_axes(frame: Frame, *, length: float = 10, style: Style | None = None) -> Group:
-    p = as_point(frame.origin)
-    x, y = frame.point((length, 0)), frame.point((0, length))
-    return Group(Line(p, x), Line(p, y), style=style, reference=p)
+def frame_axes(
+    frame: Frame,
+    *,
+    length: float = 10,
+    origin_radius: float = 0.5,
+    style: Style | None = None,
+    x_style: Style | None = None,
+    y_style: Style | None = None,
+    origin_style: Style | None = None,
+) -> FrameAxes:
+    """Create explicit drawable axes; ordinary objects have no implicit frame."""
+    return FrameAxes(
+        frame,
+        length=length,
+        origin_radius=origin_radius,
+        style=style,
+        x_style=x_style,
+        y_style=y_style,
+        origin_style=origin_style,
+    )
 
 
 def as_entity(
