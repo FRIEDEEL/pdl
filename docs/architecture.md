@@ -3,7 +3,18 @@
 Author is the sole editable drawing domain. Geometry describes current shape
 parameters, Style describes paint, and Entity combines them with numerical
 position queries. Lowercase drawing factories such as circle return Entity; pure shapes
-are imported from author.geometry. No shared Geometry base is required.
+are imported from author.geometry. Descriptions inherit the nominal Geometry
+base in author.geometry.base. It defines membership only, with no shared state
+or required methods. Entity accepts Geometry instances; inheriting the base
+does not guarantee bounds queries, transformations, path conversion, or rendering.
+
+Point, Frame, Path, basic shapes, and native Text/TeX/Image descriptions belong
+to this family. Path commands, numerical helper values, and measurement records
+remain supporting data rather than becoming geometry descriptions automatically.
+PathSource independently describes optional to_path support. Backend geometry
+dispatch accepts Geometry, selects supported native encodings, and checks
+PathSource only when path fallback is needed. The outer backend still processes
+captured Entities, paint, and ordering through Page.
 
 ## Responsibilities and dependencies
 

@@ -2,7 +2,15 @@
 
 Author 是唯一可编辑的绘图领域模型。Geometry 描述当前形状参数，Style 描述样式，
 Entity 结合二者并提供数值位置查询。circle 等小写绘图工厂返回 Entity；纯几何从
-`author.geometry` 导入，不要求共同 Geometry 基类。
+`author.geometry` 导入。几何描述继承 `author.geometry.base` 中的 Geometry 基类；
+它只表示类型归属，不定义共同状态或必需方法。Entity 接受 Geometry 实例；
+继承基类并不保证支持边界查询、变换、路径转换或输出。
+
+Point、Frame、Path、基础形状和原生 Text／TeX／Image 描述属于这一类型家族。
+路径命令、数值辅助值和测量记录仍是辅助数据，不会自动成为几何描述。
+PathSource 独立表达可选的 to_path 能力。后端几何分派接受 Geometry，
+先选择支持的原生编码，仅在需要路径兜底时检查 PathSource。
+后端外层仍通过 Page 处理捕获的 Entity、样式和顺序。
 
 ## 职责与依赖
 

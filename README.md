@@ -30,6 +30,11 @@ Pure descriptions such as `Path` live in `pdl.author.geometry`. Entity attaches
 style and drawing operations to a description. Canvas.add/draw captures the current
 state, so later edits require another submission.
 
+Geometric descriptions inherit `Geometry` from `pdl.author.geometry`. This base
+expresses type membership only; it requires no common operations. Custom
+descriptions passed to Entity must inherit it. Path conversion remains a
+separate optional capability used for backend fallback.
+
 ## Explicit capabilities
 
 The root exports drawing factories, Entity, Group, Gather, Canvas, Style, and

@@ -1,5 +1,10 @@
 # pdl.author.geometry
 
+`Geometry` is the nominal base for descriptions accepted by Entity and backend
+geometry dispatch. It requires no shared state or operations. Inherit it for
+custom descriptions; implement optional capabilities such as `to_path()` only
+where meaningful. Membership alone does not guarantee rendering support.
+
 `text` and `tex` factories create Entities around dedicated native descriptions.
 Position is a baseline point, size is in TeX points, and rotation is the current
 orientation. Measurement is lazy. Canvas fixes font candidates, TeX environment,
@@ -29,6 +34,7 @@ Source: `src/pdl/author/geometry/__init__.py`.
 ```{toctree}
 :maxdepth: 1
 
+base
 bounds
 commands
 frame
@@ -55,6 +61,7 @@ These imports link to their defining modules. Full member documentation is kept 
 | `pdl.author.geometry.Circle` | {py:obj}`pdl.author.geometry.shapes.Circle` |
 | `pdl.author.geometry.CoordinateSystem` | {py:obj}`pdl.author.geometry.frame.CoordinateSystem` |
 | `pdl.author.geometry.Frame` | {py:obj}`pdl.author.geometry.frame.Frame` |
+| `pdl.author.geometry.Geometry` | {py:obj}`pdl.author.geometry.base.Geometry` |
 | `pdl.author.geometry.Image` | {py:obj}`pdl.author.geometry.image.Image` |
 | `pdl.author.geometry.Line` | {py:obj}`pdl.author.geometry.shapes.Line` |
 | `pdl.author.geometry.Path` | {py:obj}`pdl.author.geometry.path.Path` |
