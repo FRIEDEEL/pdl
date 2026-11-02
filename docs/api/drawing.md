@@ -1,14 +1,34 @@
 # Canvas and paint
 
-Start here to create a page, add objects, and choose their appearance.
+Canvas owns submission capture, layer order, viewport policy, and save/render
+entrypoints. It accepts Entities and expandable extension components. Supply a
+Style on the Entity or a per-submission override; explicit Group member styles
+retain priority. Captured records keep the effective values used at submission.
+
+Style is an immutable complete value. None disables a stroke/fill inside Style;
+Entity.style None requests inheritance/default resolution. Gradients use initial
+normalized bounds and current numerical frames after transformation.
 
 ## Canvas
 
 ```{eval-rst}
 .. autoclass:: pdl.Canvas
    :members:
-   :undoc-members:
    :member-order: bysource
+```
+
+## Viewport and adapter contract
+
+Viewport contains current output Entities, page dimensions in millimeters, and
+the effective world-to-page output_transform. Backends depend on the narrower
+Page protocol rather than the Canvas implementation.
+
+```{eval-rst}
+.. autoclass:: pdl.canvas.records.Viewport
+   :members:
+
+.. autoclass:: pdl.canvas.records.Page
+   :members:
 ```
 
 ## Color
@@ -16,7 +36,6 @@ Start here to create a page, add objects, and choose their appearance.
 ```{eval-rst}
 .. autoclass:: pdl.Color
    :members:
-   :undoc-members:
    :member-order: bysource
 ```
 
@@ -25,18 +44,8 @@ Start here to create a page, add objects, and choose their appearance.
 ```{eval-rst}
 .. autoclass:: pdl.Style
    :members:
-   :undoc-members:
    :member-order: bysource
 ```
-
-## BLACK
-
-```{eval-rst}
-.. autodata:: pdl.BLACK
-   :no-value:
-```
-
-The RGB color `Color(0, 0, 0)`.
 
 ## Layer
 
@@ -81,7 +90,7 @@ The RGB color `Color(0, 0, 0)`.
 ## Image
 
 ```{eval-rst}
-.. autoclass:: pdl.Image
-   :members:
-   :member-order: bysource
+.. autofunction:: pdl.Image
 ```
+
+Image stores captured PNG/JPEG bytes and current viewport corners. See the [image lesson](../tutorial/en/04-finish/02-images.md).

@@ -1,6 +1,6 @@
 # 3D coordinates and projection
 
-All 3D positions use right-handed millimeter coordinates.
+All 3D positions use right-handed millimeter coordinates. Projection returns ordinary 2D Entity Groups. Source queries follow their immediate 2D edits.
 
 ## Point3D
 
