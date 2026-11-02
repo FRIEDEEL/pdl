@@ -1,1 +1,1 @@
-"""Object relationships evaluated when the drawing is exported."""
+"""Object relationships evaluated immediately from current geometry."""

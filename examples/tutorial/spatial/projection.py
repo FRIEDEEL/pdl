@@ -18,7 +18,7 @@ solid = regular_polyhedron("cube", radius=14)
 scene = Scene3D((solid,), camera=OrthographicCamera(30, 25))
 projected = scene.project()
 
-# These are fixed coordinates in the projected drawing's local 2D space.
+# These are fixed coordinates in the projected drawing's authoring 2D world.
 corner = projected.vertex(0, 7)
 leader = Line(corner, (25, 16))
 legend = Text("A projected vertex", position=(26, 15), size=10)
