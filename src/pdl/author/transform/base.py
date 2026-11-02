@@ -13,10 +13,10 @@ class TransformTarget(Protocol):
 class Transform(ABC):
     """Describe a spatial mapping without owning a geometry or drawing object.
 
-    Concrete transformations map numerical coordinate pairs. Geometry and
-    Entity types decide how to use a mapping, whether they support it, and
-    whether to modify themselves or return new objects. A transformation need
-    not be affine, invertible, or expressible as a matrix.
+    Concrete transformations map numerical coordinate pairs. Immediate Entity
+    application delegates shape conversion and paint policy to this package's
+    operations module. A transformation need not be affine, invertible, or
+    expressible as a matrix; unsupported curve mappings are rejected explicitly.
     """
 
     @abstractmethod

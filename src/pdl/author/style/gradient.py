@@ -32,13 +32,14 @@ def validate_stops(stops: tuple[ColorStop, ...]) -> None:
 
 @dataclass(frozen=True)
 class LinearGradient:
-    """RGB interpolation along a vector in normalized local geometry bounds.
+    """RGB interpolation along a vector in initial normalized geometry bounds.
 
     Args:
         stops: Strictly increasing color stops including offsets zero and one.
-        start: Start point; (0, 0) is the local bounds' lower-left corner.
+        start: Start point; (0, 0) is the initial bounds' lower-left corner.
         end: End point; (1, 1) is the upper-right corner. Defaults left to right.
 
+    Frame stores three current world points after an explicit object transform.
     Colors pad beyond the endpoints. The gradient follows object/group transforms.
     Only fill gradients are supported; stop opacity and alternate spread/color
     interpolation modes are not provided. Text/TeX require solid colors.
@@ -62,13 +63,14 @@ class LinearGradient:
 
 @dataclass(frozen=True)
 class RadialGradient:
-    """Concentric RGB interpolation in normalized local geometry bounds.
+    """Concentric RGB interpolation in initial normalized geometry bounds.
 
     Args:
         stops: Strictly increasing stops including zero and one.
-        center: Normalized center; defaults to the middle of the local bounds.
+        center: Normalized center; defaults to the middle of the initial bounds.
         radius: Positive normalized radius; default 0.5 reaches each side midpoint.
 
+    Frame stores three current world points after an explicit object transform.
     Non-square bounds stretch the gradient into an ellipse. Colors pad beyond
     the radius. Focal offsets, stop opacity, and stroke gradients are unsupported.
     """

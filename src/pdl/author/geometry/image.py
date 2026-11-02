@@ -26,7 +26,7 @@ class Image:
         source: Local PNG or JPEG file; bytes are captured at construction.
         width: Positive viewport width in millimeters.
         height: Positive viewport height in millimeters.
-        position: Lower-left viewport corner in local millimeters.
+        position: Lower-left viewport corner in world millimeters.
         fit: ``contain`` centers without cropping, ``cover`` centers and crops,
             ``stretch`` ignores source aspect ratio.
 

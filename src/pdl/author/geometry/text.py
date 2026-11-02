@@ -29,7 +29,7 @@ class Text:
     Args:
         text: Literal content; newline begins an explicit new line. No automatic wrapping.
         font: Explicit Font or FontStack. ``None`` uses renderer defaults.
-        position: First baseline reference in local millimeters, not a bounds center.
+        position: First baseline reference in world millimeters, not a bounds center.
         size: Positive font size in TeX points (1/72.27 inch).
         align: Each line's alignment about the reference: left, center, or right.
         line_spacing: Positive baseline distance as a multiple of font size.
@@ -39,9 +39,9 @@ class Text:
     uses black fill. SVG references installed fonts; native TikZ uses LaTeX.
     Their rendering and metrics can differ slightly.
 
-    Direct layout access needs explicit fonts or an active canvas typography
-    context. Canvas rendering establishes that context and discovers default
-    fonts when needed.
+    Explicit font candidates or a typography context select measurement
+    resources. Otherwise a system default is discovered on demand. Canvas
+    submission captures the selected candidates and measured layout.
 
     Raises:
         ValueError: Size, line spacing, alignment, or coordinates are invalid.

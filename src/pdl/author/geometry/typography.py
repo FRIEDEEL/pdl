@@ -117,9 +117,7 @@ def measure_text(
     files: tuple[FontKey, ...], text: str, size: float, align: str, line_spacing: float
 ) -> TextLayout:
     if any(unicodedata.bidirectional(c) in ("R", "AL", "AN") for c in text):
-        raise ValueError(
-            "Stage 2 Text supports left-to-right labels; use TeX for complex directionality."
-        )
+        raise ValueError("Text supports left-to-right labels; use TeX for complex directionality.")
     fonts: list[hb.Font] = []
     scales: list[float] = []
     for file, index, _, _ in files:

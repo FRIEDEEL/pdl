@@ -14,24 +14,25 @@ type FillRule = Literal["nonzero", "evenodd"]
 
 @dataclass(frozen=True)
 class Style:
-    """Immutable solid fill, stroke, and opacity settings.
+    """Immutable solid/gradient fill, stroke, and opacity settings.
 
     Style is a value description, not an object relationship or rendering
     operation. Fields describe a complete style; they do not request field-wise
     inheritance. ``stroke=None`` and ``fill=None`` explicitly disable those
     paints. This is distinct from an Entity storing ``style=None``, which requests
-    its type default. Group fallback is a separate, not-yet-implemented behavior.
+    parent/type fallback. Entity and capture perform that resolution.
 
     The constructor defaults to a black 1 mm outline and no fill. These are
     Style-constructor defaults, not prescribed defaults for every Entity type.
     Construct a new value or use ``dataclasses.replace`` to change fields.
-    Gradient paint, typography, object-level defaults, and group compositing
-    are outside this checkpoint. Style does not resolve geometry or transform
-    any of its values automatically.
+    Fill may be a Color, LinearGradient, or RadialGradient. Opacity applies
+    per leaf; Group does not create an isolated compositing surface. Transform
+    application can explicitly replace paint values, including gradient frames
+    or the line width of a uniform Rescale.
 
     Args:
         stroke: Opaque outline color, or None to omit the outline.
-        fill: Opaque interior color, or None to omit filling.
+        fill: Interior Color or gradient, or None to omit filling.
         line_width: Nonnegative stroke width in millimeters; zero omits stroke.
         line_cap: Shape of open line ends: butt, round, or square.
         line_join: Shape of line joins: miter, round, or bevel.

@@ -50,7 +50,7 @@ class TeXConfig:
 
     def __post_init__(self) -> None:
         if self.engine != "xelatex":
-            raise ValueError("Stage 2 supports engine='xelatex' only; no implicit engine fallback.")
+            raise ValueError("Supports engine='xelatex' only; no implicit engine fallback.")
         for package in self.packages:
             if not re.fullmatch(r"[A-Za-z0-9_-]+", package):
                 raise ValueError("Use preamble entries for package options or complex setup.")

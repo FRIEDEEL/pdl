@@ -215,6 +215,8 @@ class Rescale(Scaling):
 
     Nonuniform scaling uses Scaling and has no line-width option. This explicit
     operation may materialize an inherited style on its target when requested.
+    Matrix composition produces a plain AffineTransform; apply this operation
+    separately when its paint option is required.
     """
 
     def __init__(self, factor: float, *, include_linewidth: bool = False) -> None:

@@ -160,7 +160,8 @@ def _roots(a: float, b: float, c: float) -> list[float]:
 def geometry_bounds(geometry: PathSource) -> Bounds:
     """Compute exact bounds of line and quadratic/cubic path segments.
 
-    Arc lowering follows the documented cubic approximation from Stage 1.
+    Circular/elliptical descriptions retain analytic extrema; other shapes
+    use their current path commands.
     Move-only paths use their move positions; empty paths use the origin.
     """
     if isinstance(geometry, (CircleGeometry, EllipticalArcGeometry)):
