@@ -1,6 +1,6 @@
 [project]
 name = "pdl"
-version = "0.2.0-dev2"
+version = "0.2.0-alpha.1"
 description = "Static vector diagrams with native SVG and TikZ output"
 readme = "README.md"
 license = "MIT"
