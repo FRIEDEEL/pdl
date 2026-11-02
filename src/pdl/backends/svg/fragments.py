@@ -2,12 +2,11 @@
 
 from xml.etree import ElementTree as ET
 
-from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Scaling, Translation
+from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.author.util.tex import BP_TO_MM, TeXLayout
 
 
-def fragment_svg(layout: TeXLayout, transform: Transform, prefix: str, fill: str) -> str:
+def fragment_svg(layout: TeXLayout, transform: AffineTransform, prefix: str, fill: str) -> str:
     """Namespace fragment resources and place its baseline in pdl coordinates."""
     root = ET.fromstring(layout.svg)
     identifiers = {

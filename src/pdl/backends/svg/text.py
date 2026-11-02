@@ -2,22 +2,21 @@
 
 from html import escape
 
-from pdl.author.entity.base import Entity as Drawing
+from pdl.author.entity.base import Entity
 from pdl.author.geometry.point import as_point as point
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.geometry.typography import PT_TO_MM
 from pdl.author.style import Color
-from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Rotation, Scaling, Translation
+from pdl.author.transform.affine import AffineTransform, Rotation, Scaling, Translation
 from pdl.author.util.fonts import font_family
 from pdl.backends.formatting import number
 from pdl.backends.svg.fragments import fragment_svg
 from pdl.backends.svg.geometry import color
 
 
-def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
-    t = Transform()
+def render_tex(tex: TeX, drawing: Entity, prefix: str) -> str:
+    t = AffineTransform()
     if t.a * t.d - t.b * t.c == 0:
         return ""
     paint = drawing.effective_style
@@ -34,7 +33,7 @@ def render_tex(tex: TeX, drawing: Drawing, prefix: str) -> str:
     return f'<g opacity="{number(paint.opacity)}">{result}</g>'
 
 
-def render_text(text: Text, drawing: Drawing) -> str:
+def render_text(text: Text, drawing: Entity) -> str:
     """Keep ordinary labels as editable SVG text, referencing native fonts."""
 
     paint = drawing.effective_style

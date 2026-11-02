@@ -12,8 +12,7 @@ import uharfbuzz as hb
 from pdl.author.geometry.bounds import Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.style.font import Font
-from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Scaling, Translation
+from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.author.util.fonts import Outline, glyph_outline
 
 PT_TO_MM = 25.4 / 72.27
@@ -56,7 +55,7 @@ class _GlyphPlacement:
     file: str
     index: int
     gid: int
-    transform: Transform
+    transform: AffineTransform
 
 
 @dataclass(frozen=True)

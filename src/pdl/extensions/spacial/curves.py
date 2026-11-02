@@ -10,8 +10,7 @@ from pdl.author.entity.base import Entity
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.shapes import Arc, Circle
 from pdl.author.style import BLACK, Color, ColorStop, LinearGradient, RadialGradient, Style
-from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Scaling, Translation
+from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.extensions.spacial._author import make_entity, make_group
 from pdl.extensions.spacial.coordinates import Point3D, Vector3D
 
@@ -145,7 +144,7 @@ def project_cylinder(
     side = axis.cross(front).normalized()
     along_x, along_y = axis.dot(camera.right) / sine, axis.dot(camera.up) / sine
     origin = camera.project(cylinder.base)
-    placement = Transform(
+    placement = AffineTransform(
         side.dot(camera.right), side.dot(camera.up), along_x, along_y, origin.x, origin.y
     )
     radius, height = cylinder.radius, cylinder.height * sine

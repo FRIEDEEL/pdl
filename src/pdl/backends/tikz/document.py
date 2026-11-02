@@ -1,6 +1,6 @@
 """TikZ document orchestration and object dispatch."""
 
-from pdl.author.entity.base import Entity as Drawing
+from pdl.author.entity.base import Entity
 from pdl.author.geometry.image import Image
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.tex import TeX
@@ -16,7 +16,7 @@ from pdl.backends.traversal import walk
 from pdl.canvas.records import Page
 
 
-def render_drawing(drawing: Drawing, commands: dict[Font, str], prefix: str = "pdlgradient") -> str:
+def render_drawing(drawing: Entity, commands: dict[Font, str], prefix: str = "pdlgradient") -> str:
     geometry = drawing.geometry
     if isinstance(geometry, Image):
         return tikz_image(geometry, drawing)
@@ -32,7 +32,7 @@ def render_drawing(drawing: Drawing, commands: dict[Font, str], prefix: str = "p
     return "\\path[" + ",".join(paint_options(paint)) + "] " + path_data(geometry) + ";"
 
 
-def picture(canvas: Page, drawings: tuple[Drawing, ...]) -> str:
+def picture(canvas: Page, drawings: tuple[Entity, ...]) -> str:
     """Return a TikZ picture fragment for embedding in another document."""
     configuration(drawings)
     w, h = number(canvas.width), number(canvas.height)

@@ -1,12 +1,12 @@
 """SVG document orchestration and object dispatch."""
 
-from pdl.author.entity.base import Entity as Drawing
+from pdl.author.entity.base import Entity
 from pdl.author.geometry.image import Image
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.style import LinearGradient, RadialGradient
-from pdl.author.transform.affine import AffineTransform as Transform
+from pdl.author.transform.affine import AffineTransform
 from pdl.backends.formatting import number
 from pdl.backends.gradients import gradient_matrix, svg_gradient
 from pdl.backends.images import svg_image
@@ -16,7 +16,7 @@ from pdl.backends.traversal import walk
 from pdl.canvas.records import Page
 
 
-def render_drawing(drawing: Drawing, prefix: str = "tex-") -> str:
+def render_drawing(drawing: Entity, prefix: str = "tex-") -> str:
     geometry = drawing.geometry
     if isinstance(geometry, Image):
         return svg_image(geometry, drawing, prefix)
@@ -32,7 +32,7 @@ def render_drawing(drawing: Drawing, prefix: str = "tex-") -> str:
     if isinstance(paint.fill, (LinearGradient, RadialGradient)):
         gradient_id = prefix + "gradient"
         definition = svg_gradient(
-            paint.fill, gradient_matrix(geometry, Transform(), paint.fill), gradient_id
+            paint.fill, gradient_matrix(geometry, AffineTransform(), paint.fill), gradient_id
         )
     return definition + f"  <{shape(geometry)} {style_attributes(paint, gradient_id)}/>"
 

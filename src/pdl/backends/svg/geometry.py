@@ -10,7 +10,7 @@ from pdl.author.geometry.path import (
     Segment,
 )
 from pdl.author.geometry.point import as_point as point
-from pdl.author.geometry.protocols import PathSource as Geometry
+from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.shapes import Arc, Circle, Rectangle
 from pdl.author.style import Color, Style
 from pdl.backends.formatting import number
@@ -38,7 +38,7 @@ def style_attributes(style: Style, gradient_id: str | None = None) -> str:
     )
 
 
-def path_data(geometry: Geometry) -> str:
+def path_data(geometry: PathSource) -> str:
     parts: list[str] = []
     for command in geometry.to_path().commands:
         match command:
@@ -61,7 +61,7 @@ def path_data(geometry: Geometry) -> str:
     return " ".join(parts)
 
 
-def shape(geometry: Geometry) -> str:
+def shape(geometry: PathSource) -> str:
     if isinstance(geometry, Circle):
         p = point(geometry.center)
         return f'circle cx="{number(p.x)}" cy="{number(p.y)}" r="{number(geometry.radius)}"'

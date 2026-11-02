@@ -15,7 +15,7 @@ from pdl.author.geometry.commands import (
 )
 from pdl.author.geometry.point import Point, Position, as_point
 from pdl.author.geometry.protocols import PathSource
-from pdl.author.transform.affine import AffineTransform as Transform
+from pdl.author.transform.affine import AffineTransform
 
 
 @runtime_checkable
@@ -93,7 +93,7 @@ class Bounds:
             self.left - amount, self.bottom - amount, self.right + amount, self.top + amount
         )
 
-    def transformed(self, transform: Transform) -> Bounds:
+    def transformed(self, transform: AffineTransform) -> Bounds:
         if self.is_empty:
             return self
         points = [
@@ -165,7 +165,7 @@ def geometry_bounds(geometry: PathSource) -> Bounds:
     Move-only paths use their move positions; empty paths use the origin.
     """
     if isinstance(geometry, (CircleGeometry, EllipticalArcGeometry)):
-        return transformed_bounds(geometry, Transform())
+        return transformed_bounds(geometry, AffineTransform())
     points: list[Point] = []
     current = start = Point(0, 0)
     for command in geometry.to_path().commands:
@@ -218,7 +218,7 @@ def geometry_bounds(geometry: PathSource) -> Bounds:
     return from_points(points)
 
 
-def transformed_bounds(geometry: PathSource, transform: Transform) -> Bounds:
+def transformed_bounds(geometry: PathSource, transform: AffineTransform) -> Bounds:
     """Find tight affine bounds without approximating circular/elliptical geometry."""
 
     if isinstance(geometry, CircleGeometry):

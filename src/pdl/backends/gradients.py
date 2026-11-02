@@ -3,26 +3,25 @@
 from dataclasses import replace
 from decimal import Decimal
 
-from pdl.author.entity.base import Entity as Drawing
+from pdl.author.entity.base import Entity
 from pdl.author.geometry.bounds import geometry_bounds
 from pdl.author.geometry.point import as_point as point
-from pdl.author.geometry.protocols import PathSource as Geometry
+from pdl.author.geometry.protocols import PathSource
 from pdl.author.style import LinearGradient, RadialGradient, Style
-from pdl.author.transform.affine import AffineTransform as Transform
-from pdl.author.transform.affine import Scaling, Translation
+from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.backends.formatting import number
 from pdl.backends.svg.geometry import color
 from pdl.backends.tikz.geometry import paint_options, path_data
 
 
 def gradient_matrix(
-    geometry: Geometry,
-    placement: Transform,
+    geometry: PathSource,
+    placement: AffineTransform,
     gradient: LinearGradient | RadialGradient | None = None,
-) -> Transform:
+) -> AffineTransform:
     if gradient is not None and gradient.frame is not None:
         origin, x, y = gradient.frame
-        return placement @ Transform(
+        return placement @ AffineTransform(
             x[0] - origin[0],
             x[1] - origin[1],
             y[0] - origin[0],
@@ -34,7 +33,9 @@ def gradient_matrix(
     return placement @ Translation(box.left, box.bottom) @ Scaling(box.width, box.height)
 
 
-def svg_gradient(gradient: LinearGradient | RadialGradient, matrix: Transform, name: str) -> str:
+def svg_gradient(
+    gradient: LinearGradient | RadialGradient, matrix: AffineTransform, name: str
+) -> str:
 
     transform = " ".join(number(v) for v in matrix.values)
     common = (
@@ -106,11 +107,11 @@ def _function(gradient: LinearGradient | RadialGradient) -> str:
     return distance + result
 
 
-def tikz_gradient(geometry: Geometry, drawing: Drawing, style: Style, name: str) -> str:
+def tikz_gradient(geometry: PathSource, drawing: Entity, style: Style, name: str) -> str:
 
     gradient = style.fill
     assert isinstance(gradient, (LinearGradient, RadialGradient))
-    matrix = gradient_matrix(geometry, Transform(), gradient)
+    matrix = gradient_matrix(geometry, AffineTransform(), gradient)
     placed = geometry
     if matrix.determinant == 0:
         return (

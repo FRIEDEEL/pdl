@@ -11,7 +11,7 @@ from pdl.author.entity.base import Entity
 from pdl.author.entity.capture import Composite
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.style import BLACK, Color, Style
-from pdl.author.transform.affine import AffineTransform as Transform
+from pdl.author.transform.affine import AffineTransform
 from pdl.extensions.spacial._author import make_entity
 from pdl.extensions.spacial.coordinates import Point3D, Transform3D, Vector3D
 
@@ -201,7 +201,7 @@ class Polyhedron:
         graphic: Graphic,
         style: Style | None = None,
         *,
-        transform: Transform = Transform(),
+        transform: AffineTransform = AffineTransform(),
     ) -> Polyhedron:
         """Return a solid with 2D artwork attached to one face's local chart.
 
@@ -242,7 +242,7 @@ class Polyhedron:
             old = self.face_plane(i).transformed(transform)
             new = result.face_plane(i)
             offset = old.origin - new.origin
-            matrix = Transform(
+            matrix = AffineTransform(
                 old.u.dot(new.u),
                 old.u.dot(new.v),
                 old.v.dot(new.u),

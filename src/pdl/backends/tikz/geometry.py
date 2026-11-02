@@ -9,7 +9,7 @@ from pdl.author.geometry.path import (
     Segment,
 )
 from pdl.author.geometry.point import as_point as point
-from pdl.author.geometry.protocols import PathSource as Geometry
+from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.shapes import Arc, Circle, Rectangle
 from pdl.author.style import Color, Style
 from pdl.backends.formatting import number
@@ -46,7 +46,7 @@ def paint_options(style: Style) -> list[str]:
     ]
 
 
-def path_data(geometry: Geometry) -> str:
+def path_data(geometry: PathSource) -> str:
     if isinstance(geometry, Circle):
         return f"{coordinate(point(geometry.center))} circle[radius={number(geometry.radius)}mm]"
     if isinstance(geometry, Rectangle):

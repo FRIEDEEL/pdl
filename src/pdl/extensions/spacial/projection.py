@@ -10,7 +10,7 @@ from pdl.author.entity.base import Entity
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Line, Polygon
 from pdl.author.style import Color, Style
-from pdl.author.transform.affine import AffineTransform as Transform
+from pdl.author.transform.affine import AffineTransform
 from pdl.extensions.spacial._author import make_entity, make_group
 from pdl.extensions.spacial.coordinates import Point3D, Vector3D
 from pdl.extensions.spacial.curves import Cylinder, Sphere, project_cylinder, project_sphere
@@ -387,9 +387,9 @@ class Scene3D:
             return make_entity(PerspectiveArtwork(plane, drawing, self.camera))
         return drawing.copy().apply_transform(self._plane_matrix(plane))
 
-    def _plane_matrix(self, plane: Plane3D) -> Transform:
+    def _plane_matrix(self, plane: Plane3D) -> AffineTransform:
         origin = self.camera.project(plane.origin)
-        return Transform(
+        return AffineTransform(
             plane.u.dot(self.camera.right),
             plane.u.dot(self.camera.up),
             plane.v.dot(self.camera.right),

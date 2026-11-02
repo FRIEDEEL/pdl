@@ -2,14 +2,14 @@
 
 from base64 import b64encode
 
-from pdl.author.entity.base import Entity as Drawing
+from pdl.author.entity.base import Entity
 from pdl.author.geometry.image import Image
 from pdl.author.geometry.point import as_point as point
 from pdl.backends.formatting import number
 from pdl.backends.tikz.geometry import path_data
 
 
-def svg_image(image: Image, drawing: Drawing, prefix: str) -> str:
+def svg_image(image: Image, drawing: Entity, prefix: str) -> str:
     p = point((0, 0))
     x, y, width, height = image.content_box()
     matrix = " ".join(number(v) for v in image.mapping.values)
@@ -27,7 +27,7 @@ def svg_image(image: Image, drawing: Drawing, prefix: str) -> str:
     )
 
 
-def tikz_image(image: Image, drawing: Drawing) -> str:
+def tikz_image(image: Image, drawing: Entity) -> str:
 
     x, y, width, height = image.content_box()
     a, b, c, d, e, f = (number(v) for v in image.mapping.values)
