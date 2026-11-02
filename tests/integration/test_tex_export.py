@@ -107,3 +107,19 @@ def test_nodes_compile_using_the_same_text_and_tex_policy(
     canvas.save(tmp_path / "nodes.tex", backend="tikz", tikz_mode="pdf")
     assert (tmp_path / "nodes.pdf").read_bytes().startswith(b"%PDF")
     ET.fromstring(canvas.render())
+
+
+def test_tex_ink_query_excludes_layout_whitespace(config: TeXConfig) -> None:
+    entity = TeX(r"\quad x\quad", position=(5, 10), config=config)
+    canvas = Canvas(80, 30)
+    layout = canvas.query().bounds(entity)
+    ink = canvas.query().ink_bounds(entity)
+    assert 0 < ink.width < layout.width
+
+
+def test_tex_rescale_changes_fixed_mm_geometry_without_retypesetting(config: TeXConfig) -> None:
+    entity = TeX(r"\rule{10mm}{2mm}", position=(5, 10), config=config)
+    before = entity.bounds
+    entity.rescale(2)
+    assert entity.bounds.width == pytest.approx(before.width * 2, abs=0.001)
+    assert entity.bounds.height == pytest.approx(before.height * 2, abs=0.001)

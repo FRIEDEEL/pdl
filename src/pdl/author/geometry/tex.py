@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import isfinite
 
-from pdl.author.geometry.bounds import Anchor, Bounds
+from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
 from pdl.author.geometry.point import as_point as point
@@ -22,7 +22,7 @@ class TeX:
     Args:
         source: LaTeX content; include ``$...$`` or other delimiters for math.
             Python raw strings preserve backslashes conveniently.
-        position: Left baseline reference in local millimeters.
+        position: Left baseline reference in world millimeters.
         size: Positive font size in TeX points (1/72.27 inch).
         config: Explicit TeX environment, or the renderer's default environment.
 
@@ -30,6 +30,9 @@ class TeX:
     without a final PDF. SVG embeds a converted fragment; TikZ retains native
     LaTeX source. Shared native documents require compatible TeXConfig values.
     Supply only fill paint, with ``stroke=None``, when setting a style.
+    Translation/rotation retain native source. Geometric scaling and deformation
+    lower measured monochrome artwork to paths rather than changing font size;
+    absolute TeX dimensions must scale too. Unsupported rich outlines raise.
     """
 
     source: str
@@ -81,6 +84,11 @@ class TeX:
         return Bounds(0, -self.layout.depth, self.layout.width, self.layout.height).transformed(
             Translation(p.x, p.y) @ Rotation(self.rotation)
         )
+
+    @property
+    def ink_bounds(self) -> Bounds:
+        """Measure monochrome glyph/rule contours, excluding whitespace and stroke."""
+        return geometry_bounds(self.to_path())
 
     def to_path(self) -> Path:
         """Lower monochrome TeX outlines; general SVG artwork is not supported."""

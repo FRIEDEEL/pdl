@@ -83,11 +83,20 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
             0,
             abs_tol=1e-12 * max(1.0, sx * sy),
         )
-        if sx > 0 and transform.determinant > 0 and isclose(sx, sy, rel_tol=1e-12) and orthogonal:
+        native_scale = isinstance(geometry, Text) or isclose(sx, 1, rel_tol=1e-12)
+        # TeX sizes can contain absolute units and optical-size font choices.
+        # Changing its font size would re-typeset rather than scale the artwork.
+        if (
+            native_scale
+            and sx > 0
+            and transform.determinant > 0
+            and isclose(sx, sy, rel_tol=1e-12)
+            and orthogonal
+        ):
             return replace(
                 geometry,
                 position=transform.map(geometry.position),
-                size=geometry.size * sx,
+                size=geometry.size * sx if isinstance(geometry, Text) else geometry.size,
                 rotation=(geometry.rotation + degrees(atan2(transform.b, transform.a))) % 360,
             )
     # A translation preserves native text/TeX without measuring or outlining it.
