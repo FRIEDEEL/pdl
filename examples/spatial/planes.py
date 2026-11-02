@@ -7,7 +7,6 @@ from pdl import (
     Color,
     CoordinateSystem3D,
     DirectionalLight,
-    Drawing,
     Group,
     Line,
     OrthographicCamera,
@@ -20,6 +19,7 @@ from pdl import (
     Transform3D,
     Vector3D,
 )
+from pdl.author.entity.factories import as_entity
 
 
 def example() -> Canvas:
@@ -37,12 +37,10 @@ def example() -> Canvas:
     panel = Rectangle((-20, -15), 40, 30)
     marker = Circle((8, 6), 4)
     artwork = Group(
-        (
-            Drawing(panel, Style(fill=fill, line_width=0.35)),
-            Drawing(marker, Style(fill=Color(0.95, 0.57, 0.24), line_width=0.3)),
-            Drawing(Line((-20, 0), (20, 0)), Style(line_width=0.2)),
-            Drawing(Line((0, -15), (0, 15)), Style(line_width=0.2)),
-        )
+        as_entity(panel, Style(fill=fill, line_width=0.35)),
+        as_entity(marker, Style(fill=Color(0.95, 0.57, 0.24), line_width=0.3)),
+        as_entity(Line((-20, 0), (20, 0)), Style(line_width=0.2)),
+        as_entity(Line((0, -15), (0, 15)), Style(line_width=0.2)),
     )
     scene = Scene3D(
         (plane.place(artwork),), camera=OrthographicCamera(35, 35), visibility="centroid"

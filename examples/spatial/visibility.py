@@ -9,15 +9,16 @@ from examples._shared import export, latin_font
 from pdl import (
     Canvas,
     Color,
-    Drawing,
     PerspectiveCamera,
     Point3D,
     Polyhedron,
+    Scaling,
     Scene3D,
     Style,
     Text,
-    Transform,
+    Translation,
 )
+from pdl.author.entity.factories import as_entity
 
 CAMERA = PerspectiveCamera(0, 0, distance=240, focal_length=240)
 BLUE = Color(0.15, 0.57, 0.78)
@@ -106,9 +107,7 @@ def example() -> Canvas:
         before = scene.project()
         after = replace(scene, visibility="bsp").project()
         for x, view in ((78, before), (233, after)):
-            canvas.draw(
-                Drawing(view, transform=Transform.translate(x, y + 35) @ Transform.scale(0.65))
-            )
+            canvas.draw(as_entity(view, transform=Translation(x, y + 35) @ Scaling(0.65)))
         label(f"{len(before.children)} whole faces", 20, y, 8)
         label(f"{len(after.children)} fragments / original edges only", 175, y, 8)
     return canvas

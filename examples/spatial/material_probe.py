@@ -9,26 +9,26 @@ from dataclasses import replace
 from examples._shared import export, latin_font
 from pdl import (
     AnnularCylinder,
-    Arc,
     Canvas,
     Color,
     Cylinder,
     CylinderSurface,
-    Drawing,
     Group,
     Line,
     OrthographicCamera,
-    Path,
+    PathGeometry,
     Plane3D,
     Point3D,
     ProjectedScene,
     Scene3D,
     Style,
     Text,
-    Transform,
     Transform3D,
+    Translation,
     Vector3D,
 )
+from pdl.author.entity.factories import as_entity
+from pdl.author.geometry.shapes import Arc as ArcGeometry
 
 MATERIAL = Color(0.72, 0.84, 0.9)
 PROBE = Color(0.91, 0.4, 0.16)
@@ -62,12 +62,9 @@ def make_cutaway(material: CylinderSurface, probe: Cylinder, *, label: bool = Tr
     """Compose named 2D layers in an intentional back-to-front order."""
     background = project_material(material)
     interior_floor = (
-        Path()
+        PathGeometry()
         .move_to((0, 0))
-        .arc(
-            # The lower cross-section is an explicit planar illustration layer.
-            Arc((0, 0), material.radius, material.radius, 90, 180)
-        )
+        .arc(ArcGeometry((0, 0), material.radius, material.radius, 90, 180))
         .close()
     )
     floor = Plane3D(origin=material.base)
@@ -116,12 +113,10 @@ def example() -> Canvas:
         ink,
     )
     reference = replace(material, color=Color(0.86, 0.91, 0.94))
-    canvas.draw(Drawing(project_material(reference), transform=Transform.translate(40, 52)))
-    canvas.draw(Drawing(make_cutaway(material, probe), transform=Transform.translate(115, 52)))
+    canvas.draw(as_entity(project_material(reference), transform=Translation(40, 52)))
+    canvas.draw(as_entity(make_cutaway(material, probe), transform=Translation(115, 52)))
     moved_probe = replace(probe, base=Point3D(3, 4, -10), axis=Vector3D(0, 0.16, 1))
-    canvas.draw(
-        Drawing(make_cutaway(material, moved_probe), transform=Transform.translate(192, 52))
-    )
+    canvas.draw(as_entity(make_cutaway(material, moved_probe), transform=Translation(192, 52)))
     for x, title in (
         (13, "1. Material background"),
         (88, "2. Add interior + probe"),
@@ -158,10 +153,10 @@ def views() -> Canvas:
         # A colored line behind the bore makes accidental hole filling visible.
         canvas.draw(Line((x - 22, 89), (x + 22, 89)), Style(stroke=PROBE, line_width=1))
         flat = Scene3D((washer,), camera, sort_faces=False).project()
-        canvas.draw(Drawing(flat, transform=Transform.translate(x, 87)))
+        canvas.draw(as_entity(flat, transform=Translation(x, 87)))
         surface = make_material().transformed(Transform3D.scale(0.65))
         flat_surface = Scene3D((surface,), camera, sort_faces=False).project()
-        canvas.draw(Drawing(flat_surface, transform=Transform.translate(x, 35)))
+        canvas.draw(as_entity(flat_surface, transform=Translation(x, 35)))
     return canvas
 
 

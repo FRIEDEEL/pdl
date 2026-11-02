@@ -10,7 +10,6 @@ from pdl import (
     Canvas,
     Color,
     DirectionalLight,
-    Drawing,
     Group,
     Line,
     Node,
@@ -20,9 +19,10 @@ from pdl import (
     Scene3D,
     Style,
     Text,
-    Transform,
+    Translation,
     Vector3D,
 )
+from pdl.author.entity.factories import as_entity
 
 DIE_COLOR = Color(0.12, 0.48, 0.7)
 WHITE = Color(1, 1, 1)
@@ -66,12 +66,12 @@ def numbered_die() -> Polyhedron:
             style=Style(stroke=None),
             text_style=Style(stroke=None, fill=WHITE),
         )
-        marks = [Drawing(number)]
+        marks = [as_entity(number)]
         if i + 1 in (6, 9):
             marks.append(
-                Drawing(Line((-1.7, -4.5), (1.7, -4.5)), Style(stroke=WHITE, line_width=0.35))
+                as_entity(Line((-1.7, -4.5), (1.7, -4.5)), Style(stroke=WHITE, line_width=0.35))
             )
-        die = die.with_face_artwork(i, Group(tuple(marks)))
+        die = die.with_face_artwork(i, Group(*tuple(marks)))
     return die
 
 
@@ -92,19 +92,17 @@ def example() -> Canvas:
     )
     leader = Line((point.x + 3, point.y), (34, 12))
     front_with_legend = Group(
-        (
-            Drawing(front),
-            Drawing(leader, Style(stroke=Color(0.35, 0.4, 0.45), line_width=0.25)),
-            Drawing(label),
-        )
+        as_entity(front),
+        as_entity(leader, Style(stroke=Color(0.35, 0.4, 0.45), line_width=0.25)),
+        as_entity(label),
     )
-    first = Drawing(front_with_legend, transform=Transform.translate(42, 51))
-    second = Drawing(back, transform=Transform.translate(145, 51))
+    first = as_entity(front_with_legend, transform=Translation(42, 51))
+    second = as_entity(back, transform=Translation(145, 51))
     title = Text(
         "D10: planar artwork, then a 2D legend", font=latin_font(), position=(8, 101), size=18
     )
     subtitle = Text(
-        "Ten kite faces / native vector numbers / opposite orthographic views",
+        "Ten kite faces / face numbers / opposite orthographic views",
         font=latin_font(),
         position=(8, 92),
         size=10,

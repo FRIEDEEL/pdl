@@ -9,16 +9,17 @@ from pdl import (
     Color,
     Cylinder,
     DirectionalLight,
-    Drawing,
+    Entity,
     OrthographicCamera,
     Point3D,
     Scene3D,
     Sphere,
     Style,
     Text,
-    Transform,
+    Translation,
     Vector3D,
 )
+from pdl.author.entity.factories import as_entity
 
 CAMERA = OrthographicCamera(30, 25)
 COLOR = Color(0.32, 0.7, 0.91)
@@ -35,21 +36,21 @@ def example() -> Canvas:
     )
     sphere = Sphere(radius=16, color=COLOR)
     cylinder = Cylinder(base=Point3D(0, 0, -16), radius=12, height=32, color=COLOR)
-    panels: list[Drawing] = []
-    labels: list[Text] = []
+    panels: list[Entity] = []
+    labels: list[Entity] = []
     font = latin_font()
     for i, (label, light) in enumerate(lights):
         x = 35 + i * 52
         panels.append(
-            Drawing(
+            as_entity(
                 Scene3D((sphere,), CAMERA, light, visibility="centroid").project(),
-                transform=Transform.translate(x, 90),
+                transform=Translation(x, 90),
             )
         )
         panels.append(
-            Drawing(
+            as_entity(
                 Scene3D((cylinder,), CAMERA, light, visibility="centroid").project(),
-                transform=Transform.translate(x, 38),
+                transform=Translation(x, 38),
             )
         )
         labels.append(Text(label, font=font, position=(x - 17, 115), size=11))
@@ -90,14 +91,14 @@ def views() -> Canvas:
     )
     canvas = Canvas(225, 85)
     font = latin_font()
-    panels: list[Drawing] = []
-    labels: list[Text] = []
+    panels: list[Entity] = []
+    labels: list[Entity] = []
     for i, (label, camera) in enumerate(cameras):
         obj = tilted if i == 3 else cylinder
         panels.append(
-            Drawing(
+            as_entity(
                 Scene3D((obj,), camera, visibility="centroid").project(),
-                transform=Transform.translate(32 + i * 53, 39),
+                transform=Translation(32 + i * 53, 39),
             )
         )
         labels.append(Text(label, font=font, position=(15 + i * 53, 10), size=10))

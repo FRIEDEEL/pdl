@@ -8,17 +8,18 @@ from pdl import (
     Canvas,
     Color,
     DirectionalLight,
-    Drawing,
+    Entity,
     OrthographicCamera,
     Scene3D,
     Style,
     Text,
-    Transform,
     Transform3D,
+    Translation,
     Vector3D,
     regular_polyhedron,
 )
-from pdl.extensions.spatial.solids import PlatonicKind
+from pdl.author.entity.factories import as_entity
+from pdl.extensions.spacial.solids import PlatonicKind
 
 # Edit these shared parameters to compare lighting and viewing directions.
 CAMERA = OrthographicCamera(azimuth=30, elevation=22)
@@ -38,15 +39,15 @@ def example() -> Canvas:
     font = latin_font()
     ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
     muted = Style(stroke=None, fill=Color(0.38, 0.43, 0.48))
-    scenes: list[Drawing] = []
-    labels: list[Text] = []
-    details: list[Text] = []
+    scenes: list[Entity] = []
+    labels: list[Entity] = []
+    details: list[Entity] = []
     for i, (kind, name, vertices, edges, faces) in enumerate(SOLIDS):
         center = 26 + i * 49
         solid = regular_polyhedron(kind, radius=20, color=BASE_COLOR)
         solid = solid.transformed(Transform3D.rotate(12, Vector3D(0, 0, 1)))
         scene = Scene3D((solid,), camera=CAMERA, light=LIGHT).project()
-        scenes.append(Drawing(scene, transform=Transform.translate(center, 46)))
+        scenes.append(as_entity(scene, transform=Translation(center, 46)))
         labels.append(Text(name, font=font, position=(center - 19, 17), size=11))
         details.append(
             Text(
