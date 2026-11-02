@@ -1,28 +1,23 @@
-# TikZ 源码与 PDF 输出
+# SVG、TikZ 与 PDF 输出
 
-`Canvas.render("tikz")` 返回独立 TeX 文档字符串，`standalone=False` 返回可嵌入片段，不编译最终 PDF。绘制中 `TeX` 对象的测量仍可能先使用已有 XeLaTeX/dvisvgm 排版流程。
+后端接收捕获的 Entity，根据当前 Geometry 和 Style 编码。图示的几何、连接端口和摆放由 Python 数值确定；
+TikZ 的文字节点用于已确定基线处的排版，不承担图示布局或返回位置的计算。
 
-`Canvas.save("figure.tex", backend="tikz")` 默认保存源码并尝试用 XeLaTeX 生成同目录的 `figure.pdf`：
+`canvas.render()` 返回 SVG，`canvas.render("tikz")` 返回独立 LaTeX 文档；
+`standalone=False` 返回可嵌入片段，配合 `canvas.latex_preamble()` 使用。
+保存时明确指定 `backend="tikz"`，扩展名本身不切换后端。
 
-- `tikz_mode="auto"`：默认模式；找到指定编译器就编译，否则仅保留源码。
-- `tikz_mode="tex"`：只保存源码。
-- `tikz_mode="pdf"`：必须编译；缺少编译器抛出 `FileNotFoundError`。
-- `keep_intermediates=False`：默认在临时目录编译，仅复制 PDF；设为 True 时在源码目录保留 aux、log 等产物，失败时也可检查日志。
-- `engine="xelatex"`：指定编译器；其他引擎必须兼容文档使用的字体和宏包，不会自动换用其他引擎。
+`tikz_mode="tex"` 仅保存最终源码；auto 在编译器存在时编译，pdf 要求编译成功。
+TeX 对象的测量仍可能在提交时调用 XeLaTeX／dvisvgm，即使最终只需要源码。
+默认最终编译器是 XeLaTeX，普通原生字体需要 fontspec；纯几何也可选择适用的其他 LaTeX 引擎。
+编译失败保留源码并报告日志，默认把辅助文件放在临时目录。
 
-编译工作目录是源码目录，支持相对路径输入；禁用 shell escape，超时 60 秒。编译失败会携带诊断报错，不静默降级；源码保留。旧 PDF 和旧辅助文件不会自动删除，因此跳过或失败不会刷新旧 PDF。TikZ 保存请使用 `.tex` 文件名。
+图片在 SVG 中内嵌，在 TikZ 保存时复制为源码旁的内容寻址资源。移动输出时一起移动资源目录。
+渐变编码为矢量填充。普通 Text 在保持朝向手性的相似变换下保留原生表达；TeX 平移／旋转保留源码，
+TeX 缩放及其他文字变形转为已测量的轮廓。复杂或彩色 TeX SVG 可原生嵌入，
+无法保持内容的路径转换会明确拒绝，包括视口 fit 缩放时。
 
-```python
-canvas.save("figure.tex", backend="tikz", tikz_mode="auto")
-canvas.save("debug.tex", backend="tikz", tikz_mode="pdf", keep_intermediates=True)
-```
+字体环境和原生排版可能造成 SVG／LaTeX 栅格差异。尺寸和位置使用已测量的资源策略，
+但不保证逐像素一致，也不以生成源码的可读性限制几何表达。
 
-全部示例复用同一编译辅助函数：
-
-```sh
-uv run python -m examples.tools.render_all
-uv run python -m examples.tools.render_all --tikz-mode tex
-uv run python -m examples.tools.render_all --tikz-mode pdf --keep-intermediates
-```
-
-集成测试通过真实 LaTeX 引擎验证编译及默认仅保留 TeX/PDF 的行为。
+[教程](tutorial/zh/06-output/index.md) · [English](tikz-output.md)

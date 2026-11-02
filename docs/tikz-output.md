@@ -1,43 +1,30 @@
-# TikZ source and PDF output
+# SVG, TikZ, and PDF output
 
-`Canvas.render("tikz")` returns standalone TeX source as a string. Use
-`standalone=False` for an embeddable fragment. Rendering itself does not compile
-that document to PDF. Measuring `TeX` objects can still require the existing
-XeLaTeX/dvisvgm typography pipeline before export.
+Adapters encode captured Entity geometry and Style. Python determines diagram
+shapes, ports, and numerical placement. TikZ text nodes typeset at determined
+baselines; they do not perform diagram layout or return anchor positions.
 
-`Canvas.save("figure.tex", backend="tikz")` writes the source and, by default,
-tries XeLaTeX to create `figure.pdf` beside it. The options are:
+canvas.render() returns SVG, and render("tikz") returns a standalone LaTeX
+document. standalone=False returns an embeddable fragment; use latex_preamble()
+for its packages/macros. Explicitly select backend="tikz" when saving; a filename
+suffix does not select an adapter.
 
-- `tikz_mode="auto"`: compile if the selected executable exists; otherwise keep
-  only the source. This is the default.
-- `tikz_mode="tex"`: save source without compiling the output document.
-- `tikz_mode="pdf"`: require the compiler; absence raises `FileNotFoundError`.
-- `keep_intermediates=False`: compile into a temporary directory and copy only
-  the PDF to the destination. Set True to keep `.aux`, `.log`, and other compiler
-  artifacts beside the source, including diagnostics when compilation fails.
-- `engine="xelatex"`: select the executable. Other engines must support the
-  packages and fonts used by your document; no alternative engine is selected
-  automatically.
+tikz_mode="tex" saves final source, auto compiles when an engine is available,
+and pdf requires compilation. Measuring a TeX Entity can still invoke
+XeLaTeX/dvisvgm during submission even for source-only output. XeLaTeX is the
+default final compiler; native fonts need fontspec. Geometry-only documents may
+use another suitable LaTeX engine. Failures preserve source and report logs;
+auxiliary files use a temporary directory unless requested otherwise.
 
-Compilation runs from the source directory so relative TeX inputs resolve there.
-Shell escape is disabled and compilation has a 60-second timeout. Compiler
-failures raise an error with captured diagnostics; they do not silently downgrade
-to source-only output. The source is retained. Existing PDFs and auxiliary files
-from previous runs are not removed; a failed/skipped compile does not refresh an
-existing PDF. Use a `.tex` filename for TikZ saves.
+SVG embeds image bytes. Saved TikZ copies content-addressed assets beside the
+source; move that asset directory with the document. Gradients remain vector
+fills. Text retains native form under orientation-preserving similarities; TeX
+retains source under translation/rotation. TeX scaling and other text deformation
+lower measured outlines. Rich/colored TeX SVG may remain embedded, while
+unsupported path conversion fails, including when viewport fitting scales it.
 
-```python
-canvas.save("figure.tex", backend="tikz", tikz_mode="auto")
-canvas.save("debug.tex", backend="tikz", tikz_mode="pdf", keep_intermediates=True)
-```
+Native font environments and shaping can produce different SVG/LaTeX pixels.
+Geometry and placement follow captured measurement policy; exact raster equality
+and readable generated-code structure are not promised.
 
-Generate all examples with the same compilation helper:
-
-```sh
-uv run python -m examples.tools.render_all
-uv run python -m examples.tools.render_all --tikz-mode tex
-uv run python -m examples.tools.render_all --tikz-mode pdf --keep-intermediates
-```
-
-The integration tests also exercise this helper with real LaTeX engines and check
-that the default output directory contains only TeX and PDF files.
+[Tutorial](tutorial/en/06-output/index.md) · [中文说明](tikz-output_zh.md)

@@ -1,184 +1,105 @@
 # Source architecture
 
-## Current refactor boundary
+Author is the sole editable drawing domain. Geometry describes current shape
+parameters, Style describes paint, and Entity combines them with numerical
+position queries. Drawing factories such as Circle return Entity; pure shapes
+are imported from author.geometry. No shared Geometry base is required.
 
-The previous implementation and tests now live in `src/pdl_old` and `tests_old`.
-The new `src/pdl` package is rebuilt incrementally. Its agreed Author structure is:
+## Responsibilities and dependencies
 
-| Package | Owns | May depend on |
+| Package | Owns | Dependency boundary |
 | --- | --- | --- |
-| `author.geometry` | Independent geometric descriptions and their numerical queries | Standard library, transform, and util when needed |
-| `author.style` | Style descriptions | Standard library and util when needed |
-| `author.entity` | Drawing instances, object relationships, and user operations | Geometry, style, transform, and util |
-| `author.transform` | General spatial-mapping contract and concrete affine matrices | Standard library and util; no other pdl domain package |
-| `author.util` | Pure numerical functions and external font/TeX interfaces | Standard library, external libraries and tools; no other pdl layer |
+| author.geometry | Points, paths, shapes, explicit frames, native text/TeX/image descriptions, and numerical queries | Numeric affine mappings, utility services, and font resource/configuration modules; no Entity, Canvas, or renderer |
+| author.style | Immutable paints, gradients, font descriptors, resource policy | Utilities and external resource discovery; no geometry ownership |
+| author.transform.base / affine | Mapping contract and finite affine matrices | Numeric data and Point/Vector adapters |
+| author.transform.operations | Immediate shape conversion and explicit paint changes | Geometry and Style; no concrete Entity dependency |
+| author.entity | Thin instances, drawing factories, Group ownership, Gather selections, positioning, capture | Geometry, Style, Transform, and utilities; no Canvas or backend imports |
+| author.util | Reusable infrastructure and explicit external-tool interfaces | Standard library, third-party libraries, external tools; no pdl imports |
+| canvas | Submissions, layers, queries, viewport, and export entrypoints | Author and adapter entrypoints |
+| backends | SVG/TikZ encoding and final PDF compilation | Current Author Entities and canvas.records.Page; no Canvas implementation |
+| extensions.diagram / extensions.spacial | Parametric diagrams, 3D geometry, cameras, visibility | Core Author and their own components; no output adapters |
 
-The first implemented geometry modules are `point.py` and `path.py`. Point is an
-immutable finite coordinate value. Path is a mutable builder with immutable
-command snapshots. Neither inherits a common Geometry base or depends on Entity,
-styles, output adapters, or the old package. Ordinary coordinates default to the
-authoring world; no implicit local frame is attached. Geometry mutation policies
-are defined per type rather than imposed by a common base.
+The existing spacial directory spelling is retained. Shape descriptors may use
+numeric affine classes; application policy in transform.operations may inspect
+shape types. This is a split between numerical mapping and conversion policy,
+with no runtime module cycle. Utilities return ordinary measurements, raw font
+outline commands, or tool results; they do not manage drawing relationships.
+The root facade loads optional extensions lazily. Core-only imports do not load
+diagrams or 3D. No pdl_old import is used to supply missing behavior.
 
-Use the explicit module imports during this checkpoint:
+## Current geometry and immediate edits
 
-```python
-from pdl.author.geometry.point import Point
-from pdl.author.geometry.path import Path
-```
+An Entity directly retains supplied geometry. Explicit mutable geometry sharing
+is possible; direct shared edits are visible to both holders. A Transform
+constructs the target's current result and replaces its geometry. Entity identity
+remains stable when Circle becomes Path. No operation queue, accumulated object
+matrix, or implicit local frame is retained. Entity.copy isolates geometry and
+members and detaches the copied root from parent/layer identity.
 
-`author.transform` is a sibling of geometry and entity, not a geometry subpackage.
-`Transform` declares only numerical coordinate-pair mapping, without a required
-matrix, inverse, or object dispatch. `AffineTransform` stores a finite affine
-matrix. Its user-facing subclasses are `Translation`, `Rotation`, `Scaling`,
-`Shear`, and `Reflection`. All are immutable matrix values. `left @ right`
-applies right first and returns a general AffineTransform; inverse is available
-only on affine types and rejects singular matrices. `around((x, y))` supplies an
-explicit pivot without consulting object reference points.
+Entity reference points determine default rotation/scaling pivots. Center and
+world-aligned bounds anchors are separate queries. A matrix applied explicitly
+uses its world mapping; around supplies a pivot. Curve mappings currently require
+affine support. Nonlinear algorithms and approximation policies remain deferred.
+Stroke width is unchanged by default. Uniform Rescale can explicitly include
+line width; nonuniform scaling cannot use that option. Gradient coordinates can
+be baked into current paint data to follow geometry.
 
-```python
-from pdl.author.transform.affine import Rotation, Translation
+Text/TeX store baseline position, size, and current orientation. Text retains
+native form under orientation-preserving similarities. TeX retains native form
+under translation/rotation; geometric scaling lowers its measured artwork to
+paths, because changing font size would not scale absolute TeX dimensions.
+Stretch/shear/reflection also lower text to paths. Conversion is irreversible on
+that Entity. Unsupported rich SVG outline conversion fails explicitly, including
+when viewport fitting requires scaling. Image geometry stores current viewport
+corners and immutable source bytes; output matrices are derived for encoding.
 
-mapping = Translation(10, 0) @ Rotation(90)
-coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
-```
+## Ownership and paint
 
-The transform package does not import Point, Path, Entity, or Style. Geometry and
-Entity adapt their data to numerical coordinate pairs and define their own
-supported application behavior. Path transformation, reference-point queries,
-bounds, typography, Canvas, and backends have not yet been rebuilt.
-Nonlinear/mesh mappings and their composition or path approximation are deferred.
+Group is an Entity with single-parent members in current world coordinates.
+Transforms edit existing members together. Adding later does not replay past
+edits. Member Style None remains None on entry and exit. Effective paint uses
+explicit member Style, nearest explicitly styled ancestor, then the member's
+own default. group.set_style changes only the Group. Gather is an identity
+selection without ownership; its style operations target exactly selected
+objects. Overlapping Group/member transform targets are processed once.
 
-`author.style.color.Color` is an immutable RGB value with channels in [0, 1].
-`author.style.style.Style` describes solid fill/stroke, line width in millimeters,
-line caps/joins, fill rule, and opacity. It is a complete immutable value, without
-geometry, object ownership, output encoding, or default/inheritance resolution.
-Within a Style, None disables the corresponding fill or stroke; an Entity's
-`style=None` has a separate meaning of using its type default. Group fallback
-remains deferred.
-Style's own constructor defaults to a black 1 mm outline and no fill; Entity
-types are not required to use those defaults. Gradients, typography attributes,
-and Group compositing are not implemented in this step.
+Capture preserves unset member styles. It freezes each object's own default and
+clones the Group hierarchy, so captured Groups can still change their inherited
+paint and removed members fall back to their captured defaults.
 
-```python
-from pdl.author.style.color import Color
-from pdl.author.style.style import Style
+Layer belongs to Canvas. A Group occupies one effective layer, and captured
+members paint contiguously. Layers can be reordered independently of geometry.
+An explicit Frame is pure geometry; frame_axes creates a drawing Group whose
+current basis and visual axes are edited together. Ordinary objects have no
+implicit frame/space attributes.
 
-paint = Style(stroke=None, fill=Color(0.2, 0.4, 0.8), opacity=0.75)
-```
+## Query, capture, and output timing
 
-`author.entity.base.Entity[GeometryT]` directly retains its constructor's geometry
-and optional explicit Style. There is no implicit copy, ownership registry,
-common Geometry base, or geometry conversion. Concrete drawing constructors
-should normally create their own geometry. Explicitly passing the same mutable
-description to multiple instances intentionally shares geometry edits; callers
-can pass `geometry.copy()` when independent descriptions are required.
+1. Construct and edit Author objects. Queries return fixed numbers; references
+   never establish live bindings or determine paint order.
+2. Font/TeX measurement runs when an operation needs layout or outlines. Resource
+   policy is shared by queries and submission through RendererConfig/typography.
+3. Canvas.snapshot captures an ordinary Entity. Canvas.add/draw additionally
+   records order and layer identity. Effective styles, font candidates, and
+   typography are fixed on captured copies. Extensions expand into core Entities.
+4. Viewport policy determines page dimensions and current output geometry.
+   Backends consume the Page contract and encode Entity geometry/Style. No
+   parallel Resolved scene hierarchy or TikZ-driven diagram layout is introduced.
 
-`style` preserves None for an unset instance. `effective_style` reads the explicit
-value or current class-level `default_style` without writing the default back.
-Subclasses may override their class default. `set_style(style)` changes only the
-receiving instance and returns it, even when geometry is shared. Resetting with
-None, Entity copying, transform storage/application, anchors, Group/Gather,
-capture, and rendering remain outside this minimal checkpoint.
+Native SVG and LaTeX text can rasterize differently. Glyph resources are not
+embedded into native SVG. TeX measurement cache keys include declared dependencies
+and tool versions; undeclared environment changes require explicit invalidation.
 
-```python
-from pdl.author.entity.base import Entity
+## Verification and migration
 
-description = Path().move_to((0, 0)).line_to((10, 0))
-instance = Entity(description, style=paint)
-assert instance.geometry is description
-```
+Architecture tests enforce import boundaries, explicit imports, core-only
+loading, and capture into ordinary Entity Groups. Numerical tests distinguish
+shape/visibility algorithms from rendering. Integration tests compile real TeX,
+PDF, gradients, fonts, and portable image assets.
 
-Tests mirror geometry, transform, style, and entity under `tests/unit/author/`.
-Do not import `pdl_old` to fill these gaps. Agreed
-design and remaining questions are recorded in the temporary `refactor_note.md`.
-
-## Legacy architecture (reference only)
-
-The remaining sections describe the pre-refactor implementation under
-`src/pdl_old`. They are historical reference, not implemented APIs or placement
-contracts of the new `pdl` package.
-
-Author is the sole drawing object model. A measurement is an operation, not a
-second scene representation. Anchors return fixed numerical points; later edits
-to the queried object do not change previous results. Font and TeX measurement
-can run during authoring, independently of drawing or output order.
-
-## Responsibilities
-
-| Package | Owns | May depend on |
-| --- | --- | --- |
-| `foundation.geometry` | Numerical points, vectors, paths, matrices and bounds algorithms | Standard library |
-| `foundation.typography` | Font resources, shaping, TeX measurement, outlines and measurement configuration | Foundation and external font/TeX tools |
-| `author` | Editable 2D shapes, Text/TeX/Image objects, composition, references, styles and layer identities | Foundation and Author |
-| `canvas` | Captured submissions, layer ordering, queries, viewport and export entrypoints | Author, foundation and backend entrypoints |
-| `backends` | SVG/TikZ encoding, native primitive selection, output fallback and PDF compilation | Author, foundation and the `canvas.records.Page` contract |
-| `extensions.diagrams` | Nodes, connections and growing flowcharts | Author, foundation and extensions |
-| `extensions.spatial` | 3D geometry, cameras, projection and visibility | Author, foundation and extensions |
-
-Arrows below mean imports/calls, not drawing data flow:
-
-```text
-extensions ──→ author ──→ foundation
-     └─────────────────→ foundation
-canvas ──→ author / foundation / backend entrypoints
-backends ──→ author / foundation / canvas.records.Page
-```
-
-`Page` is a small read-only protocol: dimensions and ordered Drawing records.
-Backends never import the Canvas implementation. Author layer identities use a
-small ordering protocol; the actual LayerStack lives in Canvas. These narrow
-contracts avoid a dependency on the owning implementation.
-
-The root `pdl` module is a lazy public facade. `from pdl import Canvas, Circle`
-does not load 3D or diagram extensions. `pdl.author` is a core-only entrypoint.
-
-## Author internals
-
-- `entity.py`: common mutable operations and ownership access.
-- `shapes.py`, `text.py`, `tex.py`, `image.py`: actual drawable objects.
-- `composition.py`: Drawing records, editable Group and ordered group descriptions.
-- `placement.py`: internal numerical placement state; it stores no deferred target.
-- `measurement.py`: immediate queries and temporary per-operation caches.
-- `capture.py`: state isolation and submission capture, using ordinary Author objects.
-- `style.py`, `layers.py`, `gather.py`, `frames.py`, `spaces.py`: their respective
-  styles, identities, selections and coordinate/reference operations.
-- `references.py`: numerical position input types and transient internal anchor queries.
-
-There are no `ResolvedGraphic`, `MeasuredText` or `MeasuredTeX` object families.
-Captured text stores measured layout on the same Text/TeX type. A captured
-Group description is an Author composition record, not a separate scene model.
-
-## Timing and output
-
-1. Construct and edit Author objects. Querying an anchor, moving an object by
-   its measured center, or choosing a default rotation pivot can measure text.
-2. A query returns numbers using the current state and measurement settings.
-   Use `with measurement(RendererConfig(...)):` or `canvas.typography()` to
-   select settings explicitly. Otherwise ordinary text discovers default fonts.
-3. `Canvas.draw` captures geometry, placement and measured typography using the
-   canvas settings. Extensions are decomposed to core 2D descriptions here.
-4. The final paint list determines fit/auto-size. Backends encode that content;
-   they do not recompute anchor relationships or revisit extension definitions.
-
-`Canvas.snapshot` captures an ordinary Drawing without submitting it. Coordinates
-remain in Author space; a destination Canvas applies its own final viewport.
-`Canvas.resolve`, `ResolvedGraphic` and public deferred `AnchorRef` are removed.
-Native TikZ node layout is removed: diagrams export fixed shapes and separately
-positioned text. Backend-native glyph shaping can still differ from measurements;
-fixed layout does not guarantee pixel-identical SVG and TeX text.
-
-Explicit coordinate systems and the existing Entity frame/space accessors remain
-provisional Author features in this first refactor. Their further simplification
-is separate from this package-boundary change. Per-frame Canvas mappings affect
-subsequent measurements/submissions, not already captured records. WORLD mapping
-and fit are final page transforms.
-
-## Enforced boundaries
-
-`tests/architecture/test_boundaries.py` checks imports, including function-local
-and type-only imports, and tests fresh-process imports of foundation and 2D core.
-Behavior tests cover immediate anchor values, independent paint order, fixed draw
-records, copying and regrouping, typography, diagrams, and 3D projections.
+The archived src/pdl_old and tests_old remain for review, outside active checks
+and distribution artifacts. Current tests target the new semantics. Examples and
+both language manuals use the new API. The implementation branch is followed by
+a docs branch; merging into dev waits for explicit user review and approval.
 
 [中文说明](architecture_zh.md)

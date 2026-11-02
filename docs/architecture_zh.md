@@ -1,129 +1,79 @@
 # 源码架构
 
-## 当前重构边界
+Author 是唯一可编辑的绘图领域模型。Geometry 描述当前形状参数，Style 描述样式，
+Entity 结合二者并提供数值位置查询。Circle 等绘图工厂返回 Entity；纯几何从
+`author.geometry` 导入，不要求共同 Geometry 基类。
 
-旧实现和测试已移至 `src/pdl_old` 与 `tests_old`，新 `src/pdl` 按依赖关系逐步重建。
-当前确定的 Author 分工如下：
+## 职责与依赖
 
-| 包 | 职责 | 允许依赖 |
+| 包 | 职责 | 边界 |
 | --- | --- | --- |
-| `author.geometry` | 各类独立几何描述及自身的数学查询 | 标准库、transform，必要时使用 util |
-| `author.style` | 样式描述 | 标准库，必要时使用 util |
-| `author.entity` | 绘图实例、对象关系及用户操作 | geometry、style、transform、util |
-| `author.transform` | 广义空间变换契约及具体仿射矩阵 | 标准库和 util，不依赖其他 pdl 领域包 |
-| `author.util` | 纯数值函数及字体／TeX 等外部工具接口 | 标准库、第三方库与外部工具；不依赖其他 pdl 层 |
+| author.geometry | 点、路径、形状、显式坐标系、原生文字／TeX／图片描述及查询 | 数值仿射映射、工具、字体资源配置；不依赖 Entity、Canvas、renderer |
+| author.style | 不可变样式、渐变、字体描述、资源策略 | 工具和资源发现；不管理几何归属 |
+| author.transform.base / affine | 广义映射契约、有限仿射矩阵 | 数值数据和 Point／Vector 适配 |
+| author.transform.operations | 即时几何转换及显式样式变化 | Geometry、Style；不依赖具体 Entity 类 |
+| author.entity | 薄实体、绘图工厂、Group 归属、Gather 选择、定位、捕获 | geometry、style、transform、util；不导入 Canvas 或后端 |
+| author.util | 公共基础设施和显式外部工具接口 | 标准库、第三方库、外部工具；不导入 pdl 领域对象 |
+| canvas | 提交、图层、查询、视口和输出入口 | Author 和后端入口 |
+| backends | SVG／TikZ 编码、最终 PDF 编译 | 当前 Author Entity 与 canvas.records.Page；不导入 Canvas 实现 |
+| extensions.diagram / extensions.spacial | 参数化图示、3D、相机、可见性 | 核心 Author 和组件自身；不依赖输出适配器 |
 
-首批实现为 `point.py` 与 `path.py`。Point 是不可变的有限坐标值；Path 是可变构造器，
-提供不可变的路径命令快照。二者不继承共同 Geometry 基类，不依赖 Entity、Style、
-绘图后端或旧包。普通坐标默认相对 Author 世界，不附带隐式局部参考系。
-几何描述是否可变由具体类型定义，不通过共同基类统一规定。
+保留现有 `spacial` 目录拼写。几何可使用数值仿射类，transform.operations 则识别几何类型并
+决定转换。数值映射和对象转换策略分开，没有运行时模块循环。util 返回普通测量数据、
+原始字体轮廓命令或工具结果，不管理对象关系。根入口按需加载扩展，核心 2D 导入不加载图示／3D，
+也不会通过导入 pdl_old 补齐实现。
 
-此阶段通过具体模块导入：
+## 当前几何与即时编辑
 
-```python
-from pdl.author.geometry.point import Point
-from pdl.author.geometry.path import Path
-```
+Entity 初始化直接持有传入几何；显式共享可变几何时，直接编辑会影响所有持有者。
+Transform 计算目标当前结果并替换其几何，Circle 转成 Path 后 Entity 身份仍不变。
+对象不保存待执行操作、累计矩阵或隐式局部坐标系。Entity.copy 隔离几何和成员，
+解除复制根对象的父级及图层身份。
 
-`author.transform` 与 geometry、entity 平级。Transform 只约定数值坐标对的映射，
-不要求所有变换具有矩阵、逆变换或对象类型分派。AffineTransform 保存有限的仿射矩阵；
-用户可通过 Translation、Rotation、Scaling、Shear、Reflection 子类创建变换。
-这些仿射类型的矩阵值不可变。`left @ right` 先应用 right，返回一般 AffineTransform；
-仿射类提供求逆，奇异矩阵明确报错。`around((x, y))` 接收显式支点，不读取对象参考点。
+默认旋转／缩放围绕 Entity 参考点；center 和世界轴对齐包围盒锚点是不同查询。
+显式应用矩阵使用其世界映射，around 指定支点。曲线目前要求仿射映射，非线性算法和近似策略仍待后续实现。
+默认线宽不变；均匀 Rescale 可显式包含线宽，非均匀缩放不提供该选项。
+渐变可把当前坐标写入样式数据，以随几何一起改变。
 
-```python
-from pdl.author.transform.affine import Rotation, Translation
+文字／TeX 保存基线位置、字号和当前朝向。普通 Text 在保持朝向手性的相似变换下保留原生表达；
+TeX 仅在平移／旋转下保留原生表达。几何缩放将已测量的 TeX 转轮廓，避免改字号时固定尺寸不随之缩放。
+文字的拉伸／剪切／镜像等也转路径，对该 Entity 不可逆。
+不支持的复杂 SVG 轮廓转换会明确报错，包括视口 fit 要求缩放时。图片保存当前视口角点和源字节，
+输出所需矩阵由当前数据推导。
 
-mapping = Translation(10, 0) @ Rotation(90)
-coordinates = mapping.apply((1, 0))  # Approximately (10, 1).
-```
+## 归属和样式
 
-变换包不导入 Point、Path、Entity 或 Style。Geometry／Entity 自行将数据适配为数值坐标对，
-并定义所支持的应用行为。路径变换、参考点查询、边界、字体排版、Canvas 和后端尚未重建。
-非线性／网格变换及其组合、路径近似策略留待后续讨论。
+Group 是 Entity，成员为单父级归属，坐标均为当前世界坐标。变换一起编辑现有成员，
+后加入的成员不重放过去操作。成员 Style None 在加入和退出时均保持 None。
+有效样式依次采用成员显式值、最近显式设置样式的祖先、成员自身默认值。
+group.set_style 只改 Group；Gather 不建立归属，只对显式选中对象批量操作。
+一次变换中重叠选择的 Group／成员只处理一次。
 
-`author.style.color.Color` 是通道范围为 [0, 1] 的不可变 RGB 值。
-`author.style.style.Style` 描述纯色填充／描边、毫米线宽、端点／连接样式、填充规则和透明度。
-它是完整的不可变值，不包含几何、对象归属、输出编码或默认值／继承解析。
-Style 内部的 None 表示关闭对应填充或描边，与 Entity 的 `style=None` 使用类型默认值不同；
-Group 回退仍待实现。
-Style 构造器默认黑色 1 mm 描边、无填充，不强制所有 Entity 类型采用这些默认值。
-本步不实现渐变、字体属性和 Group 合成语义。
+捕获保留成员的 None 样式，固定各对象自身默认值并复制 Group 归属。
+因此仍可修改捕获 Group 的回退样式，移出成员后也会使用捕获时固定的自身默认值。
 
-```python
-from pdl.author.style.color import Color
-from pdl.author.style.style import Style
+Layer 属于 Canvas，Group 占一个有效层，捕获后内部连续绘制；重排图层不改变几何。
+Frame 是显式纯几何，frame_axes 创建可绘制 Group，其当前基向量和可视坐标轴一起变化。
+普通对象不附带隐式 frame／space。
 
-paint = Style(stroke=None, fill=Color(0.2, 0.4, 0.8), opacity=0.75)
-```
+## 查询、捕获与输出时机
 
-`author.entity.base.Entity[GeometryT]` 直接持有构造时传入的几何描述与可选显式 Style。
-初始化不隐式复制、登记独占所有权、要求共同 Geometry 基类或转换几何。
-具体绘图构造器通常创建自己的几何；底层允许主动传入同一可变描述，共享其几何编辑效果。
-需要独立描述时，由调用者显式传入 `geometry.copy()`。
+1. 创建并编辑 Author 对象。查询返回固定数值，不建立持续联动，也不决定覆盖顺序。
+2. 需要尺寸或轮廓时调用字体／TeX 测量。RendererConfig／typography 统一查询和提交的资源策略。
+3. Canvas.snapshot 捕获普通 Entity；add／draw 还记录顺序和图层身份。捕获副本固定有效样式、
+   字体候选和排版。扩展展开成核心 Entity。
+4. 视口策略确定页面和当前输出几何，后端通过 Page 契约编码 Entity 的 Geometry／Style。
+   没有第二套 Resolved 场景层，也不把图示布局交给 TikZ。
 
-`style` 为未设置的实例保留 None。`effective_style` 读取显式值或当前类型的 `default_style`，
-不把默认值写回实例；子类可以覆盖类型默认值。`set_style(style)` 只修改自身并返回自身，
-共享几何也不会导致其他实体样式改变。None 重置、Entity 复制、变换保存与应用、锚点、
-Group／Gather、捕获及渲染仍不属于当前最小实现。
+原生 SVG 与 LaTeX 文字的栅格结果可能不同，原生 SVG 不嵌入字体文件。
+TeX 缓存包含声明依赖和工具版本，未声明的环境变化需要显式失效处理。
 
-```python
-from pdl.author.entity.base import Entity
+## 验证与迁移
 
-description = Path().move_to((0, 0)).line_to((10, 0))
-instance = Entity(description, style=paint)
-assert instance.geometry is description
-```
+架构测试检查依赖方向、显式导入、核心导入范围和捕获后的单一 Entity 模型。
+数值测试与渲染测试分开，集成测试实际编译 TeX、PDF、渐变、字体和可移动图片资源。
 
-当前测试在 `tests/unit/author/` 下镜像 geometry、transform、style、entity；不通过导入 `pdl_old` 补齐功能。
-设计结论及未定问题见临时的 `refactor_note.md`。
+src/pdl_old、tests_old 保留供审查，不纳入活动检查或发行包；新测试验证新语义。
+文档和示例采用新 API。实现分支之后建立 docs 分支，合并 dev 仍等待用户审查并明确批准。
 
-## 旧架构（仅供参考）
-
-下文描述重构前、现位于 `src/pdl_old` 的实现，不代表新 `pdl` 已实现的接口或定位契约。
-
-Author 是唯一绘图对象模型。测量是一种操作，不是第二套场景表示。
-锚点立即返回当前状态的数值点，后续修改不改变旧结果。字体和 TeX 测量可以在
-Author 阶段执行，与最后输出和遮挡顺序无关。
-
-## 模块分工
-
-| 包 | 职责 | 允许依赖 |
-| --- | --- | --- |
-| `foundation.geometry` | 数值点、向量、路径、矩阵、边界算法 | 标准库 |
-| `foundation.typography` | 字体、塑形、TeX 测量、轮廓及测量配置 | foundation、外部字体／TeX 工具 |
-| `author` | 可编辑二维图形、文字、公式、图片、组合、参考、样式和图层身份 | foundation、author |
-| `canvas` | 提交捕获、图层排序、查询、视口和导出入口 | author、foundation、backend 入口 |
-| `backends` | SVG／TikZ 编码、原生图元选择、降级和 PDF 编译 | author、foundation、`canvas.records.Page` |
-| `extensions.diagrams` | 节点、连接和生长流程图 | author、foundation、extensions |
-| `extensions.spatial` | 三维几何、相机、投影和可见性 | author、foundation、extensions |
-
-依赖方向与详细英文文件清单见 [English architecture](architecture.md)。
-Canvas 调用 backend；backend 只读取尺寸与绘制记录组成的 Page 协议，不导入 Canvas 实现。
-Author 声明图层身份，Canvas 实现 LayerStack 排序，两者通过小协议连接。
-
-根 `pdl` 是延迟导入的公共门面。导入 Canvas、Circle 不加载 3D 或图表扩展；
-`pdl.author` 可以作为独立二维入口。
-
-## 求值与输出
-
-1. 创建与编辑 Author 对象。查询锚点、按中心定位和使用默认旋转支点时可以立即测量文字。
-2. 数值结果固定。通过 `measurement(RendererConfig(...))` 或 `canvas.typography()`
-   指定测量配置；未指定的普通文字查找默认字体。
-3. `draw()` 使用画布配置捕获几何、变换和文字度量，将高级组件展开成核心二维描述。
-4. 最终提交列表决定 fit／auto-size；backend 编码输出，不重新计算锚点关系或访问高级组件。
-
-`Canvas.snapshot()` 返回作者坐标中的普通 Drawing，不提交绘制。
-移除 `Canvas.resolve`、`ResolvedGraphic`、公开延迟 AnchorRef 和测量专用文字子类。
-TikZ 不再重新布局原生图表节点，而是输出固定图形和独立定位的文字。
-原生字体输出仍可能与测量存在差异，不承诺 SVG 与 TeX 逐像素相同。
-
-本轮保留了 Author 内已有的显式坐标系和 Entity frame／space 访问入口，仍属暂定 API；
-后续简化可以独立进行。Canvas 的局部坐标映射影响后续查询与提交，不修改旧捕获记录；
-WORLD 映射和 fit 属于最终页面变换。
-
-## 边界检查
-
-`tests/architecture/test_boundaries.py` 检查模块依赖，包括函数内和仅类型使用的导入，
-并以独立进程验证基础设施与二维核心不加载上层扩展。
-行为测试覆盖立即求值、独立遮挡顺序、捕获隔离、复制与分组、文字、图表和三维投影。
+[English](architecture.md)
