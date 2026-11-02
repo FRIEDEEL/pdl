@@ -20,6 +20,34 @@
 - renderer 接受捕获的 Entity，依据当前 Geometry 和 Style 输出；没有第二套 Resolved 模型。
 - DEVLOG 由用户手写或明确指导，不自动追加。本文件暂时保留供本分支参考。
 
+## 实现阶段核对（2026-11-02）
+
+本分支已按新语义迁移能力，旧包和旧测试保留作对照，不导入或打包：
+
+| 原能力 | 当前归属与验证 |
+| --- | --- |
+| 点、路径、基础形状、解析边界 | author.geometry；独立描述和数值查询测试 |
+| 变换与几何转换 | author.transform；即时替换、参考点、共享隔离、线宽选项测试 |
+| 纯色、渐变、字体资源 | author.style；默认值保持 None，变换后的渐变保存当前坐标 |
+| 字体、排版、TeX | util 外部接口与 geometry 测量；字形、回退、原生输出、真实 XeLaTeX 测试 |
+| Entity、Group、Gather | author.entity；归属、动态样式回退、批量修改、复制和捕获测试 |
+| 显式坐标系 | geometry.Frame；当前基向量和立即求值的坐标转换 |
+| 图片 | geometry.Image；像素数据捕获、当前角点、适配与便携输出资产 |
+| Canvas、Layer、查询、视口 | canvas；捕获隔离、整数层绑定、重排、fit/auto-size |
+| SVG、TikZ、PDF | backends；当前 Entity 编码、原生字体/TeX、图片与渐变的真实 PDF 编译 |
+| 节点、连接与流程图 | extensions.diagram；延迟节点测量、数值端点、可编辑图与捕获 |
+| 3D、曲面、相机与遮挡 | extensions.spacial；投影、BSP、独立射线求交与透视误差测试 |
+
+确认旧能力不代表保留旧 API。Drawing/placement 包装、隐式 frame/space、局部锚点和累计矩阵，
+已按本轮讨论由直接 Entity、显式 Frame、世界坐标查询及即时几何替换代替。
+文字平移、旋转、正向均匀缩放保留原生表达；拉伸、剪切等按需转换为路径。
+Node 第一次需要几何时确定成员；之后是普通 Group，修改文字后可显式 rebuild 边框。
+
+实现阶段验证：281 项测试、活动源码/测试的 Ruff 与严格 Pyright 通过，wheel/sdist 构建及隔离导入通过。
+整仓 Ruff 和示例尚待文档阶段更新；Pyright 目前仅检查 src/pdl 与 tests，示例迁移后恢复覆盖。
+下一阶段从本分支创建 docs/ 分支，保留文档和示例的大结构，全面更新接口并检查实际输出。
+两个分支均不得自行合并 dev，待用户审查并明确批准。
+
 ## 历史讨论（以下冲突项已被最新确认取代）
 
 # 重构临时笔记

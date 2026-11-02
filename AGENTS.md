@@ -254,6 +254,10 @@
 - The previous standing authorization for autonomous commits and merges no
   longer applies. A merge also requires explicit approval; do not infer it from
   approval of the feature's commits. Continue using `git merge --no-ff`.
+- For the current refactor, finish implementation on its existing branch, then
+  create a `docs/*` branch from it for the full documentation/example migration.
+  Preserve their broad structure. Neither branch may be merged into `dev` until
+  the user reviews the completed result and explicitly approves integration.
 - Push and release publication require explicit instructions.
 
 ## Architecture Boundaries
