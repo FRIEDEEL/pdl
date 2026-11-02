@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.point import Point, Position, Vector, as_point
 from pdl.author.transform.affine import AffineTransform
 
 
 @dataclass(frozen=True, eq=False)
-class Frame:
+class Frame(Geometry):
     """An explicit origin and two world-coordinate basis displacements.
 
     A frame is not attached to ordinary objects. Conversions return fixed

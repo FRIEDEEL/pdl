@@ -5,6 +5,7 @@ import pytest
 from pdl.author.entity.base import Entity
 from pdl.author.entity.gather import Gather
 from pdl.author.entity.group import Group
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Circle, Rectangle
@@ -70,7 +71,7 @@ def test_gather_deduplicates_group_and_selected_child() -> None:
 
 
 def test_group_conversion_failure_is_atomic() -> None:
-    first, unsupported = Entity(Circle((1, 0), 1)), Entity(object())
+    first, unsupported = Entity(Circle((1, 0), 1)), Entity(Geometry())
     group = Group(first, unsupported)
     with pytest.raises(TypeError):
         group.translate(3, 0)

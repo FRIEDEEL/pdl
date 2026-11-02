@@ -1,4 +1,4 @@
-"""Small structural contracts, not a universal Geometry hierarchy."""
+"""Optional structural capabilities, independent of Geometry membership."""
 
 from __future__ import annotations
 

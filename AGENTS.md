@@ -313,8 +313,10 @@
   Canvas helpers, and optional extensions through their own package entrypoints.
   Use `extensions/spatial/` for the 3D package and its mirrored tests.
 - Keep geometric descriptions and numerical queries in `author/geometry/`.
-  Do not require a shared Geometry base. Geometry stores current shape data,
-  not accumulated transformations, ownership, or paint.
+  Geometry descriptions inherit the nominal `Geometry` base, which defines no
+  shared state or required capabilities. Keep path conversion, measurement, and
+  transformation support separate from membership. Geometry stores current
+  shape data, not accumulated transformations, ownership, or paint.
 - Keep mapping contracts, affine matrices, and geometry-conversion decisions in
   `author/transform/`. Transform applies immediately to an Entity and replaces
   its current Geometry as necessary; it may use geometry, style, and util.

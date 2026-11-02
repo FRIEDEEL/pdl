@@ -5,9 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import isfinite
 
+from pdl.author.geometry.base import Geometry
+
 
 @dataclass(frozen=True)
-class Point:
+class Point(Geometry):
     """An immutable position in Cartesian drawing coordinates, in millimeters.
 
     Coordinates use the authoring world unless explicitly converted elsewhere.

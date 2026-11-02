@@ -4,6 +4,7 @@ import typing as _typing
 from importlib import import_module as _import_module
 
 if _typing.TYPE_CHECKING:
+    from pdl.author.geometry.base import Geometry as Geometry
     from pdl.author.geometry.bounds import Bounds as Bounds
     from pdl.author.geometry.frame import WORLD as WORLD
     from pdl.author.geometry.frame import CoordinateSystem as CoordinateSystem
@@ -30,6 +31,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "Circle": ("pdl.author.geometry.shapes", "Circle"),
     "CoordinateSystem": ("pdl.author.geometry.frame", "CoordinateSystem"),
     "Frame": ("pdl.author.geometry.frame", "Frame"),
+    "Geometry": ("pdl.author.geometry.base", "Geometry"),
     "Image": ("pdl.author.geometry.image", "Image"),
     "Line": ("pdl.author.geometry.shapes", "Line"),
     "Path": ("pdl.author.geometry.path", "Path"),
@@ -52,6 +54,7 @@ __all__ = [
     "Circle",
     "CoordinateSystem",
     "Frame",
+    "Geometry",
     "Image",
     "Line",
     "Path",

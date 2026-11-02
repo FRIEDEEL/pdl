@@ -2,6 +2,7 @@
 
 from math import ceil
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.path import (
     Close,
     Cubic,
@@ -61,7 +62,8 @@ def path_data(geometry: PathSource) -> str:
     return " ".join(parts)
 
 
-def shape(geometry: PathSource) -> str:
+def shape(geometry: Geometry) -> str:
+    """Encode supported native geometry, falling back to optional path conversion."""
     if isinstance(geometry, Circle):
         p = point(geometry.center)
         return f'circle cx="{number(p.x)}" cy="{number(p.y)}" r="{number(geometry.radius)}"'
@@ -85,4 +87,6 @@ def shape(geometry: PathSource) -> str:
                 f"{number(end.x)} {number(end.y)}"
             )
         return f'path d="{data}"'
-    return f'path d="{path_data(geometry)}"'
+    if isinstance(geometry, PathSource):
+        return f'path d="{path_data(geometry)}"'
+    raise TypeError(f"Unsupported render geometry: {type(geometry).__name__}.")

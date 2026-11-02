@@ -7,6 +7,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, ClassVar, Protocol, Self, runtime_checkable
 from warnings import warn
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds
 from pdl.author.geometry.point import Point, Position, as_point
 from pdl.author.geometry.queries import bounds_of, ink_bounds_of, reference_of
@@ -34,24 +35,28 @@ class Entity:
     Construction keeps the supplied geometry by reference. Transforms replace
     this instance's geometry, so other instances sharing the original are not
     changed. Explicit edits to a shared mutable Path still affect all holders.
+    Geometry subclasses declare membership without requiring shared operations.
     All positions are world coordinates in millimeters. Style None remains None
     until an operation explicitly changes paint or submission captures it.
     """
 
     default_style: ClassVar[Style] = Style()
-    geometry_defaults: ClassVar[dict[type, Style]] = {
+    geometry_defaults: ClassVar[dict[type[Geometry], Style]] = {
         TextGeometry: Style(stroke=None, fill=BLACK),
         TeXGeometry: Style(stroke=None, fill=BLACK),
     }
 
     def __init__(
         self,
-        geometry: object,
+        geometry: Geometry,
         *,
         style: Style | None = None,
         reference: Position | None = None,
         default_style: Style | None = None,
     ) -> None:
+        # Enforce nominal membership for callers without static type checking.
+        if not isinstance(geometry, Geometry):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise TypeError("Entity requires a Geometry instance.")
         self._default_style = default_style
         self._style_kind = type(geometry)
         self._geometry = geometry
@@ -62,7 +67,7 @@ class Entity:
         self._automatic_layer = True
 
     @property
-    def geometry(self) -> object:
+    def geometry(self) -> Geometry:
         return self._geometry
 
     @property
@@ -257,7 +262,7 @@ class Entity:
         return self
 
 
-type TransformEdit = tuple[Entity, object, Point, Style | None]
+type TransformEdit = tuple[Entity, Geometry, Point, Style | None]
 
 
 @runtime_checkable

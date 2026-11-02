@@ -1,5 +1,14 @@
 # Refactor note
 
+## Geometry 类型归属基类（2026-11-02）
+
+用户已批准并要求实施：增加只表示类型归属的 Geometry 基类，Circle、Path、Point、
+Frame 及文字／图片等几何描述继承它。基类不定义共同状态，不强制提供 to_path、
+边界查询或变换能力。Entity 接受 Geometry，后端几何分派也以 Geometry 为入口；
+PathSource 继续独立表达可选的路径转换能力，供输出兜底等操作使用。
+此决定取代下方历史记录中“不建立共同 Geometry 基类”的约定，
+保留“不强制统一能力接口”的原则，不改变 Author／Canvas／backend 的职责边界。
+
 ## 公开入口收窄（2026-11-02）
 
 用户已批准：根入口仅保留面向绘图的工厂，以及 Entity、Group、Gather、Canvas、Style、Color。

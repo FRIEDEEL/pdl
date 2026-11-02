@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import isfinite
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
@@ -16,7 +17,7 @@ from pdl.author.util.tex import TeXConfig, TeXLayout, measure
 
 
 @dataclass(eq=False)
-class TeX:
+class TeX(Geometry):
     """LaTeX source typeset at a baseline position.
 
     Args:

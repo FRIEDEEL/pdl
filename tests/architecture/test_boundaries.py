@@ -101,8 +101,9 @@ def test_pure_geometry_import_does_not_initialize_entity_or_output_layers() -> N
         [
             sys.executable,
             "-c",
-            "import sys; from pdl.author.geometry import Point, Circle; "
+            "import sys; from pdl.author.geometry import Geometry, Point, Circle, Path; "
             "assert Circle((0,0),1).radius == 1; "
+            "assert all(issubclass(t, Geometry) for t in (Point, Circle, Path)); "
             "assert not any(k.startswith(('pdl.author.entity','pdl.canvas',"
             "'pdl.backends','pdl.extensions')) for k in sys.modules)",
         ],

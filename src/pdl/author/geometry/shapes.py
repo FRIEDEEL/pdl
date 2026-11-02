@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import atan2, ceil, cos, degrees, isfinite, pi, radians, sin, sqrt, tan
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
@@ -12,7 +13,7 @@ from pdl.author.geometry.point import as_point as point
 
 
 @dataclass(eq=False)
-class Line:
+class Line(Geometry):
     """A straight segment between two world positions in millimeters.
 
     Args:
@@ -43,7 +44,7 @@ class Line:
 
 
 @dataclass(eq=False)
-class Polyline:
+class Polyline(Geometry):
     """An open chain joining the supplied points in order.
 
     Args:
@@ -92,7 +93,7 @@ class Polygon(Polyline):
 
 
 @dataclass(eq=False)
-class Rectangle:
+class Rectangle(Geometry):
     """An axis-aligned rectangle positioned by its lower-left corner.
 
     Args:
@@ -141,7 +142,7 @@ class Rectangle:
 
 
 @dataclass(eq=False)
-class Arc:
+class Arc(Geometry):
     """An elliptical arc with counterclockwise-positive degree angles.
 
     Args:
@@ -294,7 +295,7 @@ class Arc:
 
 
 @dataclass(eq=False)
-class Circle:
+class Circle(Geometry):
     """A circle described by its center and radius.
 
     Args:

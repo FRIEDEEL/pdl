@@ -4,6 +4,11 @@
 
 ### Changed
 
+- **Breaking:** Entity now requires descriptions inheriting
+  `pdl.author.geometry.Geometry`. Custom geometry must inherit this nominal
+  base; implementing `to_path()` alone no longer establishes membership.
+  The base requires no operations. Backend path fallback remains optional
+  and independent of membership.
 - **Breaking:** root imports now contain only drawing factories, Entity, Group,
   Gather, Canvas, Style, and Color. Import geometry, explicit transforms,
   advanced paint, Canvas helpers, and extensions from their owning packages.
@@ -32,7 +37,7 @@
 - **Breaking:** Frame is pure explicit geometry. Use frame_axes for drawable axes;
   ordinary objects no longer expose implicit frame/space. Layer belongs to Canvas.
 - Canvas snapshots/submissions use ordinary Entities and fixed typography/paint.
-  Drawing, placement wrappers, a common Geometry base, and foundation imports are
+  Drawing, placement wrappers, and foundation imports are
   removed from the new API. Use Entity.copy/apply_transform and author subpackages.
 - Uniform Rescale optionally scales line width; nonuniform Scaling leaves it fixed.
 - Existing font/TeX measurement, SVG/TikZ/PDF, images, gradients, diagrams, 3D

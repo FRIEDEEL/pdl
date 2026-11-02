@@ -27,6 +27,10 @@ canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 `pdl.author.geometry` 导入，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
 之后的修改需要再次提交。
 
+几何描述继承 `pdl.author.geometry` 中的 `Geometry`。这个基类只表达类型归属，
+不要求共同操作；传入 Entity 的自定义描述也需要继承它。
+路径转换仍是独立的可选能力，可用于后端输出兜底。
+
 ## 显式导入所需能力
 
 根入口仅提供绘图工厂、Entity、Group、Gather、Canvas、Style 和 Color，其他能力从所属包导入：

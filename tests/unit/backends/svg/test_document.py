@@ -1,8 +1,12 @@
 """Backend semantics, fallback and real TikZ compilation."""
 
+from typing import Literal
 from xml.etree import ElementTree as ET
 
+import pytest
+
 from pdl import Canvas, Color, Entity, Style
+from pdl.author.geometry import Bounds, Geometry
 from pdl.author.geometry import Path as Path
 
 
@@ -20,7 +24,7 @@ def test_open_fill_does_not_close_stroke() -> None:
 
 
 def test_custom_geometry_fallback() -> None:
-    class Custom:
+    class Custom(Geometry):
         def to_path(self) -> Path:
             return Path().move_to((1, 2)).line_to((3, 4))
 
@@ -28,3 +32,17 @@ def test_custom_geometry_fallback() -> None:
     canvas.draw(Entity(Custom()))
     assert 'd="M 1 2 L 3 4"' in canvas.render()
     assert "(1,2) -- (3,4)" in canvas.render("tikz")
+
+
+@pytest.mark.parametrize("backend", ["svg", "tikz"])
+def test_geometry_membership_does_not_guarantee_render_support(
+    backend: Literal["svg", "tikz"],
+) -> None:
+    class Custom(Geometry):
+        @property
+        def layout_bounds(self) -> Bounds:
+            return Bounds(1, 2, 3, 4)
+
+    canvas = Canvas(10, 10).add(Entity(Custom()))
+    with pytest.raises(TypeError, match="Unsupported render geometry: Custom"):
+        canvas.render(backend)
