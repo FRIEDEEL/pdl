@@ -1,11 +1,11 @@
 # tutorial-start
 from pdl import Canvas, Circle, Color, Group, Rectangle, Style
 
-body = Rectangle((-8, -5), 16, 10).set_style(Style(fill=Color(0.6, 0.8, 1), line_width=0.5))
+body = Rectangle((-8, -5), 16, 10)
 port = Circle((11, 0), 2).set_style(Style(fill=Color(1, 0.7, 0.35), line_width=0.5))
-component = Group((body, port))
+component = Group(body, port, style=Style(fill=Color(0.6, 0.8, 1), line_width=0.5))
 first = component.copy().translate(20, 20)
-second = component.copy().rotate(45, about=(0, 0)).translate(60, 20)
+second = component.copy().rotate(45, origin=(0, 0)).translate(60, 20)
 canvas = Canvas(85, 45)
 canvas.draw(first)
 canvas.draw(second)

@@ -1,13 +1,19 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Path, Style, Transform
+from pdl import Canvas, Color, PathGeometry, Style
+from pdl.author.entity.factories import as_entity
+from pdl.author.geometry.shapes import Circle as CircleGeometry
 
-rings = Path().extend(Circle((15, 15), radius=10)).extend(Circle((15, 15), radius=5))
+rings = (
+    PathGeometry()
+    .extend(CircleGeometry((15, 15), radius=10))
+    .extend(CircleGeometry((15, 15), radius=5))
+)
 blue = Color(0.6, 0.8, 1)
 
 canvas = Canvas(65, 30)
-canvas.draw(rings, Style(fill=blue, line_width=0.4, fill_rule="nonzero"))
+canvas.draw(as_entity(rings), Style(fill=blue, line_width=0.4, fill_rule="nonzero"))
 canvas.draw(
-    rings.copy().apply_transform(Transform.translate(35, 0)),
+    as_entity(rings).translate(35, 0),
     Style(fill=blue, line_width=0.4, fill_rule="evenodd"),
 )
 

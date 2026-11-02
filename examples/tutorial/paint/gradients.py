@@ -1,14 +1,5 @@
 # tutorial-start
-from pdl import (
-    Canvas,
-    Circle,
-    Color,
-    ColorStop,
-    LinearGradient,
-    RadialGradient,
-    Rectangle,
-    Style,
-)
+from pdl import Canvas, Circle, Color, ColorStop, LinearGradient, RadialGradient, Rectangle, Style
 
 stops = (
     ColorStop(0, Color(0.1, 0.3, 0.8)),
@@ -26,7 +17,7 @@ canvas = Canvas(105, 65)
 canvas.draw(bar)
 canvas.draw(square)
 canvas.draw(disc)
-bar.rotate(15, about=(22, 17)).translate(0, 30)
+bar.rotate(15, origin=(22, 17)).translate(0, 30)
 canvas.draw(bar)
 
 # tutorial-end

@@ -23,7 +23,7 @@ for step, baseline in enumerate((72, 18)):
         g2.translate(14, 0)  # Both B and C move; g1's A-to-B relation changes.
 
     for name, member in zip(("A", "B", "C"), (a, b, c), strict=True):
-        label = Text(name, size=11).set_style(INK).move_to(member.anchor())
+        label = Text(name, size=11).set_style(INK).move_to(member.anchor(), anchor="center")
         canvas.draw(member)
         canvas.draw(label)
 

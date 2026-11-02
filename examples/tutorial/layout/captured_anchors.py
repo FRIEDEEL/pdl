@@ -1,7 +1,7 @@
 # tutorial-start
 from pdl import Canvas, Circle, Color, Connection, Rectangle, Style
 
-box = Rectangle((-10, -5), width=20, height=10).move_to((20, 20))
+box = Rectangle((-10, -5), width=20, height=10).move_to((20, 20), anchor="center")
 old_attachment = Circle((0, 0), radius=3).move_to(box.anchor("east") + (10, 0))
 box.translate(0, 20)
 new_attachment = Circle((0, 0), radius=3).move_to(box.anchor("east") + (10, 0))

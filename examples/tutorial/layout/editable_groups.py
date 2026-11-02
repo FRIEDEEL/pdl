@@ -3,11 +3,11 @@ from pdl import Canvas, Circle, Color, Group, Rectangle, Style
 
 body = Rectangle((10, 12), 18, 12).set_style(Style(fill=Color(0.6, 0.8, 1)))
 port = Circle((31, 18), 3).set_style(Style(fill=Color(1, 0.7, 0.35)))
-component = Group((body, port))
+component = Group(body, port)
 
 canvas = Canvas(90, 45)
 canvas.draw(component)
-component.rotate(25, about=(22, 18)).translate(45, 0)
+component.rotate(25, origin=(22, 18)).translate(45, 0)
 canvas.draw(component)
 component.dismiss()
 port.translate(0, 10)

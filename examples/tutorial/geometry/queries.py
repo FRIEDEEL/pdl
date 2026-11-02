@@ -1,8 +1,8 @@
 # tutorial-start
 from pdl import WORLD, Canvas, Color, Rectangle, Style
 
-box = Rectangle((-10, -5), width=20, height=10).move_to((30, 20))
-box.rotate(30, about=(30, 20))
+box = Rectangle((-10, -5), width=20, height=10).move_to((30, 20), anchor="center")
+box.rotate(30, origin=(30, 20))
 
 canvas = Canvas(65, 45)
 canvas.draw(box, Style(fill=Color(0.6, 0.8, 1), line_width=0.5))

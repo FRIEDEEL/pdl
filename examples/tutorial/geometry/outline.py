@@ -1,10 +1,10 @@
 # tutorial-start
-from pdl import Canvas, Color, Path, Style
+from pdl import Canvas, Color, Entity, PathGeometry, Style
 
-outline = Path().move_to((10, 10)).line_to((40, 10)).line_to((30, 30)).close()
+outline = PathGeometry().move_to((10, 10)).line_to((40, 10)).line_to((30, 30)).close()
 
 canvas = Canvas(55, 40)
-canvas.draw(outline, Style(fill=Color(0.75, 0.85, 1), line_width=0.5))
+canvas.draw(Entity(outline), Style(fill=Color(0.75, 0.85, 1), line_width=0.5))
 
 # tutorial-end
 

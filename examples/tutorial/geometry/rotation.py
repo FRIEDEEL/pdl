@@ -8,7 +8,7 @@ pivot = Circle((25, 20), radius=0.7)
 
 canvas = Canvas(50, 40)
 canvas.draw(box, ghost)
-box.rotate(30, about=(25, 20))
+box.rotate(30, origin=(25, 20))
 canvas.draw(box, blue)
 canvas.draw(pivot, Style(stroke=None, fill=Color(0.85, 0.2, 0.15)))
 
