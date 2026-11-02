@@ -1,7 +1,10 @@
 # 4.2 嵌入图片
 
-Image 接受本地 PNG 或 JPEG。本例 image_file 指向[四色源图](../../../../examples/tutorial/media/quadrants.png)，
-完整脚本在自身目录中定位该文件。
+Image 在创建时捕获本地 PNG/JPEG 字节，并以毫米描述视口。contain 保留完整来源，cover 裁剪填满视口，stretch 改变纵横比。
+
+仿射变换更新当前视口角点，保持像素数据。SVG 内嵌 data URL；保存 TikZ 时，将内容寻址的资源复制到源码旁，输出目录可以移动。此接口不处理 DPI、EXIF 朝向、像素解码、SVG/PDF 导入或透视图片变形。
+
+## 可运行示例与输出
 
 ```{literalinclude} ../../../../examples/tutorial/media/images.py
 :language: python
@@ -11,20 +14,8 @@ Image 接受本地 PNG 或 JPEG。本例 image_file 指向[四色源图](../../.
 
 ![19. 嵌入图片](../../../../examples/output/tutorial/media/images.svg)
 
-[完整可运行示例](../../../../examples/tutorial/media/images.py)
-
-从左到右：contain 保留全部内容并留白；cover 铺满方框并裁去超出部分；stretch 拉伸铺满。
-三种模式都居中放置。position 表示视口左下角，width 和 height 使用毫米，不是像素。
-源图宽高比为 2:1，因此可以清楚看到区别。
-
-Image 创建时立即捕获文件内容，后续文件修改不影响它。需要旋转或缩放时直接调用图片的方法，
-也可以加入 Group。边界始终是显式视口，包含 contain 模式下的空白。
-
-SVG 内嵌图片字节。保存 TikZ 时生成同级的 `<stem>-assets` 目录，移动 TeX 时需一并移动它。
-render 返回的源码则引用临时缓存资源。目前不导入 SVG／PDF，不处理 EXIF 旋转、DPI 尺寸或色彩配置转换。
-
-试试较高的视口，或直接旋转图片。
+完整源码：[images.py](../../../../examples/tutorial/media/images.py).
 
 ---
 
-[本篇目录](index.md)
+[本部分目录](index.md)

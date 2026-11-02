@@ -1,7 +1,10 @@
 # 3.3 操作可以重叠的集合
 
-Gather 收集已有操作单位，不改变它们所属的 Group 或 Layer。它没有自己的坐标系和继承样式。
-同一实例可以同时加入多个 Gather。
+Gather 显式收集 Entity 身份，不建立归属或样式继承。它可以选择整个 Group，也可直接选择成员。一次变换中重叠选中的 Group／成员只处理一次。
+
+`Gather.set_style` 对恰好选中的对象调用 set_style。需要统一修改成员时，显式收集成员。可展开 members 或使用并集／交集／差集组合选择；Gather 本身不是可作为成员的 Entity。
+
+## 可运行示例与输出
 
 ```{literalinclude} ../../../../examples/tutorial/layout/gathers.py
 :language: python
@@ -11,21 +14,8 @@ Gather 收集已有操作单位，不改变它们所属的 Group 或 Layer。它
 
 ![17. 操作可以重叠的集合](../../../../examples/output/tutorial/layout/gathers.svg)
 
-[完整可运行示例](../../../../examples/tutorial/layout/gathers.py)
-
-下排是初始捕获。combined 虽然从两个集合收集组件，但其中只包含一次该组件。
-平移 combined 时两个单位各移动一次；随后旋转 second 只影响组件，严格遵守调用先后。
-
-添加另一个 Gather 时，将对方当时的成员展开到当前身份集合；之后的增删不会联动。
-可使用 add、remove、union、intersection、difference。Gather 本身不能交给 canvas.draw。
-
-选中组内元素时会提升为最外层 Group，并发出 UserWarning。每条命令执行前再次检查归属，
-因此先选中、后组合也不会重复变换。members 可以查看实际目标。目标 Group 解散后应重新建立选择。
-
-试试把 marker 加入 second，它就会依次接受两条命令，各执行一次。
-
-[单独比较 Group、Layer 与 Gather 的语义](05-comparison.md)
+完整源码：[gathers.py](../../../../examples/tutorial/layout/gathers.py).
 
 ---
 
-[本篇目录](index.md)
+[本部分目录](index.md)
