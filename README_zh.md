@@ -3,25 +3,56 @@
 pdl 用 Python 对象构建静态矢量图，包括 2D 形状和路径、Unicode 文字与 TeX、可复用组件、
 图示连接及 3D 形体投影。SVG 与 TikZ/PDF 共用同一 Author 领域模型，需要 Python 3.12+。
 
-[English](README.md) · [中文教程](docs/tutorial/zh/index.md) ·
-[API 参考](docs/api/index.md) · [架构](docs/architecture_zh.md)
+[English](README.md) · [示例源码](examples) ·
+[中文教程源码](docs/tutorial/zh/index.md) ·
+[API 参考源码](docs/api/index.md) · [架构](docs/architecture_zh.md)
 
-## 绘制与保存
+## 项目状态
 
-在仓库中通过 pyenv 选择 Python，运行 `uv sync` 安装。SVG 需要可用字体；
-TeX 测量需要 XeLaTeX 和 dvisvgm，原生字体 PDF 输出需要 XeLaTeX 及相应 LaTeX 包。
+项目处于早期 alpha 阶段，公开 API 和输出行为可能随版本变化。
+当前限制见下文和教程。
+
+教程与 API 链接指向 Sphinx/MyST 源文件。GitHub 的 Markdown 预览不会展开其中的导航、
+引入的示例代码或自动生成的 API 文档，教程图片也需要在本地生成。
+如需阅读包含示例和图片的完整文档，请[在本地构建](#构建与验证)。
+
+## 快速开始
+
+在仓库根目录中，通过 pyenv 选择 Python 3.12+，然后安装项目：
+
+```sh
+uv sync
+```
+
+将以下代码保存为仓库根目录下的 `drawing.py`：
 
 ```python
-from pdl import Canvas, Color, Group, Style, circle, line, text
+from pdl import Canvas, Color, Style, circle
 
-disk = circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
-connector = line((35, 10), (70, 35), style=Style(line_width=0.5))
-label = text("A reusable component", position=(12, 45), size=11)
-component = Group(disk, connector, label)
-canvas = Canvas(80, 55).add(component)
+canvas = Canvas(60, 40)
+disk = circle((30, 20), 10, style=Style(fill=Color(0.7, 0.85, 1), line_width=0.5))
+canvas.add(disk)
 canvas.save("drawing.svg")
-canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
+
+运行：
+
+```sh
+uv run drawing.py
+```
+
+![60 × 40 mm 画布上带黑色轮廓的浅蓝色圆](docs/assets/quick-start.svg)
+
+上图由这个示例实际生成。
+
+用浏览器或矢量编辑器打开 `drawing.svg`：60 × 40 mm 的画布中央是一个带黑色轮廓的浅蓝色圆。
+坐标和长度的单位为毫米，x 向右、y 向上。这个示例不需要字体或 TeX 环境。
+
+需要文字时，SVG 输出需要可用字体。TeX 测量需要 XeLaTeX 和 dvisvgm，
+原生字体 PDF 输出需要 XeLaTeX 及相应 LaTeX 包。
+文字、组合与其他输出格式见[教程源码](docs/tutorial/zh/index.md)。
+
+## 绘图对象
 
 `circle`、`rectangle`、`text` 等绘图工厂返回 Entity。纯 `Path` 等描述从
 `pdl.author.geometry` 导入，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
@@ -62,7 +93,7 @@ from pdl.extensions.spatial import Scene3D, PerspectiveCamera
 - Canvas 捕获几何、有效样式、排版与顺序，后端直接编码这些 Entity，不建立第二套场景模型。
 
 需要保留可编辑版本时调用 copy。允许显式共享可变几何：直接几何编辑会影响共享者，
-Entity 变换仅替换目标持有的几何。参见[复制与捕获](docs/tutorial/zh/02-shapes/03-copy-and-capture.md)。
+Entity 变换仅替换目标持有的几何。参见[复制与捕获的源码](docs/tutorial/zh/02-shapes/03-copy-and-capture.md)。
 
 ## 组件与 3D
 
@@ -94,3 +125,7 @@ uv build
 工具配置见[构建指南](docs/building.md)，不兼容变化见[迁移说明](CHANGELOG.md)。
 原生字体在 SVG 查看器与 LaTeX 中可能呈现不同像素。
 非线性／网格变换、自动避障、独立组透明合成与实体布尔运算仍待后续工作。
+
+## 许可证
+
+pdl 采用 [MIT License](LICENSE)。
