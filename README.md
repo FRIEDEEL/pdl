@@ -152,6 +152,16 @@ and [migration](CHANGELOG.md) for incompatible API changes. Native font renderin
 can differ across SVG viewers and LaTeX. Nonlinear/mesh transforms, automatic
 obstacle routing, isolated group transparency, and solid booleans are future work.
 
+## AI-assisted development
+
+This project makes extensive use of AI-assisted development. The author leads
+the project direction, sets architectural constraints, makes key design decisions,
+and reviews and accepts work at stage checkpoints. Codex participates in design
+discussions and refinement, performs most code implementation, and writes and
+maintains tests, examples, and documentation.
+
+Development has primarily used GPT-6.1 through Codex.
+
 ## License
 
 pdl is available under the [MIT License](LICENSE).
