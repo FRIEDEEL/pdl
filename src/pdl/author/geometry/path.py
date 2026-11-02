@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from pdl.author.geometry.protocols import Mapping, PathSource
     from pdl.author.geometry.shapes import Arc
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.commands import (
     Close as Close,
@@ -31,7 +32,7 @@ from pdl.author.geometry.commands import (
 from pdl.author.geometry.point import Point, Position, as_point
 
 
-class Path:
+class Path(Geometry):
     """A mutable sequence of absolute geometric commands, in millimeters.
 
     Builder methods modify this path and return it for chaining. Start each

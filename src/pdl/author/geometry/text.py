@@ -7,6 +7,7 @@ from math import isfinite
 from pathlib import Path as FilePath
 from typing import Literal
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
@@ -23,7 +24,7 @@ from pdl.author.transform.affine import Rotation, Translation
 
 
 @dataclass(eq=False)
-class Text:
+class Text(Geometry):
     """Literal Unicode text at a first-line baseline reference.
 
     Args:

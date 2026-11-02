@@ -9,6 +9,7 @@ from pathlib import Path as FilePath
 from tempfile import gettempdir
 from typing import Literal
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
@@ -19,7 +20,7 @@ from pdl.author.util.images import image_size
 
 
 @dataclass(eq=False)
-class Image:
+class Image(Geometry):
     """An image captured from disk, placed inside an explicit rectangular viewport.
 
     Args:
