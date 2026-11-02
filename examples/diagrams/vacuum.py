@@ -1,7 +1,7 @@
 """A small manually positioned vacuum topology with reusable valve symbols."""
 
 from examples._shared import BLUE, LABEL, PALE, export, valve
-from pdl import Canvas, Connection, Node, Style, TeX, Text, Transform
+from pdl import Canvas, Connection, Node, Style, TeX, Text, Translation
 
 
 def example() -> Canvas:
@@ -26,9 +26,9 @@ def example() -> Canvas:
     gauge_pipe = Connection(chamber.anchor("east"), gauge.anchor("west"), arrow_end=False)
     valve_symbol = valve()
     valves = (
-        valve_symbol.transformed(Transform.translate(128, 64)),
-        valve_symbol.transformed(Transform.translate(102, 39)),
-        valve_symbol.transformed(Transform.translate(56, 94)),
+        valve_symbol.copy().apply_transform(Translation(128, 64)),
+        valve_symbol.copy().apply_transform(Translation(102, 39)),
+        valve_symbol.copy().apply_transform(Translation(56, 94)),
     )
     pressure = TeX("$p < 10^{-6}\\,\\mathrm{mbar}$", (80, 115), size=13)
     labels = (

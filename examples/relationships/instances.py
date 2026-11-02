@@ -1,7 +1,8 @@
 """Local relationships travel with groups; external links address instances."""
 
 from examples._shared import BLUE, LABEL, PALE, export
-from pdl import Canvas, Connection, Drawing, Group, Node, Style, Text, Transform
+from pdl import Canvas, Connection, Group, Node, Rotation, Style, Text, Translation
+from pdl.author.entity.factories import as_entity
 
 
 def example() -> Canvas:
@@ -9,16 +10,16 @@ def example() -> Canvas:
     inlet = Node(Text("In"), position=(-18, 0), style=paint)
     outlet = Node(Text("Out"), position=(18, 0), style=paint)
     local_pipe = Connection(inlet.anchor("east"), outlet.anchor("west"))
-    assembly = Group((Drawing(local_pipe), Drawing(inlet), Drawing(outlet)))
-    first = assembly.transformed(Transform.translate(42, 90))
-    second = assembly.transformed(Transform.translate(156, 90) @ Transform.rotate(15))
-    first_outlet = first.child(2)
-    second_inlet = second.child(1)
+    assembly = Group(as_entity(local_pipe), as_entity(inlet), as_entity(outlet))
+    first = assembly.copy().apply_transform(Translation(42, 90))
+    second = assembly.copy().apply_transform(Translation(156, 90) @ Rotation(15))
+    first_outlet = first.members[2]
+    second_inlet = second.members[1]
     between_groups = Connection(first_outlet.anchor("east"), second_inlet.anchor("west"))
 
     pump = Node(Text("P"), shape="circle", min_width=15, style=paint)
-    left_pump = Drawing(pump, transform=Transform.translate(42, 35))
-    right_pump = Drawing(pump, transform=Transform.translate(156, 35) @ Transform.rotate(30))
+    left_pump = as_entity(pump, transform=Translation(42, 35))
+    right_pump = as_entity(pump, transform=Translation(156, 35) @ Rotation(30))
     between_pumps = Connection(left_pump.anchor("east"), right_pump.anchor("west"))
     title = Text("Reuse definitions. Connect placed instances.", position=(8, 124), size=16)
     captions = (

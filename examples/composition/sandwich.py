@@ -17,7 +17,7 @@ def plate(x: float, y: float, width: float, color: Color, label: str) -> Group:
         for px in (x + 4, x + width - 4)
     )
     text = Text(label, size=11, position=(x + width / 2, y + 4.5), align="center").set_style(LABEL)
-    return Group((body, *bolts, text))
+    return Group(body, *bolts, text)
 
 
 def example() -> Canvas:
@@ -44,7 +44,7 @@ def example() -> Canvas:
 
         if case == 2:
             # A real Group cannot straddle layers: it rises to the highest one.
-            combined = Group((base, lid))
+            combined = Group(base, lid)
             canvas.draw(combined)
         else:
             # Deliberately submit the lid first: Layer still controls coverage.
