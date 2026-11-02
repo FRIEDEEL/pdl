@@ -4,9 +4,9 @@ from dataclasses import replace
 from decimal import Decimal
 
 from pdl.author.entity.base import Entity
-from pdl.author.geometry.bounds import geometry_bounds
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.point import as_point as point
-from pdl.author.geometry.protocols import PathSource
+from pdl.author.geometry.queries import bounds_of
 from pdl.author.style import LinearGradient, RadialGradient, Style
 from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.backends.formatting import number
@@ -15,7 +15,7 @@ from pdl.backends.tikz.geometry import paint_options, path_data
 
 
 def gradient_matrix(
-    geometry: PathSource,
+    geometry: Geometry,
     placement: AffineTransform,
     gradient: LinearGradient | RadialGradient | None = None,
 ) -> AffineTransform:
@@ -29,7 +29,7 @@ def gradient_matrix(
             origin[0],
             origin[1],
         )
-    box = geometry_bounds(geometry)
+    box = bounds_of(geometry)
     return placement @ Translation(box.left, box.bottom) @ Scaling(box.width, box.height)
 
 
@@ -107,7 +107,7 @@ def _function(gradient: LinearGradient | RadialGradient) -> str:
     return distance + result
 
 
-def tikz_gradient(geometry: PathSource, drawing: Entity, style: Style, name: str) -> str:
+def tikz_gradient(geometry: Geometry, drawing: Entity, style: Style, name: str) -> str:
 
     gradient = style.fill
     assert isinstance(gradient, (LinearGradient, RadialGradient))

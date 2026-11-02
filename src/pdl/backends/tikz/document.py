@@ -2,7 +2,6 @@
 
 from pdl.author.entity.base import Entity
 from pdl.author.geometry.image import Image
-from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.geometry.typography import Font
@@ -25,8 +24,6 @@ def render_drawing(drawing: Entity, commands: dict[Font, str], prefix: str = "pd
     if isinstance(geometry, TeX):
         return render_tex(geometry, drawing)
     paint = drawing.effective_style
-    if not isinstance(geometry, PathSource):
-        raise TypeError(f"Unsupported render geometry: {type(geometry).__name__}.")
     if isinstance(paint.fill, (LinearGradient, RadialGradient)):
         return tikz_gradient(geometry, drawing, paint, prefix)
     return "\\path[" + ",".join(paint_options(paint)) + "] " + path_data(geometry) + ";"

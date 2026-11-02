@@ -1,5 +1,6 @@
 """TikZ output with native shapes and generic path lowering."""
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.path import (
     Close,
     Cubic,
@@ -46,7 +47,8 @@ def paint_options(style: Style) -> list[str]:
     ]
 
 
-def path_data(geometry: PathSource) -> str:
+def path_data(geometry: Geometry) -> str:
+    """Encode supported native geometry, falling back to optional path conversion."""
     if isinstance(geometry, Circle):
         return f"{coordinate(point(geometry.center))} circle[radius={number(geometry.radius)}mm]"
     if isinstance(geometry, Rectangle):
@@ -63,6 +65,8 @@ def path_data(geometry: PathSource) -> str:
             f"x radius={number(geometry.radius_x)}mm,"
             f"y radius={number(geometry.radius_y)}mm]"
         )
+    if not isinstance(geometry, PathSource):
+        raise TypeError(f"Unsupported render geometry: {type(geometry).__name__}.")
     parts: list[str] = []
     current = Point(0, 0)
     start = current

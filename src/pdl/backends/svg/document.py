@@ -2,7 +2,6 @@
 
 from pdl.author.entity.base import Entity
 from pdl.author.geometry.image import Image
-from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.style import LinearGradient, RadialGradient
@@ -25,8 +24,6 @@ def render_drawing(drawing: Entity, prefix: str = "tex-") -> str:
     if isinstance(geometry, TeX):
         return render_tex(geometry, drawing, prefix)
     paint = drawing.effective_style
-    if not isinstance(geometry, PathSource):
-        raise TypeError(f"Unsupported render geometry: {type(geometry).__name__}.")
     definition = ""
     gradient_id = None
     if isinstance(paint.fill, (LinearGradient, RadialGradient)):
