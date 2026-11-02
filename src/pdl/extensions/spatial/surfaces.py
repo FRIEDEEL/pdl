@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Self
 from pdl.author.entity.base import Entity
 from pdl.author.geometry.path import Path
 from pdl.author.style import BLACK, Color, Style
-from pdl.extensions.spacial._author import make_entity, make_group
-from pdl.extensions.spacial.coordinates import Point3D, Transform3D, Vector3D
+from pdl.extensions.spatial._author import make_entity, make_group
+from pdl.extensions.spatial.coordinates import Point3D, Transform3D, Vector3D
 
 if TYPE_CHECKING:
-    from pdl.extensions.spacial.projection import OrthographicCamera
+    from pdl.extensions.spatial.projection import OrthographicCamera
 
 
 @dataclass(frozen=True)

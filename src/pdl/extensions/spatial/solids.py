@@ -12,8 +12,8 @@ from pdl.author.entity.capture import Composite
 from pdl.author.geometry.protocols import PathSource
 from pdl.author.style import BLACK, Color, Style
 from pdl.author.transform.affine import AffineTransform
-from pdl.extensions.spacial._author import make_entity
-from pdl.extensions.spacial.coordinates import Point3D, Transform3D, Vector3D
+from pdl.extensions.spatial._author import make_entity
+from pdl.extensions.spatial.coordinates import Point3D, Transform3D, Vector3D
 
 type Graphic = Entity | Composite | PathSource
 

@@ -45,7 +45,7 @@
 | Canvas、Layer、查询、视口 | canvas；捕获隔离、整数层绑定、重排、fit/auto-size |
 | SVG、TikZ、PDF | backends；当前 Entity 编码、原生字体/TeX、图片与渐变的真实 PDF 编译 |
 | 节点、连接与流程图 | extensions.diagram；延迟节点测量、数值端点、可编辑图与捕获 |
-| 3D、曲面、相机与遮挡 | extensions.spacial；投影、BSP、独立射线求交与透视误差测试 |
+| 3D、曲面、相机与遮挡 | extensions.spatial；投影、BSP、独立射线求交与透视误差测试 |
 
 确认旧能力不代表保留旧 API。Drawing/placement 包装、隐式 frame/space、局部锚点和累计矩阵，
 已按本轮讨论由直接 Entity、显式 Frame、世界坐标查询及即时几何替换代替。
@@ -379,10 +379,10 @@ src/pdl/
   backends/
   extensions/
     diagram/
-    spacial/
+    spatial/
 ```
 
-`spacial` 是草稿当前名称；助手建议改为 `spatial`，尚未执行目录修改。
+目录拼写已按用户要求统一为 `spatial`。以下草稿说明保留当时的职责讨论。
 extensions 目前仅有目录，其内部设计未展开。
 
 | 目录 | 职责 |

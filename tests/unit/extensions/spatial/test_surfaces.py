@@ -23,7 +23,7 @@ from pdl import (
 )
 from pdl.author.entity.capture import walk
 from pdl.author.geometry.path import Close, Cubic, Move, Path, Segment
-from pdl.extensions.spacial._author import make_entity as Drawing
+from pdl.extensions.spatial._author import make_entity as Drawing
 
 
 def loops(path: Path) -> list[list[Point]]:

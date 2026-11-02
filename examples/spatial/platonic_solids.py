@@ -19,7 +19,7 @@ from pdl import (
     text,
 )
 from pdl.author.entity.factories import as_entity
-from pdl.extensions.spacial.solids import PlatonicKind
+from pdl.extensions.spatial.solids import PlatonicKind
 
 # Edit these shared parameters to compare lighting and viewing directions.
 CAMERA = OrthographicCamera(azimuth=30, elevation=22)

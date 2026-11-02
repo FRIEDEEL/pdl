@@ -5,7 +5,7 @@ from collections import Counter
 import pytest
 
 from pdl import Color, Plane3D, Point3D, Polyhedron, Transform3D, Vector3D, regular_polyhedron
-from pdl.extensions.spacial.solids import PlatonicKind, centroid, face_normal
+from pdl.extensions.spatial.solids import PlatonicKind, centroid, face_normal
 
 
 @pytest.mark.parametrize(

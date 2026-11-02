@@ -17,9 +17,9 @@ are imported from author.geometry. No shared Geometry base is required.
 | author.util | Reusable infrastructure and explicit external-tool interfaces | Standard library, third-party libraries, external tools; no pdl imports |
 | canvas | Submissions, layers, queries, viewport, and export entrypoints | Author and adapter entrypoints |
 | backends | SVG/TikZ encoding and final PDF compilation | Current Author Entities and canvas.records.Page; no Canvas implementation |
-| extensions.diagram / extensions.spacial | Parametric diagrams, 3D geometry, cameras, visibility | Core Author and their own components; no output adapters |
+| extensions.diagram / extensions.spatial | Parametric diagrams, 3D geometry, cameras, visibility | Core Author and their own components; no output adapters |
 
-The existing spacial directory spelling is retained. Shape descriptors may use
+The 3D package uses the standard spatial spelling. Shape descriptors may use
 numeric affine classes; application policy in transform.operations may inspect
 shape types. This is a split between numerical mapping and conversion policy,
 with no runtime module cycle. Utilities return ordinary measurements, raw font

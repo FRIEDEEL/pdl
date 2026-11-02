@@ -28,8 +28,8 @@ from pdl import (
     PathGeometry as Path,
 )
 from pdl.author.geometry.path import Move, Segment
-from pdl.extensions.spacial._author import make_entity as Drawing
-from pdl.extensions.spacial.planar import PerspectiveArtwork
+from pdl.extensions.spatial._author import make_entity as Drawing
+from pdl.extensions.spatial.planar import PerspectiveArtwork
 
 
 def test_pinhole_scale_and_snapshot_point_queries() -> None:

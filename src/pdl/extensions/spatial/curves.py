@@ -11,11 +11,11 @@ from pdl.author.geometry.path import Path
 from pdl.author.geometry.shapes import Arc, Circle
 from pdl.author.style import BLACK, Color, ColorStop, LinearGradient, RadialGradient, Style
 from pdl.author.transform.affine import AffineTransform, Scaling, Translation
-from pdl.extensions.spacial._author import make_entity, make_group
-from pdl.extensions.spacial.coordinates import Point3D, Vector3D
+from pdl.extensions.spatial._author import make_entity, make_group
+from pdl.extensions.spatial.coordinates import Point3D, Vector3D
 
 if TYPE_CHECKING:
-    from pdl.extensions.spacial.projection import DirectionalLight, OrthographicCamera
+    from pdl.extensions.spatial.projection import DirectionalLight, OrthographicCamera
 
 
 @dataclass(frozen=True)

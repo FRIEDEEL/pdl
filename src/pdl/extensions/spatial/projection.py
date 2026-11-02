@@ -11,19 +11,19 @@ from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Line, Polygon
 from pdl.author.style import Color, Style
 from pdl.author.transform.affine import AffineTransform
-from pdl.extensions.spacial._author import make_entity, make_group
-from pdl.extensions.spacial.coordinates import Point3D, Vector3D
-from pdl.extensions.spacial.curves import Cylinder, Sphere, project_cylinder, project_sphere
-from pdl.extensions.spacial.planar import PerspectiveArtwork
-from pdl.extensions.spacial.projected import ProjectedScene
-from pdl.extensions.spacial.solids import Plane3D, Polyhedron, Surface3D, centroid, face_normal
-from pdl.extensions.spacial.surfaces import (
+from pdl.extensions.spatial._author import make_entity, make_group
+from pdl.extensions.spatial.coordinates import Point3D, Vector3D
+from pdl.extensions.spatial.curves import Cylinder, Sphere, project_cylinder, project_sphere
+from pdl.extensions.spatial.planar import PerspectiveArtwork
+from pdl.extensions.spatial.projected import ProjectedScene
+from pdl.extensions.spatial.solids import Plane3D, Polyhedron, Surface3D, centroid, face_normal
+from pdl.extensions.spatial.surfaces import (
     AnnularCylinder,
     CylinderSurface,
     project_annular_cylinder,
     project_cylinder_surface,
 )
-from pdl.extensions.spacial.visibility import (
+from pdl.extensions.spatial.visibility import (
     Fragment,
     Metrics,
     build,

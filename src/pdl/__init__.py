@@ -57,27 +57,27 @@ if TYPE_CHECKING:
     from pdl.extensions.diagram.flowchart import FlowNode as FlowNode
     from pdl.extensions.diagram.flowchart import Terminal as Terminal
     from pdl.extensions.diagram.nodes import Node as Node
-    from pdl.extensions.spacial.coordinates import CoordinateSystem3D as CoordinateSystem3D
-    from pdl.extensions.spacial.coordinates import Point3D as Point3D
-    from pdl.extensions.spacial.coordinates import Transform3D as Transform3D
-    from pdl.extensions.spacial.coordinates import Vector3D as Vector3D
-    from pdl.extensions.spacial.curves import Cylinder as Cylinder
-    from pdl.extensions.spacial.curves import Sphere as Sphere
-    from pdl.extensions.spacial.projected import ProjectedScene as ProjectedScene
-    from pdl.extensions.spacial.projection import DirectionalLight as DirectionalLight
-    from pdl.extensions.spacial.projection import OrthographicCamera as OrthographicCamera
-    from pdl.extensions.spacial.projection import PerspectiveCamera as PerspectiveCamera
-    from pdl.extensions.spacial.projection import Scene3D as Scene3D
-    from pdl.extensions.spacial.solids import Plane3D as Plane3D
-    from pdl.extensions.spacial.solids import Polyhedron as Polyhedron
-    from pdl.extensions.spacial.solids import Surface3D as Surface3D
-    from pdl.extensions.spacial.solids import regular_polyhedron as regular_polyhedron
-    from pdl.extensions.spacial.surfaces import AnnularCylinder as AnnularCylinder
-    from pdl.extensions.spacial.surfaces import CylinderSurface as CylinderSurface
+    from pdl.extensions.spatial.coordinates import CoordinateSystem3D as CoordinateSystem3D
+    from pdl.extensions.spatial.coordinates import Point3D as Point3D
+    from pdl.extensions.spatial.coordinates import Transform3D as Transform3D
+    from pdl.extensions.spatial.coordinates import Vector3D as Vector3D
+    from pdl.extensions.spatial.curves import Cylinder as Cylinder
+    from pdl.extensions.spatial.curves import Sphere as Sphere
+    from pdl.extensions.spatial.projected import ProjectedScene as ProjectedScene
+    from pdl.extensions.spatial.projection import DirectionalLight as DirectionalLight
+    from pdl.extensions.spatial.projection import OrthographicCamera as OrthographicCamera
+    from pdl.extensions.spatial.projection import PerspectiveCamera as PerspectiveCamera
+    from pdl.extensions.spatial.projection import Scene3D as Scene3D
+    from pdl.extensions.spatial.solids import Plane3D as Plane3D
+    from pdl.extensions.spatial.solids import Polyhedron as Polyhedron
+    from pdl.extensions.spatial.solids import Surface3D as Surface3D
+    from pdl.extensions.spatial.solids import regular_polyhedron as regular_polyhedron
+    from pdl.extensions.spatial.surfaces import AnnularCylinder as AnnularCylinder
+    from pdl.extensions.spatial.surfaces import CylinderSurface as CylinderSurface
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "AffineTransform": ("pdl.author.transform.affine", "AffineTransform"),
-    "AnnularCylinder": ("pdl.extensions.spacial.surfaces", "AnnularCylinder"),
+    "AnnularCylinder": ("pdl.extensions.spatial.surfaces", "AnnularCylinder"),
     "arc": ("pdl.author.entity.factories", "arc"),
     "BLACK": ("pdl.author.style", "BLACK"),
     "Bounds": ("pdl.author.geometry.bounds", "Bounds"),
@@ -87,11 +87,11 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "ColorStop": ("pdl.author.style", "ColorStop"),
     "Connection": ("pdl.extensions.diagram.connections", "Connection"),
     "CoordinateSystem": ("pdl.author.geometry.frame", "CoordinateSystem"),
-    "CoordinateSystem3D": ("pdl.extensions.spacial.coordinates", "CoordinateSystem3D"),
-    "Cylinder": ("pdl.extensions.spacial.curves", "Cylinder"),
-    "CylinderSurface": ("pdl.extensions.spacial.surfaces", "CylinderSurface"),
+    "CoordinateSystem3D": ("pdl.extensions.spatial.coordinates", "CoordinateSystem3D"),
+    "Cylinder": ("pdl.extensions.spatial.curves", "Cylinder"),
+    "CylinderSurface": ("pdl.extensions.spatial.surfaces", "CylinderSurface"),
     "Decision": ("pdl.extensions.diagram.flowchart", "Decision"),
-    "DirectionalLight": ("pdl.extensions.spacial.projection", "DirectionalLight"),
+    "DirectionalLight": ("pdl.extensions.spatial.projection", "DirectionalLight"),
     "Entity": ("pdl.author.entity.base", "Entity"),
     "FlowEdge": ("pdl.extensions.diagram.flowchart", "FlowEdge"),
     "FlowNode": ("pdl.extensions.diagram.flowchart", "FlowNode"),
@@ -106,18 +106,18 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "line": ("pdl.author.entity.factories", "line"),
     "LinearGradient": ("pdl.author.style", "LinearGradient"),
     "Node": ("pdl.extensions.diagram.nodes", "Node"),
-    "OrthographicCamera": ("pdl.extensions.spacial.projection", "OrthographicCamera"),
+    "OrthographicCamera": ("pdl.extensions.spatial.projection", "OrthographicCamera"),
     "path": ("pdl.author.entity.factories", "path"),
     "PathGeometry": ("pdl.author.geometry.path", "Path"),
-    "PerspectiveCamera": ("pdl.extensions.spacial.projection", "PerspectiveCamera"),
-    "Plane3D": ("pdl.extensions.spacial.solids", "Plane3D"),
+    "PerspectiveCamera": ("pdl.extensions.spatial.projection", "PerspectiveCamera"),
+    "Plane3D": ("pdl.extensions.spatial.solids", "Plane3D"),
     "Point": ("pdl.author.geometry.point", "Point"),
-    "Point3D": ("pdl.extensions.spacial.coordinates", "Point3D"),
+    "Point3D": ("pdl.extensions.spatial.coordinates", "Point3D"),
     "polygon": ("pdl.author.entity.factories", "polygon"),
-    "Polyhedron": ("pdl.extensions.spacial.solids", "Polyhedron"),
+    "Polyhedron": ("pdl.extensions.spatial.solids", "Polyhedron"),
     "polyline": ("pdl.author.entity.factories", "polyline"),
     "Position": ("pdl.author.geometry.point", "Position"),
-    "ProjectedScene": ("pdl.extensions.spacial.projected", "ProjectedScene"),
+    "ProjectedScene": ("pdl.extensions.spatial.projected", "ProjectedScene"),
     "Query": ("pdl.canvas.query", "Query"),
     "RadialGradient": ("pdl.author.style", "RadialGradient"),
     "rectangle": ("pdl.author.entity.factories", "rectangle"),
@@ -126,26 +126,26 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "Rescale": ("pdl.author.transform.affine", "Rescale"),
     "Rotation": ("pdl.author.transform.affine", "Rotation"),
     "Scaling": ("pdl.author.transform.affine", "Scaling"),
-    "Scene3D": ("pdl.extensions.spacial.projection", "Scene3D"),
+    "Scene3D": ("pdl.extensions.spatial.projection", "Scene3D"),
     "Shear": ("pdl.author.transform.affine", "Shear"),
     "SpacePoint": ("pdl.author.geometry.frame", "SpacePoint"),
     "SpaceVector": ("pdl.author.geometry.frame", "SpaceVector"),
-    "Sphere": ("pdl.extensions.spacial.curves", "Sphere"),
+    "Sphere": ("pdl.extensions.spatial.curves", "Sphere"),
     "Style": ("pdl.author.style", "Style"),
-    "Surface3D": ("pdl.extensions.spacial.solids", "Surface3D"),
+    "Surface3D": ("pdl.extensions.spatial.solids", "Surface3D"),
     "tex": ("pdl.author.entity.factories", "tex"),
     "TeXConfig": ("pdl.author.util.tex", "TeXConfig"),
     "Terminal": ("pdl.extensions.diagram.flowchart", "Terminal"),
     "text": ("pdl.author.entity.factories", "text"),
     "Transform": ("pdl.author.transform.base", "Transform"),
-    "Transform3D": ("pdl.extensions.spacial.coordinates", "Transform3D"),
+    "Transform3D": ("pdl.extensions.spatial.coordinates", "Transform3D"),
     "Translation": ("pdl.author.transform.affine", "Translation"),
     "Vector": ("pdl.author.geometry.point", "Vector"),
-    "Vector3D": ("pdl.extensions.spacial.coordinates", "Vector3D"),
+    "Vector3D": ("pdl.extensions.spatial.coordinates", "Vector3D"),
     "WORLD": ("pdl.author.geometry.frame", "WORLD"),
     "frame_axes": ("pdl.author.entity.factories", "frame_axes"),
     "measurement": ("pdl.author.style.typography", "measurement"),
-    "regular_polyhedron": ("pdl.extensions.spacial.solids", "regular_polyhedron"),
+    "regular_polyhedron": ("pdl.extensions.spatial.solids", "regular_polyhedron"),
 }
 
 __all__ = [

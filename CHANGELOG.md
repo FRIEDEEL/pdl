@@ -4,6 +4,8 @@
 
 ### Changed
 
+- **Breaking:** correct the 3D package name to `pdl.extensions.spatial`.
+  Update direct 3D imports to this path; the misspelled package is removed.
 - **Breaking:** drawing constructors such as `circle` and `text` are factory functions
   returning thin Entity objects. Pure descriptions live in author.geometry;
   explicit Entity(geometry, style=...) construction is supported.

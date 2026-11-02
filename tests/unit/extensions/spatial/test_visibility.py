@@ -23,8 +23,8 @@ from pdl import (
 )
 from pdl.author.entity.capture import walk
 from pdl.author.geometry.shapes import Polygon
-from pdl.extensions.spacial.solids import face_normal
-from pdl.extensions.spacial.visibility import convex_fragments
+from pdl.extensions.spatial.solids import face_normal
+from pdl.extensions.spatial.visibility import convex_fragments
 
 CAMERA = PerspectiveCamera(0, 0, distance=100, focal_length=100)
 

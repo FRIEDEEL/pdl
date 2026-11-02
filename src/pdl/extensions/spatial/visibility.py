@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from pdl.extensions.spacial.coordinates import Point3D, Vector3D
-from pdl.extensions.spacial.solids import face_normal
+from pdl.extensions.spatial.coordinates import Point3D, Vector3D
+from pdl.extensions.spatial.solids import face_normal
 
 
 @dataclass(frozen=True)
