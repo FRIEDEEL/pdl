@@ -11,7 +11,6 @@ from pdl.author.style import LinearGradient, RadialGradient, Style
 from pdl.author.transform.affine import AffineTransform as Transform
 from pdl.author.transform.affine import Scaling, Translation
 from pdl.backends.formatting import number
-from pdl.backends.geometry import placed_geometry
 from pdl.backends.svg.geometry import color
 from pdl.backends.tikz.geometry import paint_options, path_data
 
@@ -112,7 +111,7 @@ def tikz_gradient(geometry: Geometry, drawing: Drawing, style: Style, name: str)
     gradient = style.fill
     assert isinstance(gradient, (LinearGradient, RadialGradient))
     matrix = gradient_matrix(geometry, Transform(), gradient)
-    placed = placed_geometry(geometry, Transform())
+    placed = geometry
     if matrix.determinant == 0:
         return (
             "\\path["
