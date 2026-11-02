@@ -69,11 +69,12 @@ uv run pyright
 uv run pytest
 uv run python -m examples.tutorial.render_all
 uv run python -m examples.tools.render_all --tikz-mode pdf
-uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
+uv run --group docs python docs/build.py
 uv build
 ```
 
-打开 docs/_build/html/index.html。文档构建通过可运行源码生成实际插图。
+打开 docs/_build/html/index.html 选择中文或英文。两种语言的导航和搜索独立，
+对应页面之间提供语言切换链接。文档构建通过可运行源码生成实际插图。
 工具配置见[构建指南](docs/building.md)，不兼容变化见[迁移说明](CHANGELOG.md)。
 原生字体在 SVG 查看器与 LaTeX 中可能呈现不同像素。
 非线性／网格变换、自动避障、独立组透明合成与实体布尔运算仍待后续工作。

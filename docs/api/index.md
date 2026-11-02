@@ -18,7 +18,8 @@ and typography independently of later edits.
 | Gather | Explicit identity selection; no ownership or inherited paint |
 | Frame | Explicit numerical origin and basis; visualized with frame_axes |
 
-说明来自英文 docstring；中文入门见[教程](../tutorial/zh/index.md)。
+This reference is generated from English source docstrings. See the
+[tutorial](../tutorial/en/index.md) for a step-by-step introduction.
 
 ```{toctree}
 :maxdepth: 1

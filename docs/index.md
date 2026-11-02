@@ -1,5 +1,11 @@
 # Draw with pdl
 
+| Build information | Value |
+| --- | --- |
+| Version | {{ build_version }} |
+| Commit | {{ build_commit }} |
+| Branch | {{ build_branch }} |
+
 pdl is a Python library for static vector drawings. Start with a small labeled
 box, learn shapes and styles, then build connected and reusable components.
 Export SVG or TikZ without changing the objects that describe your drawing.
@@ -8,8 +14,7 @@ Style. Edits take effect immediately; Canvas captures independent submissions.
 
 ## Start drawing
 
-- [English tutorial](tutorial/en/index.md)
-- [中文教程](tutorial/zh/index.md)
+- [Tutorial](tutorial/en/index.md)
 - [API reference](api/index.md): exact signatures, defaults, units, and behavior.
 
 ```{toctree}
@@ -17,7 +22,6 @@ Style. Edits take effect immediately; Canvas captures independent submissions.
 :caption: Tutorials
 
 tutorial/en/index
-tutorial/zh/index
 ```
 
 ```{toctree}
@@ -26,15 +30,10 @@ tutorial/zh/index
 
 api/index
 architecture
-architecture_zh
 coordinates
-coordinates_zh
 flowcharts
-flowcharts_zh
 spatial
-spatial_zh
 tikz-output
-tikz-output_zh
 ```
 
 ## Scope

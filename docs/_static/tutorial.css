@@ -8,3 +8,13 @@ article img {
     margin: 1.5rem auto;
     background: white;
 }
+
+.language-switch {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.language-note {
+    font-size: 0.9rem;
+    color: var(--color-foreground-secondary);
+}

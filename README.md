@@ -88,11 +88,12 @@ uv run pyright
 uv run pytest
 uv run python -m examples.tutorial.render_all
 uv run python -m examples.tools.render_all --tikz-mode pdf
-uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
+uv run --group docs python docs/build.py
 uv build
 ```
 
-Open docs/_build/html/index.html. The documentation build generates actual
+Open docs/_build/html/index.html to choose English or Chinese. Each language has
+independent navigation and search, with links between matching pages. The build generates actual
 illustrations from runnable sources. See [building](docs/building.md) for tools
 and [migration](CHANGELOG.md) for incompatible API changes. Native font rendering
 can differ across SVG viewers and LaTeX. Nonlinear/mesh transforms, automatic

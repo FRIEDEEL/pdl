@@ -20,4 +20,4 @@ TeX 缩放及其他文字变形转为已测量的轮廓。复杂或彩色 TeX SV
 字体环境和原生排版可能造成 SVG／LaTeX 栅格差异。尺寸和位置使用已测量的资源策略，
 但不保证逐像素一致，也不以生成源码的可读性限制几何表达。
 
-[教程](tutorial/zh/06-output/index.md) · [English](tikz-output.md)
+[教程](tutorial/zh/06-output/index.md)

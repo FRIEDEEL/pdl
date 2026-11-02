@@ -14,4 +14,4 @@
 07-recipes/index
 ```
 
-[English](../en/index.md) · [API](../../api/index.md)
+[API 参考（英文）](../../api_zh.md)

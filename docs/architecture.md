@@ -102,5 +102,3 @@ use the new API. After review, the archived implementation and tests were remove
 from the working tree. Their complete development history remains available in
 Git. Integration into dev preserves the reviewed implementation and documentation
 history through a non-fast-forward merge.
-
-[中文说明](architecture_zh.md)
