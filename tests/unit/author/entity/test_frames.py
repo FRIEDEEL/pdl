@@ -2,13 +2,13 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Frame, Gather, Point, frame_axes
+from pdl import Canvas, Frame, Gather, Point, circle, frame_axes
 
 
 def test_explicit_axes_transform_the_current_basis_and_visual_members() -> None:
     frame = Frame((5, 6))
     axes = frame_axes(frame, length=10)
-    box = Circle((5, 6), 2)
+    box = circle((5, 6), 2)
     Gather(box, axes).rotate(90, origin=(5, 6))
     p = axes.point((1, 0))
     assert (p.x, p.y) == pytest.approx((5, 7))

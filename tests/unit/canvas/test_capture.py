@@ -2,7 +2,7 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Color, Font, Gather, Group, Style, Text
+from pdl import Canvas, Color, Font, Gather, Group, Style, circle, text
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Circle as CircleGeometry
 from pdl.author.geometry.text import Text as TextGeometry
@@ -10,7 +10,7 @@ from pdl.canvas.layers import Layer
 
 
 def test_add_captures_current_state_and_style_fallback() -> None:
-    member = Circle((5, 5), 2)
+    member = circle((5, 5), 2)
     group = Group(member, style=Style(line_width=3))
     canvas = Canvas(30, 20).add(group)
     group.translate(10, 0).set_style(Style(line_width=7))
@@ -29,17 +29,17 @@ def test_draw_rejects_bare_geometry_and_selection() -> None:
     with pytest.raises(TypeError):
         canvas.draw(CircleGeometry((0, 0), 1))  # type: ignore[arg-type]
     with pytest.raises(TypeError):
-        canvas.draw(Gather(Circle()))  # type: ignore[arg-type]
-    group = Group(Circle())
+        canvas.draw(Gather(circle()))  # type: ignore[arg-type]
+    group = Group(circle())
     with pytest.raises(ValueError):
         canvas.draw(group.members[0])
 
 
 def test_native_text_keeps_captured_font_and_layout(font: Font) -> None:
-    text = Text("Editable label", font, position=(3, 4))
-    canvas = Canvas(50, 20).add(text)
-    assert isinstance(text.geometry, TextGeometry)
-    text.geometry.text = "Changed"
+    text_entity = text("Editable label", font, position=(3, 4))
+    canvas = Canvas(50, 20).add(text_entity)
+    assert isinstance(text_entity.geometry, TextGeometry)
+    text_entity.geometry.text = "Changed"
     assert "Editable label</text>" in canvas.render()
     assert "Changed" not in canvas.render()
     assert "controls" not in canvas.render("tikz")
@@ -47,7 +47,7 @@ def test_native_text_keeps_captured_font_and_layout(font: Font) -> None:
 
 def test_layers_reorder_captures_by_identity() -> None:
     low, high = Layer(), Layer(1)
-    a, b = Circle((1, 1), 1), Circle((10, 1), 1)
+    a, b = circle((1, 1), 1), circle((10, 1), 1)
     low.add(a)
     high.add(b)
     canvas = Canvas(30, 20).add(b, a)
@@ -58,12 +58,12 @@ def test_layers_reorder_captures_by_identity() -> None:
 
 
 def test_auto_size_and_fit_preserve_stroke_width() -> None:
-    circle = Circle((20, 30), 2, style=Style(line_width=0.5, line_join="round"))
-    auto = Canvas(mode="auto_size", padding=2).add(circle)
+    circle_entity = circle((20, 30), 2, style=Style(line_width=0.5, line_join="round"))
+    auto = Canvas(mode="auto_size", padding=2).add(circle_entity)
     page = auto.viewport()
     assert page.width > 8
     assert page.height > 8
-    fit = Canvas(100, 50, mode="fit", padding=2).add(circle)
+    fit = Canvas(100, 50, mode="fit", padding=2).add(circle_entity)
     leaf = fit.viewport().drawings[0]
     assert leaf.effective_style.line_width == 0.5
     assert leaf.center.x == pytest.approx(50)
@@ -71,8 +71,8 @@ def test_auto_size_and_fit_preserve_stroke_width() -> None:
 
 
 def test_draw_override_preserves_explicit_member_paint() -> None:
-    inherited = Circle((1, 1), 1)
-    explicit = Circle((5, 1), 1, style=Style(line_width=2))
+    inherited = circle((1, 1), 1)
+    explicit = circle((5, 1), 1, style=Style(line_width=2))
     group = Group(inherited, explicit, style=Style(line_width=3))
     canvas = Canvas(30, 20)
     canvas.draw(group, Style(line_width=8))
@@ -91,7 +91,7 @@ def test_snapshot_layout_survives_later_font_discovery_failure(
     from pdl.author.geometry.frame import WORLD
 
     canvas = Canvas(80, 30, fonts=(font,))
-    captured = canvas.snapshot(Node(Text("Fixed metrics")))
+    captured = canvas.snapshot(Node(text("Fixed metrics")))
     before = captured.bounds
 
     def unavailable() -> tuple[Font, ...]:
@@ -106,13 +106,13 @@ def test_snapshot_layout_survives_later_font_discovery_failure(
 
 def test_ink_query_is_distinct_from_logical_layout(font: Font) -> None:
     canvas = Canvas(80, 30)
-    text = Text(" x ", font)
-    assert canvas.query().ink_bounds(text).width < canvas.query().bounds(text).width
+    text_entity = text(" x ", font)
+    assert canvas.query().ink_bounds(text_entity).width < canvas.query().bounds(text_entity).width
 
 
 def test_snapshot_preserves_none_members_and_editable_group_fallback() -> None:
-    inherited = Circle((3, 3), 1)
-    explicit = Circle((8, 3), 1, style=Style(line_width=2))
+    inherited = circle((3, 3), 1)
+    explicit = circle((8, 3), 1, style=Style(line_width=2))
     group = Group(inherited, explicit, style=Style(line_width=3))
     snapshot = Canvas(20, 20).snapshot(group)
     assert isinstance(snapshot, Group)
@@ -136,7 +136,7 @@ def test_snapshot_fixes_defaults_without_materializing_member_styles(
     from pdl import Entity
     from pdl.author.geometry.shapes import Circle as CircleGeometry
 
-    group = Group(Circle((3, 3), 1), Text("Default", position=(8, 3)))
+    group = Group(circle((3, 3), 1), text("Default", position=(8, 3)))
     snapshot = Canvas(30, 20).snapshot(group)
     assert isinstance(snapshot, Group)
     assert snapshot.style is None
@@ -148,7 +148,7 @@ def test_snapshot_fixes_defaults_without_materializing_member_styles(
 
 def test_native_text_uses_edited_snapshot_group_fallback(font: Font) -> None:
     group = Group(
-        Text("Inherited native text", font, position=(3, 8)),
+        text("Inherited native text", font, position=(3, 8)),
         style=Style(stroke=None, fill=Color(0, 1, 0)),
     )
     snapshot = Canvas(60, 20).snapshot(group)
@@ -163,7 +163,7 @@ def test_native_text_uses_edited_snapshot_group_fallback(font: Font) -> None:
 
 
 def test_unsubmitted_query_predicts_fit_and_viewport_exposes_its_mapping() -> None:
-    shape = Circle((100, 200), 10, style=Style(line_width=0))
+    shape = circle((100, 200), 10, style=Style(line_width=0))
     canvas = Canvas(100, 60, mode="fit", padding=5)
     before = canvas.query().bounds(shape)
     assert before.width == pytest.approx(50)

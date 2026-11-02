@@ -6,7 +6,7 @@ import pytest
 
 from pdl import Point
 from pdl.author.entity.base import Entity
-from pdl.author.entity.factories import Text
+from pdl.author.entity.factories import text
 from pdl.author.geometry.bounds import Bounds
 from pdl.author.style.font import Font
 from pdl.extensions.diagram.nodes import Node
@@ -17,7 +17,7 @@ def bounds(value: Entity) -> Bounds:
 
 
 def test_node_contains_label_layout_and_padding(font: Font) -> None:
-    label = Text("Pump\nP1", font, position=(100, 100))
+    label = text("Pump\nP1", font, position=(100, 100))
     node = Node(label, position=(20, 30), padding=(3, 2))
     assert node.bounds.width == pytest.approx(label.bounds.width + 6)
     assert node.bounds.height == pytest.approx(label.bounds.height + 4)
@@ -27,6 +27,6 @@ def test_node_contains_label_layout_and_padding(font: Font) -> None:
 
 
 def test_circular_diagonal_anchor_is_on_circle(font: Font) -> None:
-    node = Node(Text("P", font), shape="circle")
+    node = Node(text("P", font), shape="circle")
     anchor = node.anchor("north east")
     assert hypot(anchor.x, anchor.y) == pytest.approx(node.bounds.width / 2)

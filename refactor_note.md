@@ -5,8 +5,10 @@
 - 本分支完成整体重构，保持目录组织，并迁移旧实现全部能力；不要求旧 API 兼容。
 - 用户重新授权本分支内的细粒度本地提交。不得自行合并 dev、push 或发布。
 - Entity 是薄容器，持有当前 Geometry 和可为 None 的 Style，提供位置查询。
-  初始化直接持有几何；绘图入口 Circle(...) 等使用工厂函数返回 Entity，
+  初始化直接持有几何；绘图入口 circle(...) 等使用工厂函数返回 Entity，
   纯几何类型从 geometry 包导入，不要求一套具体 Entity 子类。
+- 工厂函数采用小写命名：circle、line、polyline、polygon、rectangle、arc、path、text、tex、image；
+  Entity、Group 以及纯几何等实际类继续使用 PascalCase。
 - Geometry 保存当前形状参数，不保存累计矩阵、变换历史或待执行操作。
 - 所有变换即时生效。Transform 包负责几何类型判断和转换，必要时替换 Entity.geometry。
   圆的非均匀缩放可转 Path；TeX 需要变形时先显式取得轮廓，替换成 Path，转换不可逆。

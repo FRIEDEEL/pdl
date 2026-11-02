@@ -8,7 +8,7 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from pdl import Canvas, Connection, Font, Node, RendererConfig, TeX, TeXConfig, Text
+from pdl import Canvas, Connection, Font, Node, RendererConfig, TeXConfig, tex, text
 from pdl.author.geometry.tex import TeX as TeXGeometry
 
 
@@ -24,7 +24,7 @@ def config(tmp_path: Path) -> TeXConfig:
 
 
 def test_native_fragments_have_fixed_baselines_and_unique_svg_ids(config: TeXConfig) -> None:
-    entity = TeX(r"$\frac{x_i}{y^2}+\RR$", position=(10, 20), config=config)
+    entity = tex(r"$\frac{x_i}{y^2}+\RR$", position=(10, 20), config=config)
     geometry = entity.geometry
     assert isinstance(geometry, TeXGeometry)
     layout = geometry.layout
@@ -41,7 +41,7 @@ def test_native_fragments_have_fixed_baselines_and_unique_svg_ids(config: TeXCon
 def test_native_tex_rotates_and_embeds_in_another_document(
     config: TeXConfig, tmp_path: Path
 ) -> None:
-    entity = TeX(r"$\frac{x_i}{y^2}+\RR$", position=(3, 10), config=config).rotate(15)
+    entity = tex(r"$\frac{x_i}{y^2}+\RR$", position=(3, 10), config=config).rotate(15)
     canvas = Canvas(50, 30).add(entity)
     fragment = canvas.render("tikz", standalone=False)
     assert r"$\frac{x_i}{y^2}+\RR$" in fragment
@@ -69,7 +69,7 @@ def test_native_tex_rotates_and_embeds_in_another_document(
 
 
 def test_shared_tex_environment_is_required(config: TeXConfig) -> None:
-    canvas = Canvas(40, 30).add(TeX("A", config=config), TeX("B"))
+    canvas = Canvas(40, 30).add(tex("A", config=config), tex("B"))
     with pytest.raises(ValueError, match="shared TeXConfig"):
         canvas.render("tikz")
     with pytest.raises(RuntimeError, match="Undefined control sequence"):
@@ -87,10 +87,10 @@ def test_cache_tracks_declared_dependency_contents(config: TeXConfig, tmp_path: 
 
 
 def test_empty_and_singular_tex_are_valid(config: TeXConfig) -> None:
-    empty = TeX("", config=config)
+    empty = tex("", config=config)
     assert empty.bounds.width == 0
     ET.fromstring(Canvas(10, 10).add(empty).render())
-    singular = TeX("A", config=config).scale(0)
+    singular = tex("A", config=config).scale(0)
     canvas = Canvas(10, 10).add(singular)
     assert r"\node" not in canvas.render("tikz")
 
@@ -98,9 +98,9 @@ def test_empty_and_singular_tex_are_valid(config: TeXConfig) -> None:
 def test_nodes_compile_using_the_same_text_and_tex_policy(
     config: TeXConfig, font: Font, tmp_path: Path
 ) -> None:
-    first = Node(Text("Source", font), position=(20, 20))
+    first = Node(text("Source", font), position=(20, 20))
     second = Node(
-        TeX(r"$\frac{x_i}{y^2}+\RR$", config=config), position=first.anchor("east") + (40, 0)
+        tex(r"$\frac{x_i}{y^2}+\RR$", config=config), position=first.anchor("east") + (40, 0)
     )
     canvas = Canvas(100, 50, renderer=RendererConfig(fonts=(font,), tex=config))
     canvas.add(Connection(first.anchor("east"), second.anchor("west")), second, first)
@@ -110,7 +110,7 @@ def test_nodes_compile_using_the_same_text_and_tex_policy(
 
 
 def test_tex_ink_query_excludes_layout_whitespace(config: TeXConfig) -> None:
-    entity = TeX(r"\quad x\quad", position=(5, 10), config=config)
+    entity = tex(r"\quad x\quad", position=(5, 10), config=config)
     canvas = Canvas(80, 30)
     layout = canvas.query().bounds(entity)
     ink = canvas.query().ink_bounds(entity)
@@ -118,7 +118,7 @@ def test_tex_ink_query_excludes_layout_whitespace(config: TeXConfig) -> None:
 
 
 def test_tex_rescale_changes_fixed_mm_geometry_without_retypesetting(config: TeXConfig) -> None:
-    entity = TeX(r"\rule{10mm}{2mm}", position=(5, 10), config=config)
+    entity = tex(r"\rule{10mm}{2mm}", position=(5, 10), config=config)
     before = entity.bounds
     entity.rescale(2)
     assert entity.bounds.width == pytest.approx(before.width * 2, abs=0.001)

@@ -14,7 +14,6 @@ from pdl import (
     Cylinder,
     CylinderSurface,
     Group,
-    Line,
     OrthographicCamera,
     PathGeometry,
     Plane3D,
@@ -22,10 +21,11 @@ from pdl import (
     ProjectedScene,
     Scene3D,
     Style,
-    Text,
     Transform3D,
     Translation,
     Vector3D,
+    line,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 from pdl.author.geometry.shapes import Arc as ArcGeometry
@@ -85,12 +85,12 @@ def make_cutaway(material: CylinderSurface, probe: Cylinder, *, label: bool = Tr
     if label:
         tip = background.point(probe.base + probe.axis.normalized() * probe.height)
         assembly.add(
-            Line((tip.x + 1, tip.y - 1), (tip.x + 13, tip.y + 3)).set_style(
+            line((tip.x + 1, tip.y - 1), (tip.x + 13, tip.y + 3)).set_style(
                 Style(stroke=PROBE, line_width=0.25)
             )
         )
         assembly.add(
-            Text("probe", position=(tip.x + 14, tip.y + 2), size=10).set_style(
+            text("probe", position=(tip.x + 14, tip.y + 2), size=10).set_style(
                 Style(fill=INK, stroke=None)
             )
         )
@@ -104,7 +104,7 @@ def example() -> Canvas:
     font = latin_font()
     ink = Style(fill=INK, stroke=None)
     canvas.draw(
-        Text(
+        text(
             "Cylindrical material / independently projected layers",
             font=font,
             position=(9, 113),
@@ -122,9 +122,9 @@ def example() -> Canvas:
         (88, "2. Add interior + probe"),
         (166, "3. Reposition probe in 3D"),
     ):
-        canvas.draw(Text(title, font=font, position=(x, 18), size=10), ink)
+        canvas.draw(text(title, font=font, position=(x, 18), size=10), ink)
     canvas.draw(
-        Text(
+        text(
             "Same camera + shared world frame; Canvas order controls overlap.",
             font=font,
             position=(14, 7),
@@ -149,9 +149,9 @@ def views() -> Canvas:
         )
     ):
         x = 30 + 58 * i
-        canvas.draw(Text(title, position=(x - 15, 121), size=11), ink)
+        canvas.draw(text(title, position=(x - 15, 121), size=11), ink)
         # A colored line behind the bore makes accidental hole filling visible.
-        canvas.draw(Line((x - 22, 89), (x + 22, 89)), Style(stroke=PROBE, line_width=1))
+        canvas.draw(line((x - 22, 89), (x + 22, 89)), Style(stroke=PROBE, line_width=1))
         flat = Scene3D((washer,), camera, sort_faces=False).project()
         canvas.draw(as_entity(flat, transform=Translation(x, 87)))
         surface = make_material().transformed(Transform3D.scale(0.65))

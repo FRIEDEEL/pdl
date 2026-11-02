@@ -2,12 +2,12 @@
 
 import pytest
 
-from pdl import Canvas, Connection, Font, Group, Node, Point, Style, Text
+from pdl import Canvas, Connection, Font, Group, Node, Point, Style, text
 
 
 def test_connection_uses_fixed_anchor_values(font: Font) -> None:
-    first = Node(Text("A", font), position=(10, 10))
-    second = Node(Text("B", font), position=(40, 10))
+    first = Node(text("A", font), position=(10, 10))
+    second = Node(text("B", font), position=(40, 10))
     connection = Connection(first.anchor("east"), second.anchor("west"))
     before = connection.start
     first.translate(5, 0)

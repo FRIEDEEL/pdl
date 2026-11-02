@@ -11,16 +11,16 @@ from pdl import (
     Color,
     DirectionalLight,
     Group,
-    Line,
     Node,
     OrthographicCamera,
     Point3D,
     Polyhedron,
     Scene3D,
     Style,
-    Text,
     Translation,
     Vector3D,
+    line,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 
@@ -61,7 +61,7 @@ def numbered_die() -> Polyhedron:
     font = latin_font()
     for i in range(10):
         number = Node(
-            Text(str(i + 1), font=font, size=21),
+            text(str(i + 1), font=font, size=21),
             padding=(0, 0),
             style=Style(stroke=None),
             text_style=Style(stroke=None, fill=WHITE),
@@ -69,7 +69,7 @@ def numbered_die() -> Polyhedron:
         marks = [as_entity(number)]
         if i + 1 in (6, 9):
             marks.append(
-                as_entity(Line((-1.7, -4.5), (1.7, -4.5)), Style(stroke=WHITE, line_width=0.35))
+                as_entity(line((-1.7, -4.5), (1.7, -4.5)), Style(stroke=WHITE, line_width=0.35))
             )
         die = die.with_face_artwork(i, Group(*tuple(marks)))
     return die
@@ -85,12 +85,12 @@ def example() -> Canvas:
     face = 0
     point = front.face_center(0, face)
     label = Node(
-        Text("Face 1", font=latin_font(), size=10),
+        text("Face 1", font=latin_font(), size=10),
         position=(39, 12),
         padding=(1.5, 1),
         style=Style(stroke=None, fill=Color(0.92, 0.95, 0.97)),
     )
-    leader = Line((point.x + 3, point.y), (34, 12))
+    leader = line((point.x + 3, point.y), (34, 12))
     front_with_legend = Group(
         as_entity(front),
         as_entity(leader, Style(stroke=Color(0.35, 0.4, 0.45), line_width=0.25)),
@@ -98,19 +98,19 @@ def example() -> Canvas:
     )
     first = as_entity(front_with_legend, transform=Translation(42, 51))
     second = as_entity(back, transform=Translation(145, 51))
-    title = Text(
+    title = text(
         "D10: planar artwork, then a 2D legend", font=latin_font(), position=(8, 101), size=18
     )
-    subtitle = Text(
+    subtitle = text(
         "Ten kite faces / face numbers / opposite orthographic views",
         font=latin_font(),
         position=(8, 92),
         size=10,
     )
     notes = (
-        Text("Front view + 2D annotation", font=latin_font(), position=(12, 12), size=10),
-        Text("Opposite view", font=latin_font(), position=(122, 12), size=10),
-        Text(
+        text("Front view + 2D annotation", font=latin_font(), position=(12, 12), size=10),
+        text("Opposite view", font=latin_font(), position=(122, 12), size=10),
+        text(
             "Numbers 1-10 are example artwork; no canonical dice numbering is implied.",
             font=latin_font(),
             position=(8, 4),

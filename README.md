@@ -14,21 +14,21 @@ Run from the repository after selecting Python with pyenv and installing with
 dvisvgm; native-font PDF output uses XeLaTeX and the required LaTeX packages.
 
 ```python
-from pdl import Canvas, Circle, Color, Entity, Group, PathGeometry, Style, Text
+from pdl import Canvas, Color, Entity, Group, PathGeometry, Style, circle, text
 
-circle = Circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
+disk = circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
 curve = Entity(
     PathGeometry().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10)),
     style=Style(line_width=0.5),
 )
-label = Text("A reusable component", position=(12, 45), size=11)
-component = Group(circle, curve, label)
+label = text("A reusable component", position=(12, 45), size=11)
+component = Group(disk, curve, label)
 canvas = Canvas(80, 55).add(component)
 canvas.save("drawing.svg")
 canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
 
-Circle, Rectangle, Text, and the other drawing factories return Entity objects.
+`circle`, `rectangle`, `text`, and the other drawing factories return Entity objects.
 Pure descriptions live in `pdl.author.geometry`. PathGeometry is the path builder;
 Entity attaches style and drawing operations. Canvas.add/draw captures the current
 state, so later edits require another submission.

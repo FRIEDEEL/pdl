@@ -3,14 +3,14 @@
 from pathlib import Path
 
 from examples._shared import BLUE, LABEL, PALE, export, output_base
-from pdl import Canvas, Connection, Node, RendererConfig, Style, Text
+from pdl import Canvas, Connection, Node, RendererConfig, Style, text
 
 
 def example() -> Canvas:
     paint = Style(stroke=BLUE, fill=PALE, line_width=0.45)
-    source = Node(Text("Source"), position=(28, 62), style=paint)
-    process = Node(Text("Process data"), position=source.anchor("east") + (45, 0), style=paint)
-    result = Node(Text("Result"), position=process.anchor("east") + (45, 0), style=paint)
+    source = Node(text("Source"), position=(28, 62), style=paint)
+    process = Node(text("Process data"), position=source.anchor("east") + (45, 0), style=paint)
+    result = Node(text("Result"), position=process.anchor("east") + (45, 0), style=paint)
     forward = Connection(source.anchor("east"), process.anchor("west"))
     output = Connection(process.anchor("east"), result.anchor("west"))
     feedback = Connection(
@@ -18,9 +18,9 @@ def example() -> Canvas:
         source.anchor("south"),
         via=(result.anchor("south") + (0, -25), source.anchor("south") + (0, -25)),
     )
-    title = Text("Define objects and relationships. Then render.", position=(8, 91), size=16)
-    route_label = Text("Feedback / via points also refer to anchors", position=(35, 27), size=10)
-    note = Text(
+    title = text("Define objects and relationships. Then render.", position=(8, 91), size=16)
+    route_label = text("Feedback / via points also refer to anchors", position=(35, 27), size=10)
+    note = text(
         "Try another font on this same canvas; the anchors follow.", position=(8, 8), size=10
     )
 
@@ -29,8 +29,8 @@ def example() -> Canvas:
         canvas.draw(connection)
     for node in (result, process, source):
         canvas.draw(node)
-    for text in (title, route_label, note):
-        canvas.draw(text, LABEL)
+    for text_entity in (title, route_label, note):
+        canvas.draw(text_entity, LABEL)
     return canvas
 
 

@@ -1,6 +1,6 @@
 # Typography and external-tool configuration
 
-Text and TeX factories create Entities around dedicated native descriptions.
+`text` and `tex` factories create Entities around dedicated native descriptions.
 Position is a baseline point, size is in TeX points, and rotation is the current
 orientation. Measurement is lazy. Canvas fixes font candidates, TeX environment,
 and measured layout on submission. Captured Entities remain ordinary editable
@@ -50,10 +50,10 @@ bidirectional content are reported explicitly.
    :member-order: bysource
 ```
 
-## Text drawing factory
+## text drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Text
+.. autofunction:: pdl.text
 ```
 
 ### Native Text description
@@ -64,10 +64,10 @@ bidirectional content are reported explicitly.
    :member-order: bysource
 ```
 
-## TeX drawing factory
+## tex drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.TeX
+.. autofunction:: pdl.tex
 ```
 
 ### Native TeX description

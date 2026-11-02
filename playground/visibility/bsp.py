@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 
-from pdl import Color, Entity, Group, Line, PerspectiveCamera, Point3D, Polygon, Style, Vector3D
+from pdl import Color, Entity, Group, PerspectiveCamera, Point3D, Style, Vector3D, line, polygon
 from pdl.extensions.spacial.projected import ProjectedScene
 from pdl.extensions.spacial.solids import centroid, face_normal
 
@@ -209,10 +209,10 @@ def project(
     children: list[Entity] = []
     for face in fragments:
         projected = tuple(camera.project(point) for point in face.vertices)
-        fill = Polygon(projected, style=Style(stroke=None, fill=face.color))
+        fill = polygon(projected, style=Style(stroke=None, fill=face.color))
         if outlines:
             edges = tuple(
-                Line(
+                line(
                     point,
                     projected[(i + 1) % len(projected)],
                     style=Style(stroke=Color(0.12, 0.16, 0.22), line_width=0.18),

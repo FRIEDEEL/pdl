@@ -4,7 +4,7 @@ Run with ``uv run python -m examples.geometry.gallery``.
 """
 
 from examples._shared import export
-from pdl import Canvas, Circle, Color, Line, PathGeometry, Polygon, Polyline, Rectangle, Style
+from pdl import Canvas, Color, PathGeometry, Style, circle, line, polygon, polyline, rectangle
 from pdl.author.entity.factories import as_entity
 from pdl.author.geometry.shapes import Arc as ArcGeometry
 from pdl.author.geometry.shapes import Rectangle as RectangleGeometry
@@ -14,11 +14,11 @@ def gallery() -> Canvas:
     blue = Color(0.15, 0.4, 0.8)
     pale = Color(0.8, 0.9, 1)
     paint = Style(stroke=blue, fill=pale, line_width=0.6)
-    line = Line((5, 80), (30, 80))
-    polyline = Polyline(((40, 75), (50, 85), (65, 75)))
-    circle = Circle((85, 80), 7)
-    rectangle = Rectangle((5, 50), 25, 15)
-    polygon = Polygon(((40, 50), (55, 65), (65, 50)))
+    line_entity = line((5, 80), (30, 80))
+    polyline_entity = polyline(((40, 75), (50, 85), (65, 75)))
+    circle_entity = circle((85, 80), 7)
+    rectangle_entity = rectangle((5, 50), 25, 15)
+    polygon_entity = polygon(((40, 50), (55, 65), (65, 50)))
     angle_arc = ArcGeometry.from_tikz((78, 55), radius=8, start_angle=180, end_angle=450)
     endpoint_arc = ArcGeometry.from_svg(
         (100, 50), (115, 65), radius_x=12, radius_y=6, rotation=25, sweep=True
@@ -38,12 +38,12 @@ def gallery() -> Canvas:
         .line_to((87, 28))
         .close()
     )
-    background = Rectangle((5, 5), 20, 10)
-    foreground = Circle((23, 12), 6)
+    background = rectangle((5, 5), 20, 10)
+    foreground = circle((23, 12), 6)
     canvas = Canvas(120, 90)
-    canvas.draw(line, Style(line_width=0.8, line_cap="round"))
-    canvas.draw(polyline, Style(stroke=blue))
-    for geometry in (circle, rectangle, polygon, angle_arc, endpoint_arc):
+    canvas.draw(line_entity, Style(line_width=0.8, line_cap="round"))
+    canvas.draw(polyline_entity, Style(stroke=blue))
+    for geometry in (circle_entity, rectangle_entity, polygon_entity, angle_arc, endpoint_arc):
         canvas.draw(as_entity(geometry), paint)
     canvas.draw(as_entity(curve), Style(stroke=blue, line_width=0.8))
     canvas.draw(as_entity(ring), Style(fill=pale, stroke=blue, fill_rule="evenodd"))

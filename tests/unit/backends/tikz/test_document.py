@@ -1,6 +1,6 @@
 """Backend semantics, fallback and real TikZ compilation."""
 
-from pdl import Arc, Canvas, Entity
+from pdl import Canvas, Entity, arc
 from pdl import PathGeometry as Path
 
 
@@ -13,8 +13,8 @@ def test_quadratic_is_exactly_elevated_for_tikz() -> None:
 
 def test_native_arc_and_rotated_fallback() -> None:
     canvas = Canvas(30, 30)
-    canvas.draw(Arc((10, 10), 4, 2, 0, 360))
+    canvas.draw(arc((10, 10), 4, 2, 0, 360))
     assert canvas.render().count(" A ") == 2
     assert "arc[" in canvas.render("tikz")
-    canvas.draw(Arc((10, 10), 4, 2, 0, 90, rotation=30))
+    canvas.draw(arc((10, 10), 4, 2, 0, 90, rotation=30))
     assert "controls" in canvas.render("tikz")

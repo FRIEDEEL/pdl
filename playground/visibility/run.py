@@ -22,8 +22,8 @@ from pdl import (
     Scaling,
     Scene3D,
     Style,
-    Text,
     Translation,
+    text,
 )
 from playground.visibility.bsp import Face, project
 from playground.visibility.oracle import check
@@ -62,7 +62,7 @@ def poster() -> None:
     ink = Style(stroke=None, fill=Color(0.1, 0.17, 0.24))
 
     def label(value: str, x: float, y: float, size: float = 11) -> None:
-        canvas.draw(Text(value, font=font, position=(x, y), size=size), ink)
+        canvas.draw(text(value, font=font, position=(x, y), size=size), ink)
 
     label("Perspective visibility / centroid vs BSP", 12, 523, 23)
     label("Centroid ordering (reference)", 20, 508)

@@ -10,6 +10,8 @@
 
 - While pdl APIs remain provisional, do not retain old API compatibility unless
   explicitly requested. Update examples and documentation to the current API.
+- Name factory functions in lowercase snake_case (for example, `circle`, `text`,
+  and `tex`); retain PascalCase for actual classes.
 - During this development stage, prioritize clear behavior descriptions and
   understandable examples over polished tutorial prose and smooth transitions.
 - Organize tutorials into a few major parts; teach Group, Gather, and Layer

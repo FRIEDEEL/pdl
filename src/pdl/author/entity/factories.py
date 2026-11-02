@@ -19,7 +19,7 @@ from pdl.author.transform.affine import AffineTransform
 from pdl.author.util.tex import TeXConfig
 
 
-def Circle(center: Position = (0, 0), radius: float = 1, *, style: Style | None = None) -> Entity:
+def circle(center: Position = (0, 0), radius: float = 1, *, style: Style | None = None) -> Entity:
     """Create a circle Entity in world millimeters, referenced at its center.
 
     The result is a thin Entity. An omitted style stays None and uses parent or
@@ -30,7 +30,7 @@ def Circle(center: Position = (0, 0), radius: float = 1, *, style: Style | None 
     return Entity(shapes.Circle(center, radius), style=style)
 
 
-def Line(start: Position, end: Position, *, style: Style | None = None) -> Entity:
+def line(start: Position, end: Position, *, style: Style | None = None) -> Entity:
     """Create a segment Entity, referenced at its first endpoint.
 
     The result is a thin Entity. An omitted style stays None and uses parent or
@@ -41,7 +41,7 @@ def Line(start: Position, end: Position, *, style: Style | None = None) -> Entit
     return Entity(shapes.Line(start, end), style=style)
 
 
-def Polyline(points: tuple[Position, ...], *, style: Style | None = None) -> Entity:
+def polyline(points: tuple[Position, ...], *, style: Style | None = None) -> Entity:
     """Create an open chain Entity from world positions in millimeters.
 
     The result is a thin Entity. An omitted style stays None and uses parent or
@@ -52,7 +52,7 @@ def Polyline(points: tuple[Position, ...], *, style: Style | None = None) -> Ent
     return Entity(shapes.Polyline(points), style=style)
 
 
-def Polygon(points: tuple[Position, ...], *, style: Style | None = None) -> Entity:
+def polygon(points: tuple[Position, ...], *, style: Style | None = None) -> Entity:
     """Create a closed polygon Entity from world positions in millimeters.
 
     The result is a thin Entity. An omitted style stays None and uses parent or
@@ -63,7 +63,7 @@ def Polygon(points: tuple[Position, ...], *, style: Style | None = None) -> Enti
     return Entity(shapes.Polygon(points), style=style)
 
 
-def Rectangle(
+def rectangle(
     origin: Position, width: float, height: float, *, style: Style | None = None
 ) -> Entity:
     """Create a rectangle Entity, referenced at its lower-left origin.
@@ -76,7 +76,7 @@ def Rectangle(
     return Entity(shapes.Rectangle(origin, width, height), style=style)
 
 
-def Arc(
+def arc(
     center: Position,
     radius_x: float,
     radius_y: float,
@@ -98,7 +98,7 @@ def Arc(
     )
 
 
-def Path(geometry: PathGeometry | None = None, *, style: Style | None = None) -> Entity:
+def path(geometry: PathGeometry | None = None, *, style: Style | None = None) -> Entity:
     """Create an Entity directly holding a path builder, without copying it.
 
     The result is a thin Entity. An omitted style stays None and uses parent or
@@ -109,7 +109,7 @@ def Path(geometry: PathGeometry | None = None, *, style: Style | None = None) ->
     return Entity(PathGeometry() if geometry is None else geometry, style=style)
 
 
-def Text(
+def text(
     text: str,
     font: Font | FontStack | None = None,
     position: Position = (0, 0),
@@ -132,7 +132,7 @@ def Text(
     )
 
 
-def TeX(
+def tex(
     source: str,
     position: Position = (0, 0),
     size: float = 12,
@@ -150,7 +150,7 @@ def TeX(
     return Entity(TeXGeometry(source, position, size, config), style=style)
 
 
-def Image(
+def image(
     source: str | FilePath,
     width: float,
     height: float,

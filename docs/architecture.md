@@ -2,7 +2,7 @@
 
 Author is the sole editable drawing domain. Geometry describes current shape
 parameters, Style describes paint, and Entity combines them with numerical
-position queries. Drawing factories such as Circle return Entity; pure shapes
+position queries. Lowercase drawing factories such as circle return Entity; pure shapes
 are imported from author.geometry. No shared Geometry base is required.
 
 ## Responsibilities and dependencies

@@ -12,11 +12,11 @@ from pdl import (
     OrthographicCamera,
     Scene3D,
     Style,
-    Text,
     Transform3D,
     Translation,
     Vector3D,
     regular_polyhedron,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 from pdl.extensions.spacial.solids import PlatonicKind
@@ -48,23 +48,23 @@ def example() -> Canvas:
         solid = solid.transformed(Transform3D.rotate(12, Vector3D(0, 0, 1)))
         scene = Scene3D((solid,), camera=CAMERA, light=LIGHT).project()
         scenes.append(as_entity(scene, transform=Translation(center, 46)))
-        labels.append(Text(name, font=font, position=(center - 19, 17), size=11))
+        labels.append(text(name, font=font, position=(center - 19, 17), size=11))
         details.append(
-            Text(
+            text(
                 f"V {vertices}   E {edges}   F {faces}",
                 font=font,
                 position=(center - 19, 10),
                 size=8,
             )
         )
-    title = Text("The five Platonic solids", font=font, position=(7, 89), size=19)
-    subtitle = Text(
+    title = text("The five Platonic solids", font=font, position=(7, 89), size=19)
+    subtitle = text(
         "Orthographic view / equal circumradius / shared intrinsic color",
         font=font,
         position=(7, 80),
         size=10,
     )
-    lighting = Text(
+    lighting = text(
         "Light travels along (-1, 1, -2); ambient = 0.22", font=font, position=(7, 73), size=9
     )
 

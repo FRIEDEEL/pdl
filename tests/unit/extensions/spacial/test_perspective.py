@@ -19,10 +19,10 @@ from pdl import (
     Scene3D,
     Sphere,
     Style,
-    Text,
     Translation,
     Vector3D,
     regular_polyhedron,
+    text,
 )
 from pdl import (
     PathGeometry as Path,
@@ -102,7 +102,7 @@ def test_depth_sort_is_axial_and_manual_order_overrides_it() -> None:
 def test_transparent_faces_keep_back_faces_and_back_artwork() -> None:
     cube = replace(regular_polyhedron("cube"), opacity=0.3)
     for i in range(len(cube.faces)):
-        cube = cube.with_face_artwork(i, Text(str(i)))
+        cube = cube.with_face_artwork(i, text(str(i)))
     canvas = Canvas(70, 70, mode="fit", padding=4)
     canvas.draw(Scene3D((cube,), PerspectiveCamera(), visibility="centroid").project())
     root = ET.fromstring(canvas.render("svg"))
@@ -117,7 +117,7 @@ def test_transparent_faces_keep_back_faces_and_back_artwork() -> None:
 
 def test_deferred_text_outlines_capture_and_native_legend() -> None:
     source = Path().move_to((-10, 0)).line_to((10, 0))
-    artwork = Group(Drawing(source), Drawing(Node(Text("Plane"), style=Style(stroke=None))))
+    artwork = Group(Drawing(source), Drawing(Node(text("Plane"), style=Style(stroke=None))))
     plane = Plane3D(Point3D(0, 0, 0), Vector3D(1, 1, 0), Vector3D(0, 0, 1))
     snapshot = Scene3D(
         (plane.place(artwork),), PerspectiveCamera(0, 0), visibility="centroid"
@@ -128,7 +128,7 @@ def test_deferred_text_outlines_capture_and_native_legend() -> None:
     source.line_to((30, 20))
     canvas = Canvas(60, 60, mode="fit")
     canvas.draw(snapshot)
-    canvas.draw(Text("Legend", position=(0, 15)), Style(stroke=None, fill=Color(0, 0, 0)))
+    canvas.draw(text("Legend", position=(0, 15)), Style(stroke=None, fill=Color(0, 0, 0)))
     svg = canvas.render("svg")
     assert "Plane" not in svg
     assert "Legend" in svg
@@ -178,10 +178,10 @@ def test_reordering_preserves_source_queries_and_validates_permutation() -> None
 
 
 def test_perspective_images_are_rejected_instead_of_drawing_their_bounds() -> None:
-    from pdl import Image
+    from pdl import image
 
     asset = FilePath(__file__).parents[4] / "examples/tutorial/media/quadrants.png"
-    surface = Plane3D().place(Image(asset, 10, 10))
+    surface = Plane3D().place(image(asset, 10, 10))
     canvas = Canvas(30, 30)
     with pytest.raises(ValueError, match="embedded images"):
         canvas.draw(Scene3D((surface,), PerspectiveCamera(), visibility="centroid").project())

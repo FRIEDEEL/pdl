@@ -5,7 +5,7 @@ from pathlib import Path as FilePath
 
 import pytest
 
-from pdl import Arc, Canvas, Color, Entity, Style
+from pdl import Canvas, Color, Entity, Style, arc
 from pdl import PathGeometry as Path
 
 
@@ -18,7 +18,7 @@ def test_tikz_compiles(tmp_path: FilePath) -> None:
         Entity(Path().move_to((1, 1)).quadratic_to((10, 25), (20, 1)).close()),
         Style(fill=Color(0.2, 0.4, 0.8)),
     )
-    canvas.draw(Arc((20, 15), 8, 5, 0, 270, rotation=20))
+    canvas.draw(arc((20, 15), 8, 5, 0, 270, rotation=20))
     source = tmp_path / "drawing.tex"
     canvas.save(source, backend="tikz", tikz_mode="pdf", engine="pdflatex")
     assert (tmp_path / "drawing.pdf").stat().st_size > 0

@@ -87,10 +87,10 @@ Page protocol rather than the Canvas implementation.
    :member-order: bysource
 ```
 
-## Image
+## image drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Image
+.. autofunction:: pdl.image
 ```
 
 Image stores captured PNG/JPEG bytes and current viewport corners. See the [image lesson](../tutorial/en/04-finish/02-images.md).

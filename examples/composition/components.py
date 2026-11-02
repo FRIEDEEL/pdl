@@ -3,33 +3,33 @@
 from examples._shared import BLUE, INK, LABEL, PALE, export, valve
 from pdl import (
     Canvas,
-    Circle,
     Group,
-    Line,
     RendererConfig,
     Rotation,
     Scaling,
     Style,
-    Text,
     Translation,
+    circle,
+    line,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 
 
 def example() -> Canvas:
     canvas = Canvas(160, 102, renderer=RendererConfig(fonts=("sans-serif",)))
-    title = Text("Reusable components / local coordinates", size=16, position=(8, 92))
+    title = text("Reusable components / local coordinates", size=16, position=(8, 92))
     body = valve()
     original = body.copy().apply_transform(Translation(25, 66))
     rotated = body.copy().apply_transform(Translation(70, 66) @ Rotation(90))
     scaled = body.copy().apply_transform(Translation(120, 66) @ Scaling(2, 1.4))
     captions = (
-        Text("original", align="center", position=(25, 48)),
-        Text("rotate 90 deg", align="center", position=(70, 48)),
-        Text("scale (2, 1.4)", align="center", position=(120, 48)),
+        text("original", align="center", position=(25, 48)),
+        text("rotate 90 deg", align="center", position=(70, 48)),
+        text("scale (2, 1.4)", align="center", position=(120, 48)),
     )
-    pipe = Line((-20, 0), (20, 0))
-    vessel = Circle((15, 0), 6)
+    pipe = line((-20, 0), (20, 0))
+    vessel = circle((15, 0), 6)
     assembly = Group(
         as_entity(pipe, INK),
         as_entity(body),
@@ -37,7 +37,7 @@ def example() -> Canvas:
     )
     first = assembly.copy().apply_transform(Translation(40, 24))
     second = assembly.copy().apply_transform(Translation(112, 23) @ Rotation(25) @ Scaling(0.8))
-    note = Text(
+    note = text(
         "Two instances share one definition; stroke stays 0.45 mm.", size=9, position=(8, 6)
     )
     canvas.draw(title, LABEL)

@@ -1,9 +1,9 @@
 # Geometry and drawing factories
 
-The drawing factories return Entity. Import same-named pure descriptions from
+The drawing factories return Entity. Import corresponding PascalCase pure descriptions from
 `pdl.author.geometry` when constructing paths or querying numerical parameters.
 A bare description cannot be submitted to Canvas. PathGeometry is the public
-path builder; `Entity(builder)` or `Path(builder)` attaches drawing behavior.
+path builder; `Entity(builder)` or `path(builder)` attaches drawing behavior.
 
 | Default reference | Description |
 | --- | --- |
@@ -17,46 +17,46 @@ path builder; `Entity(builder)` or `Path(builder)` attaches drawing behavior.
 Entity transforms preserve its reference even when the held geometry changes
 representation. Bounds/anchors exclude stroke and use current world axes.
 
-## Line drawing factory
+## line drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Line
+.. autofunction:: pdl.line
 ```
 
-## Polyline drawing factory
+## polyline drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Polyline
+.. autofunction:: pdl.polyline
 ```
 
-## Polygon drawing factory
+## polygon drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Polygon
+.. autofunction:: pdl.polygon
 ```
 
-## Rectangle drawing factory
+## rectangle drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Rectangle
+.. autofunction:: pdl.rectangle
 ```
 
-## Circle drawing factory
+## circle drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Circle
+.. autofunction:: pdl.circle
 ```
 
-## Arc drawing factory
+## arc drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Arc
+.. autofunction:: pdl.arc
 ```
 
-## Path drawing factory
+## path drawing factory
 
 ```{eval-rst}
-.. autofunction:: pdl.Path
+.. autofunction:: pdl.path
 ```
 
 ## Point

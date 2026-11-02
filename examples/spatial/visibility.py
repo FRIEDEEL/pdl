@@ -15,8 +15,8 @@ from pdl import (
     Scaling,
     Scene3D,
     Style,
-    Text,
     Translation,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 
@@ -89,7 +89,7 @@ def example() -> Canvas:
     ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 
     def label(value: str, x: float, y: float, size: float = 10) -> None:
-        canvas.draw(Text(value, font=font, position=(x, y), size=size), ink)
+        canvas.draw(text(value, font=font, position=(x, y), size=size), ink)
 
     label("Polygon visibility / perspective", 12, 408, 23)
     label("Centroid reference", 20, 395)

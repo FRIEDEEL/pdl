@@ -299,7 +299,7 @@
   Gather selections, and positioning relationships in `author/entity/`.
   Entity delegates transformation policy to the transform package and must
   not import Canvas, output adapters, or extensions.
-- Drawing constructors such as `Circle(...)` may be factory functions returning
+- Drawing constructors such as `circle(...)` are lowercase factory functions returning
   Entity instances around pure geometric descriptions. No CircleEntity class
   is required. Group is an Entity; Gather is a separate collection, and Layer
   belongs to Canvas.

@@ -1,7 +1,7 @@
 # 源码架构
 
 Author 是唯一可编辑的绘图领域模型。Geometry 描述当前形状参数，Style 描述样式，
-Entity 结合二者并提供数值位置查询。Circle 等绘图工厂返回 Entity；纯几何从
+Entity 结合二者并提供数值位置查询。circle 等小写绘图工厂返回 Entity；纯几何从
 `author.geometry` 导入，不要求共同 Geometry 基类。
 
 ## 职责与依赖

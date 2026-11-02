@@ -5,7 +5,7 @@ from __future__ import annotations
 from math import hypot, isfinite
 
 from pdl.author.entity.base import Entity
-from pdl.author.entity.factories import Polygon, Polyline
+from pdl.author.entity.factories import polygon, polyline
 from pdl.author.entity.group import Group
 from pdl.author.geometry.frame import SpacePoint
 from pdl.author.geometry.point import Point, Position, as_point
@@ -52,7 +52,7 @@ class Connection(Group):
             ux, uy = (tip.x - other.x) / length, (tip.y - other.y) / length
             base = Point(tip.x - size * ux, tip.y - size * uy)
             heads.append(
-                Polygon(
+                polygon(
                     (
                         tip,
                         (base.x - size * 0.4 * uy, base.y + size * 0.4 * ux),
@@ -63,7 +63,7 @@ class Connection(Group):
             )
             points[index] = base
         super().__init__(
-            Polyline(tuple(points)), *heads, style=style, reference=self._point(self._route[0])
+            polyline(tuple(points)), *heads, style=style, reference=self._point(self._route[0])
         )
 
     @staticmethod

@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from pdl import Canvas, Node, Text
+from pdl import Canvas, Node, text
 
-hello = Node(Text("Hello world"), position=(30, 15))
+hello = Node(text("Hello world"), position=(30, 15))
 
 canvas = Canvas(60, 30)
 canvas.draw(hello)

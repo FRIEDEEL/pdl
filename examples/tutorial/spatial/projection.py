@@ -5,13 +5,13 @@ from pdl import (
     Canvas,
     Color,
     Group,
-    Line,
     OrthographicCamera,
     Rotation,
     Scene3D,
     Style,
-    Text,
+    line,
     regular_polyhedron,
+    text,
 )
 
 solid = regular_polyhedron("cube", radius=14)
@@ -20,8 +20,8 @@ projected = scene.project()
 
 # These are fixed coordinates in the projected drawing's authoring 2D world.
 corner = projected.vertex(0, 7)
-leader = Line(corner, (25, 16))
-legend = Text("A projected vertex", position=(26, 15), size=10)
+leader = line(corner, (25, 16))
+legend = text("A projected vertex", position=(26, 15), size=10)
 component = Group(
     projected.copy(),
     leader.copy().set_style(Style(stroke=Color(0.3, 0.3, 0.3), line_width=0.25)),

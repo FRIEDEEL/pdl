@@ -99,9 +99,9 @@ def test_positive_uniform_scale_retains_native_text(font: Font) -> None:
 
 def test_rotation_preserves_native_text_and_rotates_layout_bounds(font: Font) -> None:
     from pdl import Canvas
-    from pdl import Text as DrawText
+    from pdl import text as draw_text
 
-    entity = DrawText("Wide label", font, position=(10, 20))
+    entity = draw_text("Wide label", font, position=(10, 20))
     before = entity.bounds
     entity.rotate(90)
     assert isinstance(entity.geometry, Text)
@@ -116,9 +116,9 @@ def test_rotation_preserves_native_text_and_rotates_layout_bounds(font: Font) ->
 
 def test_captured_layout_refreshes_after_explicit_content_edits(font: Font) -> None:
     from pdl import Canvas
-    from pdl import Text as DrawText
+    from pdl import text as draw_text
 
-    captured = Canvas(80, 30).snapshot(DrawText("A", font))
+    captured = Canvas(80, 30).snapshot(draw_text("A", font))
     before = captured.bounds.width
     assert isinstance(captured.geometry, Text)
     captured.geometry.text = "A considerably longer label"

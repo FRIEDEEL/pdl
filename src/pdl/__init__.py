@@ -5,17 +5,17 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pdl.author.entity.base import Entity as Entity
-    from pdl.author.entity.factories import Arc as Arc
-    from pdl.author.entity.factories import Circle as Circle
-    from pdl.author.entity.factories import Image as Image
-    from pdl.author.entity.factories import Line as Line
-    from pdl.author.entity.factories import Path as Path
-    from pdl.author.entity.factories import Polygon as Polygon
-    from pdl.author.entity.factories import Polyline as Polyline
-    from pdl.author.entity.factories import Rectangle as Rectangle
-    from pdl.author.entity.factories import TeX as TeX
-    from pdl.author.entity.factories import Text as Text
+    from pdl.author.entity.factories import arc as arc
+    from pdl.author.entity.factories import circle as circle
     from pdl.author.entity.factories import frame_axes as frame_axes
+    from pdl.author.entity.factories import image as image
+    from pdl.author.entity.factories import line as line
+    from pdl.author.entity.factories import path as path
+    from pdl.author.entity.factories import polygon as polygon
+    from pdl.author.entity.factories import polyline as polyline
+    from pdl.author.entity.factories import rectangle as rectangle
+    from pdl.author.entity.factories import tex as tex
+    from pdl.author.entity.factories import text as text
     from pdl.author.entity.gather import Gather as Gather
     from pdl.author.entity.group import Group as Group
     from pdl.author.geometry.bounds import Bounds as Bounds
@@ -78,11 +78,11 @@ if TYPE_CHECKING:
 _EXPORTS: dict[str, tuple[str, str]] = {
     "AffineTransform": ("pdl.author.transform.affine", "AffineTransform"),
     "AnnularCylinder": ("pdl.extensions.spacial.surfaces", "AnnularCylinder"),
-    "Arc": ("pdl.author.entity.factories", "Arc"),
+    "arc": ("pdl.author.entity.factories", "arc"),
     "BLACK": ("pdl.author.style", "BLACK"),
     "Bounds": ("pdl.author.geometry.bounds", "Bounds"),
     "Canvas": ("pdl.canvas.canvas", "Canvas"),
-    "Circle": ("pdl.author.entity.factories", "Circle"),
+    "circle": ("pdl.author.entity.factories", "circle"),
     "Color": ("pdl.author.style", "Color"),
     "ColorStop": ("pdl.author.style", "ColorStop"),
     "Connection": ("pdl.extensions.diagram.connections", "Connection"),
@@ -100,27 +100,27 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "Frame": ("pdl.author.geometry.frame", "Frame"),
     "Gather": ("pdl.author.entity.gather", "Gather"),
     "Group": ("pdl.author.entity.group", "Group"),
-    "Image": ("pdl.author.entity.factories", "Image"),
+    "image": ("pdl.author.entity.factories", "image"),
     "Layer": ("pdl.canvas.layers", "Layer"),
     "LayerStack": ("pdl.canvas.layers", "LayerStack"),
-    "Line": ("pdl.author.entity.factories", "Line"),
+    "line": ("pdl.author.entity.factories", "line"),
     "LinearGradient": ("pdl.author.style", "LinearGradient"),
     "Node": ("pdl.extensions.diagram.nodes", "Node"),
     "OrthographicCamera": ("pdl.extensions.spacial.projection", "OrthographicCamera"),
-    "Path": ("pdl.author.entity.factories", "Path"),
+    "path": ("pdl.author.entity.factories", "path"),
     "PathGeometry": ("pdl.author.geometry.path", "Path"),
     "PerspectiveCamera": ("pdl.extensions.spacial.projection", "PerspectiveCamera"),
     "Plane3D": ("pdl.extensions.spacial.solids", "Plane3D"),
     "Point": ("pdl.author.geometry.point", "Point"),
     "Point3D": ("pdl.extensions.spacial.coordinates", "Point3D"),
-    "Polygon": ("pdl.author.entity.factories", "Polygon"),
+    "polygon": ("pdl.author.entity.factories", "polygon"),
     "Polyhedron": ("pdl.extensions.spacial.solids", "Polyhedron"),
-    "Polyline": ("pdl.author.entity.factories", "Polyline"),
+    "polyline": ("pdl.author.entity.factories", "polyline"),
     "Position": ("pdl.author.geometry.point", "Position"),
     "ProjectedScene": ("pdl.extensions.spacial.projected", "ProjectedScene"),
     "Query": ("pdl.canvas.query", "Query"),
     "RadialGradient": ("pdl.author.style", "RadialGradient"),
-    "Rectangle": ("pdl.author.entity.factories", "Rectangle"),
+    "rectangle": ("pdl.author.entity.factories", "rectangle"),
     "Reflection": ("pdl.author.transform.affine", "Reflection"),
     "RendererConfig": ("pdl.author.style.typography", "RendererConfig"),
     "Rescale": ("pdl.author.transform.affine", "Rescale"),
@@ -133,10 +133,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "Sphere": ("pdl.extensions.spacial.curves", "Sphere"),
     "Style": ("pdl.author.style", "Style"),
     "Surface3D": ("pdl.extensions.spacial.solids", "Surface3D"),
-    "TeX": ("pdl.author.entity.factories", "TeX"),
+    "tex": ("pdl.author.entity.factories", "tex"),
     "TeXConfig": ("pdl.author.util.tex", "TeXConfig"),
     "Terminal": ("pdl.extensions.diagram.flowchart", "Terminal"),
-    "Text": ("pdl.author.entity.factories", "Text"),
+    "text": ("pdl.author.entity.factories", "text"),
     "Transform": ("pdl.author.transform.base", "Transform"),
     "Transform3D": ("pdl.extensions.spacial.coordinates", "Transform3D"),
     "Translation": ("pdl.author.transform.affine", "Translation"),
@@ -151,11 +151,11 @@ _EXPORTS: dict[str, tuple[str, str]] = {
 __all__ = [
     "AffineTransform",
     "AnnularCylinder",
-    "Arc",
+    "arc",
     "BLACK",
     "Bounds",
     "Canvas",
-    "Circle",
+    "circle",
     "Color",
     "ColorStop",
     "Connection",
@@ -173,27 +173,27 @@ __all__ = [
     "Frame",
     "Gather",
     "Group",
-    "Image",
+    "image",
     "Layer",
     "LayerStack",
-    "Line",
+    "line",
     "LinearGradient",
     "Node",
     "OrthographicCamera",
-    "Path",
+    "path",
     "PathGeometry",
     "PerspectiveCamera",
     "Plane3D",
     "Point",
     "Point3D",
-    "Polygon",
+    "polygon",
     "Polyhedron",
-    "Polyline",
+    "polyline",
     "Position",
     "ProjectedScene",
     "Query",
     "RadialGradient",
-    "Rectangle",
+    "rectangle",
     "Reflection",
     "RendererConfig",
     "Rescale",
@@ -206,10 +206,10 @@ __all__ = [
     "Sphere",
     "Style",
     "Surface3D",
-    "TeX",
+    "tex",
     "TeXConfig",
     "Terminal",
-    "Text",
+    "text",
     "Transform",
     "Transform3D",
     "Translation",

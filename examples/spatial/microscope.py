@@ -23,10 +23,10 @@ from pdl import (
     Scaling,
     Scene3D,
     Style,
-    Text,
     Transform3D,
     Translation,
     Vector3D,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 
@@ -346,8 +346,10 @@ def example() -> Canvas:
     canvas = Canvas(290, 205)
     font = latin_font()
 
-    def label(text: str, x: float, y: float, size: float = 10) -> None:
-        canvas.draw(Text(text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK))
+    def label(label_text: str, x: float, y: float, size: float = 10) -> None:
+        canvas.draw(
+            text(label_text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK)
+        )
 
     label("A microscope, built from components", 12, 190, 20)
     label("Named Python assemblies / polygonal surfaces / BSP visibility", 12, 180)
@@ -389,13 +391,15 @@ def focus_detail() -> Canvas:
         canvas.draw(
             as_entity(scene, transform=Translation(x, 58) @ Scaling(1.1 if x == 57 else 1.25))
         )
-    for text, x, y, size in (
+    for label_text, x, y, size in (
         ("Focus mechanism / component detail", 10, 116, 17),
         ("Earlier simplified support", 10, 16, 10),
         ("Rack, pinion, guides and saddle", 119, 16, 10),
         ("Near-side handwheel removed to expose the drive", 119, 8, 7),
     ):
-        canvas.draw(Text(text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK))
+        canvas.draw(
+            text(label_text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK)
+        )
     return canvas
 
 

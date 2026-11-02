@@ -12,21 +12,21 @@ pdl 用 Python 对象构建静态矢量图，包括 2D 形状和路径、Unicode
 TeX 测量需要 XeLaTeX 和 dvisvgm，原生字体 PDF 输出需要 XeLaTeX 及相应 LaTeX 包。
 
 ```python
-from pdl import Canvas, Circle, Color, Entity, Group, PathGeometry, Style, Text
+from pdl import Canvas, Color, Entity, Group, PathGeometry, Style, circle, text
 
-circle = Circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
+disk = circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
 curve = Entity(
     PathGeometry().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10)),
     style=Style(line_width=0.5),
 )
-label = Text("A reusable component", position=(12, 45), size=11)
-component = Group(circle, curve, label)
+label = text("A reusable component", position=(12, 45), size=11)
+component = Group(disk, curve, label)
 canvas = Canvas(80, 55).add(component)
 canvas.save("drawing.svg")
 canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
 
-Circle、Rectangle、Text 等绘图工厂返回 Entity。纯几何从 `pdl.author.geometry` 导入；
+`circle`、`rectangle`、`text` 等绘图工厂返回 Entity。纯几何从 `pdl.author.geometry` 导入；
 PathGeometry 负责构造路径，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
 之后的修改需要再次提交。
 

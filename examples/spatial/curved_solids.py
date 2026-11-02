@@ -15,9 +15,9 @@ from pdl import (
     Scene3D,
     Sphere,
     Style,
-    Text,
     Translation,
     Vector3D,
+    text,
 )
 from pdl.author.entity.factories import as_entity
 
@@ -53,15 +53,15 @@ def example() -> Canvas:
                 transform=Translation(x, 38),
             )
         )
-        labels.append(Text(label, font=font, position=(x - 17, 115), size=11))
-    title = Text("Smooth curved solids", font=font, position=(8, 140), size=20)
-    subtitle = Text(
+        labels.append(text(label, font=font, position=(x - 17, 115), size=11))
+    title = text("Smooth curved solids", font=font, position=(8, 140), size=20)
+    subtitle = text(
         "Sphere: radial approximation / Cylinder: Lambert-sampled linear gradient",
         font=font,
         position=(8, 130),
         size=10,
     )
-    note = Text(
+    note = text(
         "One intrinsic color; ambient = 0.20. Vector fills, no surface facets.",
         font=font,
         position=(8, 8),
@@ -101,8 +101,8 @@ def views() -> Canvas:
                 transform=Translation(32 + i * 53, 39),
             )
         )
-        labels.append(Text(label, font=font, position=(15 + i * 53, 10), size=10))
-    title = Text("Cylinder camera and axis checks", font=font, position=(8, 72), size=16)
+        labels.append(text(label, font=font, position=(15 + i * 53, 10), size=10))
+    title = text("Cylinder camera and axis checks", font=font, position=(8, 72), size=16)
     canvas.draw(title, INK)
     for panel in panels:
         canvas.draw(panel)

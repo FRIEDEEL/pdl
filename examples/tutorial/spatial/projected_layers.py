@@ -10,9 +10,9 @@ from pdl import (
     Point3D,
     Scene3D,
     Style,
-    Text,
     Translation,
     Vector3D,
+    text,
 )
 
 # tutorial-start
@@ -44,7 +44,7 @@ assembly.add(probe_2d)  # Later 2D drawing covers the material, regardless of de
 # A 2D annotation uses the same snapshot to project the world-space probe tip.
 probe_tip = material_2d.point(Point3D(0, 0, 28))
 assembly.add(
-    Text("probe", position=(probe_tip.x + 3, probe_tip.y), size=10).set_style(
+    text("probe", position=(probe_tip.x + 3, probe_tip.y), size=10).set_style(
         Style(fill=Color(0.65, 0.22, 0.08), stroke=None)
     )
 )

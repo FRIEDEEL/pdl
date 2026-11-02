@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Style
+from pdl import Canvas, Color, Style, circle
 
-original = Circle((15, 12), 5)
+original = circle((15, 12), 5)
 other = original.copy().translate(25, 0)
 canvas = Canvas(60, 40)
 canvas.draw(original, Style(stroke=Color(0.7, 0.7, 0.7), line_width=0.3))

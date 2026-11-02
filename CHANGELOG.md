@@ -4,9 +4,11 @@
 
 ### Changed
 
-- **Breaking:** drawing constructors such as Circle and Text are factory functions
+- **Breaking:** drawing constructors such as `circle` and `text` are factory functions
   returning thin Entity objects. Pure descriptions live in author.geometry;
   explicit Entity(geometry, style=...) construction is supported.
+- **Breaking:** factory names are lowercase (`Circle` → `circle`, `TeX` → `tex`,
+  and likewise for the other drawing factories). Actual classes retain PascalCase.
 - **Breaking:** transforms immediately update current geometry. Stretching circles
   or native text can replace their representation with paths. There is no stored
   placement/accumulated matrix. Native text retains baseline, size, and orientation
@@ -33,10 +35,10 @@
 ### Migration examples
 
 ```python
-from pdl import Circle, Entity, Group, PathGeometry, Style, Rescale
+from pdl import Entity, Group, PathGeometry, Rescale, Style, circle
 from pdl.author.geometry import Arc as ArcGeometry
 
-shape = Circle((10, 10), 3, style=Style(line_width=0.5))
+shape = circle((10, 10), 3, style=Style(line_width=0.5))
 changed = shape.copy().scale(2, 1)
 Rescale(2, include_linewidth=True).around(shape.reference).apply_to(shape)
 path = Entity(PathGeometry().move_to((0, 0)).line_to((5, 2)))

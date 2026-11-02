@@ -5,25 +5,25 @@ from pdl import (
     Canvas,
     Color,
     Group,
-    Line,
     Node,
     OrthographicCamera,
     PerspectiveCamera,
     Plane3D,
-    Rectangle,
     Scene3D,
     Style,
-    Text,
     Translation,
     Vector3D,
+    line,
+    rectangle,
+    text,
 )
 
 # tutorial-start
 plane = Plane3D(u=Vector3D(0.8, 1, 0), v=Vector3D(0, 0, 1))
 artwork = Group(
-    Rectangle((-22, -12), 44, 24).set_style(Style(fill=Color(0.65, 0.84, 1), line_width=0.3)),
-    Node(Text("Plane 123", size=16), style=Style(stroke=None)),
-    Line((-18, -8), (18, -8)).set_style(Style(line_width=0.3)),
+    rectangle((-22, -12), 44, 24).set_style(Style(fill=Color(0.65, 0.84, 1), line_width=0.3)),
+    Node(text("Plane 123", size=16), style=Style(stroke=None)),
+    line((-18, -8), (18, -8)).set_style(Style(line_width=0.3)),
 )
 ortho = OrthographicCamera(0, 0)
 camera = PerspectiveCamera(0, 0, distance=55, focal_length=55)
@@ -43,12 +43,12 @@ for x, solid in ((40, die_ortho), (120, die_perspective)):
     canvas.draw(solid.copy().apply_transform(Translation(x, 43)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Orthographic reference"), (94, "Perspective")):
-    canvas.draw(Text(title, position=(x, 135), size=12), ink)
+    canvas.draw(text(title, position=(x, 135), size=12), ink)
 canvas.draw(
-    Text("Same chart, same artwork; target-plane scale = 1", position=(18, 87), size=10), ink
+    text("Same chart, same artwork; target-plane scale = 1", position=(18, 87), size=10), ink
 )
-canvas.draw(Text("D10 / orthographic", position=(18, 5), size=10), ink)
-canvas.draw(Text("D10 / perspective", position=(95, 5), size=10), ink)
+canvas.draw(text("D10 / orthographic", position=(18, 5), size=10), ink)
+canvas.draw(text("D10 / perspective", position=(95, 5), size=10), ink)
 # tutorial-end
 
 if __name__ == "__main__":

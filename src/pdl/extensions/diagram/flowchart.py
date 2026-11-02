@@ -7,8 +7,8 @@ from math import isfinite
 from typing import Literal, Self
 
 from pdl.author.entity.base import Entity
-from pdl.author.entity.factories import Polygon, Text
 from pdl.author.entity.factories import as_entity as make_entity
+from pdl.author.entity.factories import polygon, text
 from pdl.author.geometry.bounds import Anchor
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.point import as_point as point
@@ -67,7 +67,7 @@ class FlowNode:
 
     @label.setter
     def label(self, value: str | Entity) -> None:
-        self._label = Text(value) if isinstance(value, str) else value
+        self._label = text(value) if isinstance(value, str) else value
 
     def translate(self, x: float, y: float) -> Self:
         """Offset this node and its grown descendants in authoring millimeters."""
@@ -311,12 +311,12 @@ class FlowDescription:
                     if remaining <= length:
                         x = a.x + (b.x - a.x) * remaining / length
                         y = a.y + (b.y - a.y) * remaining / length
-                        text = Text(edge.label)
-                        box = text.bounds
+                        text_entity = text(edge.label)
+                        box = text_entity.bounds
                         nx, ny = -(b.y - a.y) / length, (b.x - a.x) / length
                         distance = abs(nx) * box.width / 2 + abs(ny) * box.height / 2 + 1.5
                         label = Node(
-                            text,
+                            text_entity,
                             position=(x + nx * distance, y + ny * distance),
                             padding=(0, 0),
                             style=Style(stroke=None),
@@ -330,7 +330,7 @@ class FlowDescription:
                 box = node.bounds
                 drawings.append(
                     make_entity(
-                        Polygon(tuple(box.anchor(a) for a in ("north", "east", "south", "west"))),
+                        polygon(tuple(box.anchor(a) for a in ("north", "east", "south", "west"))),
                         node.style,
                     )
                 )

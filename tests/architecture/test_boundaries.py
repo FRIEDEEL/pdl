@@ -66,7 +66,7 @@ def test_importing_the_core_does_not_load_optional_extensions() -> None:
         [
             sys.executable,
             "-c",
-            "import sys; import pdl.author; from pdl import Circle, Canvas; "
+            "import sys; import pdl.author; from pdl import circle, Canvas; "
             "assert not any(k.startswith('pdl.extensions') for k in sys.modules); "
             "assert not any(k.startswith('pdl_old') for k in sys.modules)",
         ],
@@ -79,12 +79,12 @@ def test_importing_the_core_does_not_load_optional_extensions() -> None:
 
 
 def test_captured_extensions_are_ordinary_entity_groups() -> None:
-    from pdl import Canvas, Entity, Group, Node, Scene3D, Text, regular_polyhedron
+    from pdl import Canvas, Entity, Group, Node, Scene3D, regular_polyhedron, text
     from pdl.author.entity.capture import Composite, walk
     from pdl.author.geometry.protocols import PathSource
 
     canvas = Canvas(60, 40)
-    canvas.add(Group(Scene3D((regular_polyhedron("cube"),)).project(), Node(Text("Label"))))
+    canvas.add(Group(Scene3D((regular_polyhedron("cube"),)).project(), Node(text("Label"))))
     for leaf in walk(canvas.drawings):
         assert isinstance(leaf, Entity)
         assert not isinstance(leaf, Composite)
@@ -116,7 +116,7 @@ def test_author_and_affine_imports_do_not_initialize_output_adapters() -> None:
             sys.executable,
             "-c",
             "import sys; from pdl.author.transform import Translation; "
-            "from pdl.author import Circle; c=Circle((1,2),1); "
+            "from pdl.author import circle; c=circle((1,2),1); "
             "Translation(2,3).apply_to(c); assert c.reference.x == 3; "
             "assert not any(k.startswith(('pdl.canvas','pdl.backends',"
             "'pdl.extensions')) for k in sys.modules)",

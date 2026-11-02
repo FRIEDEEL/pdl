@@ -4,20 +4,20 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pdl.author.entity import Arc as Arc
-    from pdl.author.entity import Circle as Circle
     from pdl.author.entity import Entity as Entity
     from pdl.author.entity import Gather as Gather
     from pdl.author.entity import Group as Group
-    from pdl.author.entity import Image as Image
-    from pdl.author.entity import Line as Line
-    from pdl.author.entity import Path as Path
-    from pdl.author.entity import Polygon as Polygon
-    from pdl.author.entity import Polyline as Polyline
-    from pdl.author.entity import Rectangle as Rectangle
-    from pdl.author.entity import TeX as TeX
-    from pdl.author.entity import Text as Text
+    from pdl.author.entity import arc as arc
+    from pdl.author.entity import circle as circle
     from pdl.author.entity import frame_axes as frame_axes
+    from pdl.author.entity import image as image
+    from pdl.author.entity import line as line
+    from pdl.author.entity import path as path
+    from pdl.author.entity import polygon as polygon
+    from pdl.author.entity import polyline as polyline
+    from pdl.author.entity import rectangle as rectangle
+    from pdl.author.entity import tex as tex
+    from pdl.author.entity import text as text
     from pdl.author.style import BLACK as BLACK
     from pdl.author.style import Color as Color
     from pdl.author.style import ColorStop as ColorStop
@@ -28,9 +28,9 @@ if TYPE_CHECKING:
     from pdl.author.style import Style as Style
 
 _EXPORTS: dict[str, tuple[str, str]] = {
-    "Arc": ("pdl.author.entity", "Arc"),
+    "arc": ("pdl.author.entity", "arc"),
     "BLACK": ("pdl.author.style", "BLACK"),
-    "Circle": ("pdl.author.entity", "Circle"),
+    "circle": ("pdl.author.entity", "circle"),
     "Color": ("pdl.author.style", "Color"),
     "ColorStop": ("pdl.author.style", "ColorStop"),
     "Entity": ("pdl.author.entity", "Entity"),
@@ -38,24 +38,24 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "FontStack": ("pdl.author.style", "FontStack"),
     "Gather": ("pdl.author.entity", "Gather"),
     "Group": ("pdl.author.entity", "Group"),
-    "Image": ("pdl.author.entity", "Image"),
-    "Line": ("pdl.author.entity", "Line"),
+    "image": ("pdl.author.entity", "image"),
+    "line": ("pdl.author.entity", "line"),
     "LinearGradient": ("pdl.author.style", "LinearGradient"),
-    "Path": ("pdl.author.entity", "Path"),
-    "Polygon": ("pdl.author.entity", "Polygon"),
-    "Polyline": ("pdl.author.entity", "Polyline"),
+    "path": ("pdl.author.entity", "path"),
+    "polygon": ("pdl.author.entity", "polygon"),
+    "polyline": ("pdl.author.entity", "polyline"),
     "RadialGradient": ("pdl.author.style", "RadialGradient"),
-    "Rectangle": ("pdl.author.entity", "Rectangle"),
+    "rectangle": ("pdl.author.entity", "rectangle"),
     "Style": ("pdl.author.style", "Style"),
-    "TeX": ("pdl.author.entity", "TeX"),
-    "Text": ("pdl.author.entity", "Text"),
+    "tex": ("pdl.author.entity", "tex"),
+    "text": ("pdl.author.entity", "text"),
     "frame_axes": ("pdl.author.entity", "frame_axes"),
 }
 
 __all__ = [
-    "Arc",
+    "arc",
     "BLACK",
-    "Circle",
+    "circle",
     "Color",
     "ColorStop",
     "Entity",
@@ -63,17 +63,17 @@ __all__ = [
     "FontStack",
     "Gather",
     "Group",
-    "Image",
-    "Line",
+    "image",
+    "line",
     "LinearGradient",
-    "Path",
-    "Polygon",
-    "Polyline",
+    "path",
+    "polygon",
+    "polyline",
     "RadialGradient",
-    "Rectangle",
+    "rectangle",
     "Style",
-    "TeX",
-    "Text",
+    "tex",
+    "text",
     "frame_axes",
 ]
 

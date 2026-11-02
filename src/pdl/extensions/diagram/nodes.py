@@ -6,7 +6,7 @@ from math import hypot, isfinite, sqrt
 from typing import Literal
 
 from pdl.author.entity.base import Entity
-from pdl.author.entity.factories import Circle, Rectangle, Text
+from pdl.author.entity.factories import circle, rectangle, text
 from pdl.author.entity.group import Group
 from pdl.author.geometry.bounds import Anchor, Bounds
 from pdl.author.geometry.frame import SpacePoint
@@ -42,7 +42,7 @@ class Node(Group):
             raise ValueError("Node dimensions and padding must be finite and nonnegative.")
         point = position.resolve() if isinstance(position, SpacePoint) else as_point(position)
         super().__init__(style=style, reference=point)
-        self.label = Text(label) if isinstance(label, str) else label.copy()
+        self.label = text(label) if isinstance(label, str) else label.copy()
         self.label.set_style(text_style)
         self.shape, self.padding = shape, padding
         self.min_width, self.min_height = min_width, min_height
@@ -66,9 +66,9 @@ class Node(Group):
                 self.min_width,
                 self.min_height,
             )
-            self._border = Circle(center, diameter / 2)
+            self._border = circle(center, diameter / 2)
         else:
-            self._border = Rectangle((center.x - width / 2, center.y - height / 2), width, height)
+            self._border = rectangle((center.x - width / 2, center.y - height / 2), width, height)
         self.label.move_to(center, anchor="center")
         self.add(self._border, self.label)
         self._ready = True

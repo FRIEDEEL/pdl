@@ -8,17 +8,17 @@ from pdl import (
     Node,
     OrthographicCamera,
     Plane3D,
-    Rectangle,
     Scene3D,
     Style,
-    Text,
     Transform3D,
     Translation,
     Vector3D,
+    rectangle,
+    text,
 )
 
-panel = Rectangle((-20, -10), 40, 20)
-label = Node(Text("Plane 123", size=17), padding=(0, 0), style=Style(stroke=None))
+panel = rectangle((-20, -10), 40, 20)
+label = Node(text("Plane 123", size=17), padding=(0, 0), style=Style(stroke=None))
 artwork = Group(
     panel.copy().set_style(Style(fill=Color(0.78, 0.9, 1), line_width=0.3)), label.copy()
 )
@@ -31,8 +31,8 @@ second = Scene3D((tilted.place(artwork),), camera=camera, visibility="centroid")
 canvas = Canvas(125, 50)
 canvas.draw(first.copy().apply_transform(Translation(30, 26)))
 canvas.draw(second.copy().apply_transform(Translation(91, 26)))
-canvas.draw(Text("Flat chart", position=(15, 5), size=10))
-canvas.draw(Text("Inclined chart", position=(76, 5), size=10))
+canvas.draw(text("Flat chart", position=(15, 5), size=10))
+canvas.draw(text("Inclined chart", position=(76, 5), size=10))
 # tutorial-end
 
 if __name__ == "__main__":

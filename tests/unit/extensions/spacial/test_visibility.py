@@ -18,8 +18,8 @@ from pdl import (
     Polyhedron,
     Scene3D,
     Sphere,
-    Text,
     Vector3D,
+    text,
 )
 from pdl.author.entity.capture import walk
 from pdl.author.geometry.shapes import Polygon
@@ -206,8 +206,8 @@ def test_unsupported_modes_and_explicit_fallback() -> None:
     objects = (
         Sphere(),
         Cylinder(),
-        Plane3D().place(Text("plane")),
-        crossing()[0].with_face_artwork(0, Text("face")),
+        Plane3D().place(text("plane")),
+        crossing()[0].with_face_artwork(0, text("face")),
     )
     for obj in objects:
         with pytest.warns(UserWarning, match="approximate"):

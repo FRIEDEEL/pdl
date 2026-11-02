@@ -5,7 +5,6 @@ import pytest
 from pdl import (
     Canvas,
     Group,
-    Line,
     OrthographicCamera,
     PathGeometry,
     Plane3D,
@@ -13,6 +12,7 @@ from pdl import (
     Point3D,
     Scene3D,
     Transform3D,
+    line,
     regular_polyhedron,
 )
 from pdl.author.geometry.shapes import Line as LineGeometry
@@ -47,7 +47,7 @@ def test_projection_metadata_follows_group_transform_without_a_saved_matrix() ->
 
 
 def test_face_artwork_coordinates_survive_nonuniform_reflection() -> None:
-    cube = regular_polyhedron("cube").with_face_artwork(0, Line((0, 0), (1, 2)))
+    cube = regular_polyhedron("cube").with_face_artwork(0, line((0, 0), (1, 2)))
     transform = Transform3D.translate(2, 3, 4) @ Transform3D.scale(-2, 3, 4)
     changed = cube.transformed(transform)
     assert changed.face_artwork is not None
