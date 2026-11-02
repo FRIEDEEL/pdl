@@ -2,6 +2,7 @@
 
 from typing import Protocol, runtime_checkable
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.bounds import Bounds, geometry_bounds
 from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.path import Move, Path
@@ -22,7 +23,7 @@ class Positioned(Protocol):
     def position(self) -> Point | tuple[float, float]: ...
 
 
-def bounds_of(geometry: object) -> Bounds:
+def bounds_of(geometry: Geometry) -> Bounds:
     """Return logical bounds, measuring typography only if needed."""
     if isinstance(geometry, Point):
         return Bounds(geometry.x, geometry.y, geometry.x, geometry.y)
@@ -33,7 +34,7 @@ def bounds_of(geometry: object) -> Bounds:
     raise TypeError(f"No bounds query for {type(geometry).__name__}.")
 
 
-def reference_of(geometry: object) -> Point:
+def reference_of(geometry: Geometry) -> Point:
     """Return a cheap default pivot; never measure text to find it."""
     if isinstance(geometry, Point):
         return geometry
@@ -60,6 +61,6 @@ class InkMeasured(Protocol):
     def ink_bounds(self) -> Bounds: ...
 
 
-def ink_bounds_of(geometry: object) -> Bounds:
+def ink_bounds_of(geometry: Geometry) -> Bounds:
     """Query actual text outlines only when explicitly requested."""
     return geometry.ink_bounds if isinstance(geometry, InkMeasured) else bounds_of(geometry)

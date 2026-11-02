@@ -5,6 +5,7 @@ from dataclasses import replace
 from math import atan2, degrees, hypot, isclose
 from typing import Protocol, runtime_checkable
 
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.image import Image
 from pdl.author.geometry.point import Point
@@ -24,7 +25,7 @@ class Relocatable(Protocol):
     position: Point | tuple[float, float]
 
 
-def transform_geometry(geometry: object, transform: Transform) -> object:
+def transform_geometry(geometry: Geometry, transform: Transform) -> Geometry:
     """Return current transformed coordinates, retaining no mapping history.
 
     Unknown nonlinear transforms are rejected for curves: mapping their control
@@ -115,7 +116,7 @@ def transform_geometry(geometry: object, transform: Transform) -> object:
 
 
 def transform_style(
-    explicit: Style | None, effective: Style, transform: Transform, geometry: object
+    explicit: Style | None, effective: Style, transform: Transform, geometry: Geometry
 ) -> Style | None:
     """Bake paint coordinates and apply explicitly requested line-width scaling."""
     result = explicit

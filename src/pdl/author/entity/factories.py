@@ -8,6 +8,7 @@ from pdl.author.entity.capture import Composite
 from pdl.author.entity.frames import FrameAxes
 from pdl.author.entity.group import Group
 from pdl.author.geometry import shapes
+from pdl.author.geometry.base import Geometry
 from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.image import Image as ImageGeometry
 from pdl.author.geometry.path import Path as PathGeometry
@@ -192,7 +193,9 @@ def frame_axes(
 
 
 def as_entity(
-    geometry: object, style: Style | None = None, transform: AffineTransform = AffineTransform()
+    geometry: Geometry | Entity | Composite,
+    style: Style | None = None,
+    transform: AffineTransform = AffineTransform(),
 ) -> Entity:
     """Embed a description or detach an existing Entity for independent ownership."""
     if isinstance(geometry, Entity):

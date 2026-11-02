@@ -9,13 +9,13 @@ from typing import Literal
 
 from pdl.author.entity.base import Entity
 from pdl.author.entity.capture import Composite
-from pdl.author.geometry.protocols import PathSource
+from pdl.author.geometry.base import Geometry
 from pdl.author.style import BLACK, Color, Style
 from pdl.author.transform.affine import AffineTransform
 from pdl.extensions.spatial._author import make_entity
 from pdl.extensions.spatial.coordinates import Point3D, Transform3D, Vector3D
 
-type Graphic = Entity | Composite | PathSource
+type Graphic = Entity | Composite | Geometry
 
 
 def centroid(points: tuple[Point3D, ...]) -> Point3D:

@@ -3,6 +3,7 @@
 from xml.etree import ElementTree as ET
 
 from pdl import Canvas, Color, Entity, Style
+from pdl.author.geometry import Geometry
 from pdl.author.geometry import Path as Path
 
 
@@ -20,7 +21,7 @@ def test_open_fill_does_not_close_stroke() -> None:
 
 
 def test_custom_geometry_fallback() -> None:
-    class Custom:
+    class Custom(Geometry):
         def to_path(self) -> Path:
             return Path().move_to((1, 2)).line_to((3, 4))
 
