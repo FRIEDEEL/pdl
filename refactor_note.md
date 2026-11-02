@@ -1,5 +1,14 @@
 # Refactor note
 
+## 公开入口收窄（2026-11-02）
+
+用户已批准：根入口仅保留面向绘图的工厂，以及 Entity、Group、Gather、Canvas、Style、Color。
+纯几何从 author.geometry 导入，显式变换从 author.transform 导入，字体、渐变与资源策略从
+author.style 导入，Layer／Query 等从 canvas 导入。TeXConfig 使用所属 util.tex 模块。
+图示与 3D 分别由 extensions.diagram、extensions.spatial 提供明确的包入口；
+3D 实现及其镜像测试目录由 spacial 改为 spatial。此调整与既有领域模型兼容，
+不保留被移除的根入口别名，也不保留旧拼写的兼容包。
+
 ## 验收与清理（2026-11-02）
 
 用户已审查并批准清理 `src/pdl_old`／`tests_old`，提交后合并进 dev。
@@ -45,7 +54,7 @@
 | Canvas、Layer、查询、视口 | canvas；捕获隔离、整数层绑定、重排、fit/auto-size |
 | SVG、TikZ、PDF | backends；当前 Entity 编码、原生字体/TeX、图片与渐变的真实 PDF 编译 |
 | 节点、连接与流程图 | extensions.diagram；延迟节点测量、数值端点、可编辑图与捕获 |
-| 3D、曲面、相机与遮挡 | extensions.spacial；投影、BSP、独立射线求交与透视误差测试 |
+| 3D、曲面、相机与遮挡 | extensions.spatial；投影、BSP、独立射线求交与透视误差测试 |
 
 确认旧能力不代表保留旧 API。Drawing/placement 包装、隐式 frame/space、局部锚点和累计矩阵，
 已按本轮讨论由直接 Entity、显式 Frame、世界坐标查询及即时几何替换代替。

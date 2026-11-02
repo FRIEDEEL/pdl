@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, Connection, Node, Style, circle, text
+from pdl import Canvas, Color, Style, circle, text
+from pdl.extensions.diagram import Connection, Node
 
 left = Node(text("Start"), position=(20, 20))
 right = Node(text("Finish"), position=left.anchor("east") + (35, 0))

@@ -4,8 +4,9 @@ Run with ``uv run python -m examples.geometry.gallery``.
 """
 
 from examples._shared import export
-from pdl import Canvas, Color, PathGeometry, Style, circle, line, polygon, polyline, rectangle
+from pdl import Canvas, Color, Style, circle, line, polygon, polyline, rectangle
 from pdl.author.entity.factories import as_entity
+from pdl.author.geometry import Path as PathGeometry
 from pdl.author.geometry.shapes import Arc as ArcGeometry
 from pdl.author.geometry.shapes import Rectangle as RectangleGeometry
 

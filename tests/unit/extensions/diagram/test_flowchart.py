@@ -4,8 +4,11 @@ from collections.abc import Iterator
 
 import pytest
 
-from pdl import Canvas, Decision, FlowNode, Font, Point, Terminal
+from pdl import Canvas
+from pdl.author.geometry import Point
+from pdl.author.style import Font
 from pdl.author.style.font_policy import font_context
+from pdl.extensions.diagram import Decision, FlowNode, Terminal
 from pdl.extensions.diagram.nodes import Node
 
 

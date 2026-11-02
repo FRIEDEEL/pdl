@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, Entity, PathGeometry, Style
+from pdl import Canvas, Color, Entity, Style
+from pdl.author.geometry import Path as PathGeometry
 
 outline = PathGeometry().move_to((10, 10)).line_to((40, 10)).line_to((30, 30)).close()
 

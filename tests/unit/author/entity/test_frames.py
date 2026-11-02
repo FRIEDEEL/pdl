@@ -2,7 +2,8 @@
 
 import pytest
 
-from pdl import Canvas, Frame, Gather, Point, circle, frame_axes
+from pdl import Canvas, Gather, circle, frame_axes
+from pdl.author.geometry import Frame, Point
 
 
 def test_explicit_axes_transform_the_current_basis_and_visual_members() -> None:

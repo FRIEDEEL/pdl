@@ -2,7 +2,8 @@
 
 from pathlib import Path
 
-from pdl import Canvas, Color, Decision, FlowNode, Style, Terminal
+from pdl import Canvas, Color, Style
+from pdl.extensions.diagram import Decision, FlowNode, Terminal
 
 start = Terminal("Start")
 process = start.right(FlowNode("Process"))

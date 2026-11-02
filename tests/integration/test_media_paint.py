@@ -5,18 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from pdl import (
-    Canvas,
-    Color,
-    ColorStop,
-    LinearGradient,
-    RadialGradient,
-    Shear,
-    Style,
-    circle,
-    image,
-    rectangle,
-)
+from pdl import Canvas, Color, Style, circle, image, rectangle
+from pdl.author.style import ColorStop, LinearGradient, RadialGradient
+from pdl.author.transform import Shear
 
 
 def test_compile_images_and_gradients_after_moving_export(tmp_path: Path) -> None:

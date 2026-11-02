@@ -1,10 +1,12 @@
 from pathlib import Path
 
-from pdl import Canvas, Node, text
+from pdl import Canvas, rectangle, text
 
-hello = Node(text("Hello world"), position=(30, 15))
+box = rectangle((10, 7), width=40, height=16)
+hello = text("Hello world", position=(30, 13), align="center")
 
 canvas = Canvas(60, 30)
+canvas.draw(box)
 canvas.draw(hello)
 
 output = Path(__file__).resolve().parents[2] / "output" / "tutorial" / "basics"

@@ -4,22 +4,18 @@ Run: uv run python -m examples.spatial.platonic_solids
 """
 
 from examples._shared import export, latin_font
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Entity, Style, text
+from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import (
     DirectionalLight,
-    Entity,
     OrthographicCamera,
     Scene3D,
-    Style,
     Transform3D,
-    Translation,
     Vector3D,
     regular_polyhedron,
-    text,
 )
-from pdl.author.entity.factories import as_entity
-from pdl.extensions.spacial.solids import PlatonicKind
+from pdl.extensions.spatial.solids import PlatonicKind
 
 # Edit these shared parameters to compare lighting and viewing directions.
 CAMERA = OrthographicCamera(azimuth=30, elevation=22)

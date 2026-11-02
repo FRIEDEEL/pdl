@@ -4,7 +4,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from pdl import Color, Font, Style
+from pdl import Color, Style
+from pdl.author.style import Font
 from pdl.author.style.typography import resolve_font
 
 EXAMPLES = Path(__file__).resolve().parents[1]

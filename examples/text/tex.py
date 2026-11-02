@@ -1,7 +1,9 @@
 """Native TeX, packages/macros and the same output embedded into SVG."""
 
 from examples._shared import LABEL, export, output_base
-from pdl import Canvas, RendererConfig, TeXConfig, tex, text
+from pdl import Canvas, tex, text
+from pdl.author.style import RendererConfig
+from pdl.author.util.tex import TeXConfig
 from pdl.extensions.diagram.debug import debug_overlay
 
 CONFIG = TeXConfig(

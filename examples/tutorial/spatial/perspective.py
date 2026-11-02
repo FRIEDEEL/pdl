@@ -1,22 +1,10 @@
 """Compare orthographic reference, perspective plane artwork, and a D10."""
 
 from examples.spatial.d10 import numbered_die
-from pdl import (
-    Canvas,
-    Color,
-    Group,
-    Node,
-    OrthographicCamera,
-    PerspectiveCamera,
-    Plane3D,
-    Scene3D,
-    Style,
-    Translation,
-    Vector3D,
-    line,
-    rectangle,
-    text,
-)
+from pdl import Canvas, Color, Group, Style, line, rectangle, text
+from pdl.author.transform import Translation
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import OrthographicCamera, PerspectiveCamera, Plane3D, Scene3D, Vector3D
 
 # tutorial-start
 plane = Plane3D(u=Vector3D(0.8, 1, 0), v=Vector3D(0, 0, 1))

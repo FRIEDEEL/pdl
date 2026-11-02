@@ -12,23 +12,35 @@ pdl 用 Python 对象构建静态矢量图，包括 2D 形状和路径、Unicode
 TeX 测量需要 XeLaTeX 和 dvisvgm，原生字体 PDF 输出需要 XeLaTeX 及相应 LaTeX 包。
 
 ```python
-from pdl import Canvas, Color, Entity, Group, PathGeometry, Style, circle, text
+from pdl import Canvas, Color, Group, Style, circle, line, text
 
 disk = circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
-curve = Entity(
-    PathGeometry().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10)),
-    style=Style(line_width=0.5),
-)
+connector = line((35, 10), (70, 35), style=Style(line_width=0.5))
 label = text("A reusable component", position=(12, 45), size=11)
-component = Group(disk, curve, label)
+component = Group(disk, connector, label)
 canvas = Canvas(80, 55).add(component)
 canvas.save("drawing.svg")
 canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
 
-`circle`、`rectangle`、`text` 等绘图工厂返回 Entity。纯几何从 `pdl.author.geometry` 导入；
-PathGeometry 负责构造路径，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
+`circle`、`rectangle`、`text` 等绘图工厂返回 Entity。纯 `Path` 等描述从
+`pdl.author.geometry` 导入，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
 之后的修改需要再次提交。
+
+## 显式导入所需能力
+
+根入口仅提供绘图工厂、Entity、Group、Gather、Canvas、Style 和 Color，其他能力从所属包导入：
+
+```python
+from pdl.author.geometry import Path, Point
+from pdl.author.style import Font, LinearGradient
+from pdl.author.transform import Rotation
+from pdl.canvas import Layer, Query
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import Scene3D, PerspectiveCamera
+```
+
+需要显式构造几何描述时再引入 Geometry；3D 和图示各自提供独立的公开入口，按需加载。
 
 ## Author 行为
 

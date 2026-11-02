@@ -5,7 +5,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Point3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Point3D
+.. autoclass:: pdl.extensions.spatial.Point3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -14,7 +14,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Vector3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Vector3D
+.. autoclass:: pdl.extensions.spatial.Vector3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -23,7 +23,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Transform3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Transform3D
+.. autoclass:: pdl.extensions.spatial.Transform3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -32,7 +32,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## CoordinateSystem3D
 
 ```{eval-rst}
-.. autoclass:: pdl.CoordinateSystem3D
+.. autoclass:: pdl.extensions.spatial.CoordinateSystem3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -41,7 +41,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Plane3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Plane3D
+.. autoclass:: pdl.extensions.spatial.Plane3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -50,7 +50,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Surface3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Surface3D
+.. autoclass:: pdl.extensions.spatial.Surface3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -59,7 +59,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Polyhedron
 
 ```{eval-rst}
-.. autoclass:: pdl.Polyhedron
+.. autoclass:: pdl.extensions.spatial.Polyhedron
    :members:
    :undoc-members:
    :member-order: bysource
@@ -68,7 +68,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## OrthographicCamera
 
 ```{eval-rst}
-.. autoclass:: pdl.OrthographicCamera
+.. autoclass:: pdl.extensions.spatial.OrthographicCamera
    :members:
    :undoc-members:
    :member-order: bysource
@@ -77,7 +77,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## DirectionalLight
 
 ```{eval-rst}
-.. autoclass:: pdl.DirectionalLight
+.. autoclass:: pdl.extensions.spatial.DirectionalLight
    :members:
    :undoc-members:
    :member-order: bysource
@@ -86,7 +86,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Scene3D
 
 ```{eval-rst}
-.. autoclass:: pdl.Scene3D
+.. autoclass:: pdl.extensions.spatial.Scene3D
    :members:
    :undoc-members:
    :member-order: bysource
@@ -95,13 +95,13 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## regular_polyhedron
 
 ```{eval-rst}
-.. autofunction:: pdl.regular_polyhedron
+.. autofunction:: pdl.extensions.spatial.regular_polyhedron
 ```
 
 ## Cylinder
 
 ```{eval-rst}
-.. autoclass:: pdl.Cylinder
+.. autoclass:: pdl.extensions.spatial.Cylinder
    :members:
    :undoc-members:
    :member-order: bysource
@@ -110,7 +110,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## Sphere
 
 ```{eval-rst}
-.. autoclass:: pdl.Sphere
+.. autoclass:: pdl.extensions.spatial.Sphere
    :members:
    :undoc-members:
    :member-order: bysource
@@ -119,7 +119,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## ProjectedScene
 
 ```{eval-rst}
-.. autoclass:: pdl.ProjectedScene
+.. autoclass:: pdl.extensions.spatial.ProjectedScene
    :members:
    :undoc-members:
    :member-order: bysource
@@ -128,7 +128,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## PerspectiveCamera
 
 ```{eval-rst}
-.. autoclass:: pdl.PerspectiveCamera
+.. autoclass:: pdl.extensions.spatial.PerspectiveCamera
    :members:
    :undoc-members:
    :member-order: bysource
@@ -137,7 +137,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## CylinderSurface
 
 ```{eval-rst}
-.. autoclass:: pdl.CylinderSurface
+.. autoclass:: pdl.extensions.spatial.CylinderSurface
    :members:
    :undoc-members:
    :member-order: bysource
@@ -146,7 +146,7 @@ All 3D positions use right-handed millimeter coordinates. Projection returns ord
 ## AnnularCylinder
 
 ```{eval-rst}
-.. autoclass:: pdl.AnnularCylinder
+.. autoclass:: pdl.extensions.spatial.AnnularCylinder
    :members:
    :undoc-members:
    :member-order: bysource

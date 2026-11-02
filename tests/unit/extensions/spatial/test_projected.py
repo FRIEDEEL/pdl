@@ -2,20 +2,18 @@
 
 import pytest
 
-from pdl import (
-    Canvas,
-    Group,
+from pdl import Canvas, Group, line
+from pdl.author.geometry import Path as PathGeometry
+from pdl.author.geometry import Point
+from pdl.author.geometry.shapes import Line as LineGeometry
+from pdl.extensions.spatial import (
     OrthographicCamera,
-    PathGeometry,
     Plane3D,
-    Point,
     Point3D,
     Scene3D,
     Transform3D,
-    line,
     regular_polyhedron,
 )
-from pdl.author.geometry.shapes import Line as LineGeometry
 
 
 def test_projection_is_captured_before_source_path_edits() -> None:

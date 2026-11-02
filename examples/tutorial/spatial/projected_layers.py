@@ -1,18 +1,14 @@
 """Separate projections share world coordinates and follow explicit Canvas order."""
 
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Group, Style, text
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import (
     Cylinder,
     CylinderSurface,
-    Group,
     OrthographicCamera,
     Point3D,
     Scene3D,
-    Style,
-    Translation,
     Vector3D,
-    text,
 )
 
 # tutorial-start

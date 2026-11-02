@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, Entity, PathGeometry, Style, circle, line
+from pdl import Canvas, Color, Entity, Style, circle, line
+from pdl.author.geometry import Path as PathGeometry
 
 curve = PathGeometry().move_to((10, 10)).cubic_to((10, 35), (45, 35), (45, 10))
 blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.6)

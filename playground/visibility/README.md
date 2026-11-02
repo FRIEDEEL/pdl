@@ -112,4 +112,4 @@ See the [formal tutorial](../../docs/tutorial/en/05-spatial/05-visibility.md).
 
 ## API migration
 
-The BSP algorithm and historical results are retained. The output construction now uses ordinary Entity/Group factories and the current extensions.spacial imports. Historical timing numbers describe their original runs; rerun the benchmark before comparing current performance.
+The BSP algorithm and historical results are retained. The output construction now uses ordinary Entity/Group factories and the current extensions.spatial imports. Historical timing numbers describe their original runs; rerun the benchmark before comparing current performance.

@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Node, text
+from pdl import Canvas, text
+from pdl.extensions.diagram import Node
 
 label = Node(text("Snapshot")).move_to((25, 15))
 

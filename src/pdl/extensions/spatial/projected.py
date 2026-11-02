@@ -8,7 +8,7 @@ from pdl.author.entity.base import Entity
 from pdl.author.entity.group import Group
 from pdl.author.geometry.frame import Frame
 from pdl.author.geometry.point import Point
-from pdl.extensions.spacial.coordinates import Point3D, Vector3D
+from pdl.extensions.spatial.coordinates import Point3D, Vector3D
 
 
 class ProjectedScene(Group):

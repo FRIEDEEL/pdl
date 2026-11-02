@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, Point, Style, circle, rectangle
+from pdl import Canvas, Color, Style, circle, rectangle
+from pdl.author.geometry import Point
 
 pivot = Point(15, 15)
 box = rectangle((15, 15), 20, 10)

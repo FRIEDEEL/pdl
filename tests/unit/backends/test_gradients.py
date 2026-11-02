@@ -4,7 +4,8 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from pdl import Canvas, Color, ColorStop, LinearGradient, RadialGradient, Style, rectangle
+from pdl import Canvas, Color, Style, rectangle
+from pdl.author.style import ColorStop, LinearGradient, RadialGradient
 
 STOPS = (ColorStop(0, Color(1, 0, 0)), ColorStop(1, Color(0, 0, 1)))
 

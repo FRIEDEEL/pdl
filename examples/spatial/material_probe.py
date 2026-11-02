@@ -7,28 +7,23 @@ This is a fixed-view illustration, not a boolean section or depth-buffer scene.
 from dataclasses import replace
 
 from examples._shared import export, latin_font
-from pdl import (
+from pdl import Canvas, Color, Group, Style, line, text
+from pdl.author.entity.factories import as_entity
+from pdl.author.geometry import Path as PathGeometry
+from pdl.author.geometry.shapes import Arc as ArcGeometry
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import (
     AnnularCylinder,
-    Canvas,
-    Color,
     Cylinder,
     CylinderSurface,
-    Group,
     OrthographicCamera,
-    PathGeometry,
     Plane3D,
     Point3D,
     ProjectedScene,
     Scene3D,
-    Style,
     Transform3D,
-    Translation,
     Vector3D,
-    line,
-    text,
 )
-from pdl.author.entity.factories import as_entity
-from pdl.author.geometry.shapes import Arc as ArcGeometry
 
 MATERIAL = Color(0.72, 0.84, 0.9)
 PROBE = Color(0.91, 0.4, 0.16)

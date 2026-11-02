@@ -2,8 +2,9 @@
 
 The drawing factories return Entity. Import corresponding PascalCase pure descriptions from
 `pdl.author.geometry` when constructing paths or querying numerical parameters.
-A bare description cannot be submitted to Canvas. PathGeometry is the public
-path builder; `Entity(builder)` or `path(builder)` attaches drawing behavior.
+A bare description cannot be submitted to Canvas. Import the path builder as
+`from pdl.author.geometry import Path`; examples may alias it as PathGeometry
+to distinguish filesystem paths. `Entity(builder)` or `path(builder)` attaches drawing behavior.
 
 | Default reference | Description |
 | --- | --- |
@@ -62,7 +63,7 @@ representation. Bounds/anchors exclude stroke and use current world axes.
 ## Point
 
 ```{eval-rst}
-.. autoclass:: pdl.Point
+.. autoclass:: pdl.author.geometry.Point
    :members:
    :member-order: bysource
 ```
@@ -70,15 +71,15 @@ representation. Bounds/anchors exclude stroke and use current world axes.
 ## Vector
 
 ```{eval-rst}
-.. autoclass:: pdl.Vector
+.. autoclass:: pdl.author.geometry.Vector
    :members:
    :member-order: bysource
 ```
 
-## PathGeometry
+## Pure Path
 
 ```{eval-rst}
-.. autoclass:: pdl.PathGeometry
+.. autoclass:: pdl.author.geometry.Path
    :members:
    :member-order: bysource
 ```
@@ -86,7 +87,7 @@ representation. Bounds/anchors exclude stroke and use current world axes.
 ## Bounds
 
 ```{eval-rst}
-.. autoclass:: pdl.Bounds
+.. autoclass:: pdl.author.geometry.Bounds
    :members:
    :member-order: bysource
 ```
@@ -157,7 +158,7 @@ future work, and unsupported curve mappings are rejected.
 ### Transform
 
 ```{eval-rst}
-.. autoclass:: pdl.Transform
+.. autoclass:: pdl.author.transform.Transform
    :members:
    :member-order: bysource
 ```
@@ -165,7 +166,7 @@ future work, and unsupported curve mappings are rejected.
 ### AffineTransform
 
 ```{eval-rst}
-.. autoclass:: pdl.AffineTransform
+.. autoclass:: pdl.author.transform.AffineTransform
    :members:
    :member-order: bysource
 ```
@@ -173,7 +174,7 @@ future work, and unsupported curve mappings are rejected.
 ### Translation
 
 ```{eval-rst}
-.. autoclass:: pdl.Translation
+.. autoclass:: pdl.author.transform.Translation
    :members:
    :member-order: bysource
 ```
@@ -181,7 +182,7 @@ future work, and unsupported curve mappings are rejected.
 ### Rotation
 
 ```{eval-rst}
-.. autoclass:: pdl.Rotation
+.. autoclass:: pdl.author.transform.Rotation
    :members:
    :member-order: bysource
 ```
@@ -189,7 +190,7 @@ future work, and unsupported curve mappings are rejected.
 ### Scaling
 
 ```{eval-rst}
-.. autoclass:: pdl.Scaling
+.. autoclass:: pdl.author.transform.Scaling
    :members:
    :member-order: bysource
 ```
@@ -197,7 +198,7 @@ future work, and unsupported curve mappings are rejected.
 ### Rescale
 
 ```{eval-rst}
-.. autoclass:: pdl.Rescale
+.. autoclass:: pdl.author.transform.Rescale
    :members:
    :member-order: bysource
 ```
@@ -205,7 +206,7 @@ future work, and unsupported curve mappings are rejected.
 ### Shear
 
 ```{eval-rst}
-.. autoclass:: pdl.Shear
+.. autoclass:: pdl.author.transform.Shear
    :members:
    :member-order: bysource
 ```
@@ -213,7 +214,7 @@ future work, and unsupported curve mappings are rejected.
 ### Reflection
 
 ```{eval-rst}
-.. autoclass:: pdl.Reflection
+.. autoclass:: pdl.author.transform.Reflection
    :members:
    :member-order: bysource
 ```

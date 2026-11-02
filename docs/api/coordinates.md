@@ -13,7 +13,7 @@ unchanged.
 ## Frame
 
 ```{eval-rst}
-.. autoclass:: pdl.Frame
+.. autoclass:: pdl.author.geometry.Frame
    :members:
    :member-order: bysource
 ```
@@ -21,7 +21,7 @@ unchanged.
 ## SpacePoint
 
 ```{eval-rst}
-.. autoclass:: pdl.SpacePoint
+.. autoclass:: pdl.author.geometry.SpacePoint
    :members:
    :member-order: bysource
 ```
@@ -29,7 +29,7 @@ unchanged.
 ## SpaceVector
 
 ```{eval-rst}
-.. autoclass:: pdl.SpaceVector
+.. autoclass:: pdl.author.geometry.SpaceVector
    :members:
    :member-order: bysource
 ```
@@ -37,7 +37,7 @@ unchanged.
 ## Query
 
 ```{eval-rst}
-.. autoclass:: pdl.Query
+.. autoclass:: pdl.canvas.Query
    :members:
    :member-order: bysource
 ```
@@ -57,6 +57,6 @@ unchanged.
 ## WORLD
 
 ```{eval-rst}
-.. autodata:: pdl.WORLD
+.. autodata:: pdl.author.geometry.WORLD
    :no-value:
 ```

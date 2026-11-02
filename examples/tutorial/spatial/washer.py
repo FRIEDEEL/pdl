@@ -1,6 +1,8 @@
 """A closed washer with an open bore and smooth vector boundaries."""
 
-from pdl import AnnularCylinder, Canvas, Color, OrthographicCamera, Scene3D, Translation
+from pdl import Canvas, Color
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import AnnularCylinder, OrthographicCamera, Scene3D
 
 # tutorial-start
 washer = AnnularCylinder(outer_radius=18, inner_radius=10, height=7, color=Color(0.65, 0.77, 0.84))

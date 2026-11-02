@@ -2,7 +2,10 @@
 
 import pytest
 
-from pdl import Canvas, Connection, Font, Group, Node, Point, Style, text
+from pdl import Canvas, Group, Style, text
+from pdl.author.geometry import Point
+from pdl.author.style import Font
+from pdl.extensions.diagram import Connection, Node
 
 
 def test_connection_uses_fixed_anchor_values(font: Font) -> None:

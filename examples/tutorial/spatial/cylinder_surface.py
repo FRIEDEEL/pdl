@@ -1,6 +1,8 @@
 """An open half-cylinder projected into ordinary 2D authoring."""
 
-from pdl import Canvas, Color, CylinderSurface, OrthographicCamera, Point3D, Scene3D, Translation
+from pdl import Canvas, Color
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import CylinderSurface, OrthographicCamera, Point3D, Scene3D
 
 # tutorial-start
 camera = OrthographicCamera(0, 20)

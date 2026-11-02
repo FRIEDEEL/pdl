@@ -15,11 +15,11 @@ from pdl.author.geometry.protocols import PathSource
 from pdl.author.geometry.tex import TeX
 from pdl.author.geometry.text import Text
 from pdl.author.style import BLACK, Color, Style
-from pdl.extensions.spacial._author import make_entity
-from pdl.extensions.spacial.solids import Plane3D
+from pdl.extensions.spatial._author import make_entity
+from pdl.extensions.spatial.solids import Plane3D
 
 if TYPE_CHECKING:
-    from pdl.extensions.spacial.projection import PerspectiveCamera
+    from pdl.extensions.spatial.projection import PerspectiveCamera
 
 
 @dataclass(frozen=True)

@@ -3,7 +3,7 @@
 from xml.etree import ElementTree as ET
 
 from pdl import Canvas, Color, Entity, Style
-from pdl import PathGeometry as Path
+from pdl.author.geometry import Path as Path
 
 
 def test_open_fill_does_not_close_stroke() -> None:

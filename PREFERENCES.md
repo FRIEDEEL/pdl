@@ -12,6 +12,10 @@
   explicitly requested. Update examples and documentation to the current API.
 - Name factory functions in lowercase snake_case (for example, `circle`, `text`,
   and `tex`); retain PascalCase for actual classes.
+- Keep the pdl root API focused on everyday authoring. Access pure geometry
+  descriptions and optional extensions through explicit submodule imports.
+  Root exports are drawing factories, Entity, Group, Gather, Canvas, Style,
+  and Color; use the corresponding subpackages for advanced capabilities.
 - During this development stage, prioritize clear behavior descriptions and
   understandable examples over polished tutorial prose and smooth transitions.
 - Organize tutorials into a few major parts; teach Group, Gather, and Layer

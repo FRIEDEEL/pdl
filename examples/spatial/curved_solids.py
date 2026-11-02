@@ -4,22 +4,18 @@ Run: uv run python -m examples.spatial.curved_solids
 """
 
 from examples._shared import export, latin_font, output_base
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Entity, Style, text
+from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import (
     Cylinder,
     DirectionalLight,
-    Entity,
     OrthographicCamera,
     Point3D,
     Scene3D,
     Sphere,
-    Style,
-    Translation,
     Vector3D,
-    text,
 )
-from pdl.author.entity.factories import as_entity
 
 CAMERA = OrthographicCamera(30, 25)
 COLOR = Color(0.32, 0.7, 0.91)

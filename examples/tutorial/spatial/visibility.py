@@ -2,17 +2,9 @@
 
 from dataclasses import replace
 
-from pdl import (
-    Canvas,
-    Color,
-    PerspectiveCamera,
-    Point3D,
-    Polyhedron,
-    Scene3D,
-    Style,
-    Translation,
-    text,
-)
+from pdl import Canvas, Color, Style, text
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import PerspectiveCamera, Point3D, Polyhedron, Scene3D
 
 # tutorial-start
 camera = PerspectiveCamera(0, 0, distance=100, focal_length=100)

@@ -6,19 +6,10 @@ Run: uv run python -m examples.spatial.visibility
 from dataclasses import replace
 
 from examples._shared import export, latin_font
-from pdl import (
-    Canvas,
-    Color,
-    PerspectiveCamera,
-    Point3D,
-    Polyhedron,
-    Scaling,
-    Scene3D,
-    Style,
-    Translation,
-    text,
-)
+from pdl import Canvas, Color, Style, text
 from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Scaling, Translation
+from pdl.extensions.spatial import PerspectiveCamera, Point3D, Polyhedron, Scene3D
 
 CAMERA = PerspectiveCamera(0, 0, distance=240, focal_length=240)
 BLUE = Color(0.15, 0.57, 0.78)

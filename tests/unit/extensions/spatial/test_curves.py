@@ -4,21 +4,19 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color
+from pdl.author.entity.group import Group
+from pdl.author.geometry.bounds import geometry_bounds
+from pdl.author.style import LinearGradient, RadialGradient
+from pdl.extensions.spatial import (
     Cylinder,
     DirectionalLight,
-    LinearGradient,
     OrthographicCamera,
     Point3D,
-    RadialGradient,
     Scene3D,
     Sphere,
     Vector3D,
 )
-from pdl.author.entity.group import Group
-from pdl.author.geometry.bounds import geometry_bounds
 
 
 def test_sphere_light_direction_and_backlight() -> None:

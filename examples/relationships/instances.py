@@ -1,8 +1,10 @@
 """Local relationships travel with groups; external links address instances."""
 
 from examples._shared import BLUE, LABEL, PALE, export
-from pdl import Canvas, Connection, Group, Node, Rotation, Style, Translation, text
+from pdl import Canvas, Group, Style, text
 from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Rotation, Translation
+from pdl.extensions.diagram import Connection, Node
 
 
 def example() -> Canvas:

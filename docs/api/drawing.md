@@ -50,7 +50,7 @@ Page protocol rather than the Canvas implementation.
 ## Layer
 
 ```{eval-rst}
-.. autoclass:: pdl.Layer
+.. autoclass:: pdl.canvas.Layer
    :members:
    :member-order: bysource
 ```
@@ -58,7 +58,7 @@ Page protocol rather than the Canvas implementation.
 ## LayerStack
 
 ```{eval-rst}
-.. autoclass:: pdl.LayerStack
+.. autoclass:: pdl.canvas.LayerStack
    :members:
    :member-order: bysource
 ```
@@ -66,7 +66,7 @@ Page protocol rather than the Canvas implementation.
 ## ColorStop
 
 ```{eval-rst}
-.. autoclass:: pdl.ColorStop
+.. autoclass:: pdl.author.style.ColorStop
    :members:
    :member-order: bysource
 ```
@@ -74,7 +74,7 @@ Page protocol rather than the Canvas implementation.
 ## LinearGradient
 
 ```{eval-rst}
-.. autoclass:: pdl.LinearGradient
+.. autoclass:: pdl.author.style.LinearGradient
    :members:
    :member-order: bysource
 ```
@@ -82,7 +82,7 @@ Page protocol rather than the Canvas implementation.
 ## RadialGradient
 
 ```{eval-rst}
-.. autoclass:: pdl.RadialGradient
+.. autoclass:: pdl.author.style.RadialGradient
    :members:
    :member-order: bysource
 ```

@@ -16,11 +16,12 @@ Entity 结合二者并提供数值位置查询。circle 等小写绘图工厂返
 | author.util | 公共基础设施和显式外部工具接口 | 标准库、第三方库、外部工具；不导入 pdl 领域对象 |
 | canvas | 提交、图层、查询、视口和输出入口 | Author 和后端入口 |
 | backends | SVG／TikZ 编码、最终 PDF 编译 | 当前 Author Entity 与 canvas.records.Page；不导入 Canvas 实现 |
-| extensions.diagram / extensions.spacial | 参数化图示、3D、相机、可见性 | 核心 Author 和组件自身；不依赖输出适配器 |
+| extensions.diagram / extensions.spatial | 参数化图示、3D、相机、可见性 | 核心 Author 和组件自身；不依赖输出适配器 |
 
-保留现有 `spacial` 目录拼写。几何可使用数值仿射类，transform.operations 则识别几何类型并
+3D 包使用标准拼写 `spatial`。几何可使用数值仿射类，transform.operations 则识别几何类型并
 决定转换。数值映射和对象转换策略分开，没有运行时模块循环。util 返回普通测量数据、
-原始字体轮廓命令或工具结果，不管理对象关系。根入口按需加载扩展，核心 2D 导入不加载图示／3D，
+原始字体轮廓命令或工具结果，不管理对象关系。根入口只公开基础绘图和 Canvas；几何、显式变换、高级样式、Canvas 辅助类型和扩展
+均从所属包显式导入。核心 2D 导入不加载图示／3D，
 也不会通过导入 pdl_old 补齐实现。
 
 ## 当前几何与即时编辑

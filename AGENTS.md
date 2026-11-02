@@ -285,6 +285,10 @@
 - Author is the sole drawing object model. Do not introduce a parallel Resolved
   scene hierarchy. Anchors and placement inputs are evaluated immediately from
   the referenced object's current state; later edits do not create live bindings.
+- Keep the root API limited to drawing factories, Entity, Group, Gather, Canvas,
+  Style, and Color. Publish geometry, explicit transforms, advanced paint,
+  Canvas helpers, and optional extensions through their own package entrypoints.
+  Use `extensions/spatial/` for the 3D package and its mirrored tests.
 - Keep geometric descriptions and numerical queries in `author/geometry/`.
   Do not require a shared Geometry base. Geometry stores current shape data,
   not accumulated transformations, ownership, or paint.

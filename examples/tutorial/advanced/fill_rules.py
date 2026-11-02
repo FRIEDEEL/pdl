@@ -1,6 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Color, PathGeometry, Style
+from pdl import Canvas, Color, Style
 from pdl.author.entity.factories import as_entity
+from pdl.author.geometry import Path as PathGeometry
 from pdl.author.geometry.shapes import Circle as CircleGeometry
 
 rings = (

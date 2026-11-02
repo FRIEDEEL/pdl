@@ -6,25 +6,25 @@ edge edits affect subsequent captures. Numerical Connection endpoints are fixed
 when constructed. See the [guide](../flowcharts.md).
 
 ```{eval-rst}
-.. autoclass:: pdl.FlowNode
+.. autoclass:: pdl.extensions.diagram.FlowNode
    :members:
    :member-order: bysource
 ```
 
 ```{eval-rst}
-.. autoclass:: pdl.Decision
+.. autoclass:: pdl.extensions.diagram.Decision
    :members:
    :member-order: bysource
 ```
 
 ```{eval-rst}
-.. autoclass:: pdl.Terminal
+.. autoclass:: pdl.extensions.diagram.Terminal
    :members:
    :member-order: bysource
 ```
 
 ```{eval-rst}
-.. autoclass:: pdl.FlowEdge
+.. autoclass:: pdl.extensions.diagram.FlowEdge
    :members:
    :member-order: bysource
 ```

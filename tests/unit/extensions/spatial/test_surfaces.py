@@ -7,23 +7,22 @@ from random import Random
 
 import pytest
 
-from pdl import (
+from pdl import Canvas, Color
+from pdl.author.entity.capture import walk
+from pdl.author.geometry import Point
+from pdl.author.geometry.path import Close, Cubic, Move, Path, Segment
+from pdl.extensions.spatial import (
     AnnularCylinder,
-    Canvas,
-    Color,
     CylinderSurface,
     OrthographicCamera,
     PerspectiveCamera,
-    Point,
     Point3D,
     Scene3D,
     Transform3D,
     Vector3D,
     regular_polyhedron,
 )
-from pdl.author.entity.capture import walk
-from pdl.author.geometry.path import Close, Cubic, Move, Path, Segment
-from pdl.extensions.spacial._author import make_entity as Drawing
+from pdl.extensions.spatial._author import make_entity as Drawing
 
 
 def loops(path: Path) -> list[list[Point]]:

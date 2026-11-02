@@ -6,7 +6,7 @@ from pathlib import Path as FilePath
 import pytest
 
 from pdl import Canvas, Color, Entity, Style, arc
-from pdl import PathGeometry as Path
+from pdl.author.geometry import Path as Path
 
 
 def test_tikz_compiles(tmp_path: FilePath) -> None:

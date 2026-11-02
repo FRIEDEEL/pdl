@@ -1,6 +1,6 @@
 # 2.1 Draw your own outlines and curves
 
-PathGeometry is a mutable geometric builder. `move_to` starts a subpath, `line_to` adds a segment, `quadratic_to` uses one control point, and `cubic_to` uses two. `close()` adds the closing edge and restores the subpath's starting cursor.
+Import `Path` from `pdl.author.geometry` to construct geometry explicitly. This example aliases it as PathGeometry. It is a mutable builder. `move_to` starts a subpath, `line_to` adds a segment, `quadratic_to` uses one control point, and `cubic_to` uses two. `close()` adds the closing edge and restores the subpath's starting cursor.
 
 Create an Entity from the completed builder to attach paint and move the whole object. The builder's `move_to` constructs commands; Entity.move_to changes the object's position. Coordinates are absolute world values. New subpaths do not connect automatically; fills implicitly close open subpaths while strokes remain open.
 

@@ -6,23 +6,18 @@ Run: uv run python -m examples.spatial.d10
 from math import cos, pi, sin
 
 from examples._shared import export, latin_font
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Group, Style, line, text
+from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Translation
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import (
     DirectionalLight,
-    Group,
-    Node,
     OrthographicCamera,
     Point3D,
     Polyhedron,
     Scene3D,
-    Style,
-    Translation,
     Vector3D,
-    line,
-    text,
 )
-from pdl.author.entity.factories import as_entity
 
 DIE_COLOR = Color(0.12, 0.48, 0.7)
 WHITE = Color(1, 1, 1)

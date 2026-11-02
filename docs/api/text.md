@@ -21,7 +21,7 @@ bidirectional content are reported explicitly.
 ## Font
 
 ```{eval-rst}
-.. autoclass:: pdl.Font
+.. autoclass:: pdl.author.style.Font
    :members:
    :member-order: bysource
 ```
@@ -29,7 +29,7 @@ bidirectional content are reported explicitly.
 ## FontStack
 
 ```{eval-rst}
-.. autoclass:: pdl.FontStack
+.. autoclass:: pdl.author.style.FontStack
    :members:
    :member-order: bysource
 ```
@@ -37,7 +37,7 @@ bidirectional content are reported explicitly.
 ## TeXConfig
 
 ```{eval-rst}
-.. autoclass:: pdl.TeXConfig
+.. autoclass:: pdl.author.util.tex.TeXConfig
    :members:
    :member-order: bysource
 ```
@@ -45,7 +45,7 @@ bidirectional content are reported explicitly.
 ## RendererConfig
 
 ```{eval-rst}
-.. autoclass:: pdl.RendererConfig
+.. autoclass:: pdl.author.style.RendererConfig
    :members:
    :member-order: bysource
 ```

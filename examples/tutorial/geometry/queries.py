@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import WORLD, Canvas, Color, Style, rectangle
+from pdl import Canvas, Color, Style, rectangle
+from pdl.author.geometry import WORLD
 
 box = rectangle((-10, -5), width=20, height=10).move_to((30, 20), anchor="center")
 box.rotate(30, origin=(30, 20))

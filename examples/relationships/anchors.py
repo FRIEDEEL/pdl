@@ -3,7 +3,9 @@
 from pathlib import Path
 
 from examples._shared import BLUE, LABEL, PALE, export, output_base
-from pdl import Canvas, Connection, Node, RendererConfig, Style, text
+from pdl import Canvas, Style, text
+from pdl.author.style import RendererConfig
+from pdl.extensions.diagram import Connection, Node
 
 
 def example() -> Canvas:

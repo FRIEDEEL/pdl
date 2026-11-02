@@ -6,25 +6,11 @@ Run: uv run python -m examples.coordinates.relationships
 from typing import Literal
 
 from examples._shared import export, output_base
-from pdl import (
-    WORLD,
-    Canvas,
-    Color,
-    Connection,
-    CoordinateSystem,
-    Group,
-    Node,
-    Reflection,
-    Rotation,
-    Style,
-    Translation,
-    circle,
-    line,
-    polygon,
-    rectangle,
-    text,
-)
+from pdl import Canvas, Color, Group, Style, circle, line, polygon, rectangle, text
 from pdl.author.entity.factories import as_entity
+from pdl.author.geometry import WORLD, CoordinateSystem
+from pdl.author.transform import Reflection, Rotation, Translation
+from pdl.extensions.diagram import Connection, Node
 
 BLUE = Style(fill=Color(0.72, 0.85, 1), line_width=0.5, line_join="round")
 ORANGE = Style(fill=Color(1, 0.76, 0.43), line_width=0.5, line_join="round")

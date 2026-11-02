@@ -2,7 +2,7 @@
 
 import pytest
 
-from pdl import CoordinateSystem3D, Point3D, Transform3D, Vector3D
+from pdl.extensions.spatial import CoordinateSystem3D, Point3D, Transform3D, Vector3D
 
 
 def xyz(point: Point3D | Vector3D) -> tuple[float, float, float]:

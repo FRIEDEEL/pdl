@@ -13,22 +13,18 @@ from dataclasses import dataclass, field, replace
 from math import cos, pi, sin
 
 from examples._shared import export, latin_font, output_base
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Style, text
+from pdl.author.entity.factories import as_entity
+from pdl.author.transform import Scaling, Translation
+from pdl.extensions.spatial import (
     DirectionalLight,
     OrthographicCamera,
     Point3D,
     Polyhedron,
-    Scaling,
     Scene3D,
-    Style,
     Transform3D,
-    Translation,
     Vector3D,
-    text,
 )
-from pdl.author.entity.factories import as_entity
 
 IVORY = Color(0.83, 0.86, 0.86)
 DARK = Color(0.19, 0.24, 0.29)

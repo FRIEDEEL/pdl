@@ -1,7 +1,9 @@
 """A small manually positioned vacuum topology with reusable valve symbols."""
 
 from examples._shared import BLUE, LABEL, PALE, export, valve
-from pdl import Canvas, Connection, Node, Style, Translation, tex, text
+from pdl import Canvas, Style, tex, text
+from pdl.author.transform import Translation
+from pdl.extensions.diagram import Connection, Node
 
 
 def example() -> Canvas:

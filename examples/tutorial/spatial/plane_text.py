@@ -1,21 +1,10 @@
 """Compare a flat chart and its inclined projection with text artwork."""
 
 # tutorial-start
-from pdl import (
-    Canvas,
-    Color,
-    Group,
-    Node,
-    OrthographicCamera,
-    Plane3D,
-    Scene3D,
-    Style,
-    Transform3D,
-    Translation,
-    Vector3D,
-    rectangle,
-    text,
-)
+from pdl import Canvas, Color, Group, Style, rectangle, text
+from pdl.author.transform import Translation
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import OrthographicCamera, Plane3D, Scene3D, Transform3D, Vector3D
 
 panel = rectangle((-20, -10), 40, 20)
 label = Node(text("Plane 123", size=17), padding=(0, 0), style=Style(stroke=None))

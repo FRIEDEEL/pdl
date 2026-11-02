@@ -41,7 +41,7 @@ selected identities; select `*group.members` to update members explicitly.
 ## Connection
 
 ```{eval-rst}
-.. autoclass:: pdl.Connection
+.. autoclass:: pdl.extensions.diagram.Connection
    :members:
    :member-order: bysource
 ```
@@ -49,7 +49,7 @@ selected identities; select `*group.members` to update members explicitly.
 ## Node
 
 ```{eval-rst}
-.. autoclass:: pdl.Node
+.. autoclass:: pdl.extensions.diagram.Node
    :members:
    :member-order: bysource
 ```

@@ -1,5 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Color, Frame, Rotation, Style, Translation, circle, line, text
+from pdl import Canvas, Color, Style, circle, line, text
+from pdl.author.geometry import Frame
+from pdl.author.transform import Rotation, Translation
 
 local = Frame().child(Translation(25, 15) @ Rotation(30))
 circle_entity = circle(local.point((10, 0)), radius=3)

@@ -8,7 +8,8 @@ from dataclasses import dataclass
 from math import sqrt
 from random import Random
 
-from pdl import PerspectiveCamera, Point, Point3D
+from pdl.author.geometry import Point
+from pdl.extensions.spatial import PerspectiveCamera, Point3D
 from playground.visibility.bsp import Face
 
 

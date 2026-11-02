@@ -1,7 +1,8 @@
 """Content-sized nodes with explicit anchors, routes and arrowheads."""
 
 from examples._shared import BLUE, LABEL, PALE, export
-from pdl import Canvas, Connection, Node, Style, tex, text
+from pdl import Canvas, Style, tex, text
+from pdl.extensions.diagram import Connection, Node
 from pdl.extensions.diagram.debug import debug_overlay
 
 SHOW_DEBUG = False

@@ -1,18 +1,9 @@
 """Project first, then describe an ordinary 2D legend."""
 
 # tutorial-start
-from pdl import (
-    Canvas,
-    Color,
-    Group,
-    OrthographicCamera,
-    Rotation,
-    Scene3D,
-    Style,
-    line,
-    regular_polyhedron,
-    text,
-)
+from pdl import Canvas, Color, Group, Style, line, text
+from pdl.author.transform import Rotation
+from pdl.extensions.spatial import OrthographicCamera, Scene3D, regular_polyhedron
 
 solid = regular_polyhedron("cube", radius=14)
 scene = Scene3D((solid,), camera=OrthographicCamera(30, 25))

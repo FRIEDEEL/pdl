@@ -1,25 +1,18 @@
 """A 2D drawing on an inclined plane and nested 3D frame conversion."""
 
 from examples._shared import export, latin_font
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Group, Style, circle, line, rectangle, text
+from pdl.author.entity.factories import as_entity
+from pdl.extensions.spatial import (
     CoordinateSystem3D,
     DirectionalLight,
-    Group,
     OrthographicCamera,
     Plane3D,
     Point3D,
     Scene3D,
-    Style,
     Transform3D,
     Vector3D,
-    circle,
-    line,
-    rectangle,
-    text,
 )
-from pdl.author.entity.factories import as_entity
 
 
 def example() -> Canvas:

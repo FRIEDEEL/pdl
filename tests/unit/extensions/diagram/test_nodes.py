@@ -4,9 +4,9 @@ from math import hypot
 
 import pytest
 
-from pdl import Point
 from pdl.author.entity.base import Entity
 from pdl.author.entity.factories import text
+from pdl.author.geometry import Point
 from pdl.author.geometry.bounds import Bounds
 from pdl.author.style.font import Font
 from pdl.extensions.diagram.nodes import Node

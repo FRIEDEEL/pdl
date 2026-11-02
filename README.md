@@ -14,24 +14,38 @@ Run from the repository after selecting Python with pyenv and installing with
 dvisvgm; native-font PDF output uses XeLaTeX and the required LaTeX packages.
 
 ```python
-from pdl import Canvas, Color, Entity, Group, PathGeometry, Style, circle, text
+from pdl import Canvas, Color, Group, Style, circle, line, text
 
 disk = circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
-curve = Entity(
-    PathGeometry().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10)),
-    style=Style(line_width=0.5),
-)
+connector = line((35, 10), (70, 35), style=Style(line_width=0.5))
 label = text("A reusable component", position=(12, 45), size=11)
-component = Group(disk, curve, label)
+component = Group(disk, connector, label)
 canvas = Canvas(80, 55).add(component)
 canvas.save("drawing.svg")
 canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
 
 `circle`, `rectangle`, `text`, and the other drawing factories return Entity objects.
-Pure descriptions live in `pdl.author.geometry`. PathGeometry is the path builder;
-Entity attaches style and drawing operations. Canvas.add/draw captures the current
+Pure descriptions such as `Path` live in `pdl.author.geometry`. Entity attaches
+style and drawing operations to a description. Canvas.add/draw captures the current
 state, so later edits require another submission.
+
+## Explicit capabilities
+
+The root exports drawing factories, Entity, Group, Gather, Canvas, Style, and
+Color. Import other capabilities from the package that owns them:
+
+```python
+from pdl.author.geometry import Path, Point
+from pdl.author.style import Font, LinearGradient
+from pdl.author.transform import Rotation
+from pdl.canvas import Layer, Query
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import Scene3D, PerspectiveCamera
+```
+
+Pure geometry is introduced when constructing descriptions explicitly. The 3D
+and diagram packages have independent public entrypoints and load on request.
 
 ## Author behavior
 

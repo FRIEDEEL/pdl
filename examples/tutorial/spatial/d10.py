@@ -3,7 +3,9 @@
 from examples.spatial.d10 import die_geometry
 
 # tutorial-start
-from pdl import Canvas, Color, Group, Node, OrthographicCamera, Scene3D, Style, line, text
+from pdl import Canvas, Color, Group, Style, line, text
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import OrthographicCamera, Scene3D
 
 # Geometry construction is linked separately: 12 vertices and 10 kite loops.
 die = die_geometry()

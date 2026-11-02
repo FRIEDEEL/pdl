@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, Frame, Gather, Style, frame_axes, rectangle, text
+from pdl import Canvas, Color, Gather, Style, frame_axes, rectangle, text
+from pdl.author.geometry import Frame
 
 canvas = Canvas(110, 50)
 ghost = Style(stroke=Color(0.75, 0.75, 0.75), line_width=0.25)

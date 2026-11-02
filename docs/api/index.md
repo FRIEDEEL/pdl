@@ -4,6 +4,23 @@ Drawing factories imported from `pdl` return Entity objects. Pure descriptions
 live in `pdl.author.geometry`; use them for geometric construction and explicit
 `Entity(geometry, style=...)` composition. There is no common Geometry base class.
 
+## Import by capability
+
+| Package | Public entrypoints |
+| --- | --- |
+| `pdl` | Drawing factories, Entity, Group, Gather, Canvas, Style, Color |
+| `pdl.author.geometry` | Pure Point, Path, shapes, text/image descriptions, Bounds, explicit Frame |
+| `pdl.author.style` | Paint, fonts, gradients, RendererConfig, measurement |
+| `pdl.author.transform` | Transform, affine matrices, explicit transform constructors |
+| `pdl.canvas` | Canvas, Layer, LayerStack, Query, Viewport, Page |
+| `pdl.extensions.diagram` | Node, Connection, growing flowchart classes |
+| `pdl.extensions.spatial` | 3D coordinates, solids, cameras, projections |
+| `pdl.author.util.tex` | TeXConfig and explicit TeX tool interfaces |
+
+The root does not re-export advanced capabilities. Subpackage imports expose
+selected public objects rather than implementation helpers. The former
+`extensions.spacial` spelling has been replaced by `extensions.spatial`.
+
 Coordinates and line widths use millimeters, x right and y up. Text/TeX size uses
 TeX points. Entity methods mutate and return the receiving object. Queries return
 fixed numerical values. Canvas submission captures geometry, effective paint,

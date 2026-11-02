@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).parents[2]
 SOURCE = ROOT / "src/pdl"
 
@@ -79,9 +81,11 @@ def test_importing_the_core_does_not_load_optional_extensions() -> None:
 
 
 def test_captured_extensions_are_ordinary_entity_groups() -> None:
-    from pdl import Canvas, Entity, Group, Node, Scene3D, regular_polyhedron, text
+    from pdl import Canvas, Entity, Group, text
     from pdl.author.entity.capture import Composite, walk
     from pdl.author.geometry.protocols import PathSource
+    from pdl.extensions.diagram import Node
+    from pdl.extensions.spatial import Scene3D, regular_polyhedron
 
     canvas = Canvas(60, 40)
     canvas.add(Group(Scene3D((regular_polyhedron("cube"),)).project(), Node(text("Label"))))
@@ -120,6 +124,41 @@ def test_author_and_affine_imports_do_not_initialize_output_adapters() -> None:
             "Translation(2,3).apply_to(c); assert c.reference.x == 3; "
             "assert not any(k.startswith(('pdl.canvas','pdl.backends',"
             "'pdl.extensions')) for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    ("statement", "forbidden"),
+    [
+        (
+            "from pdl.canvas import Page, Viewport",
+            ("pdl.canvas.canvas", "pdl.backends", "pdl.extensions"),
+        ),
+        (
+            "from pdl.extensions.spatial import Scene3D",
+            ("pdl.canvas", "pdl.backends", "pdl.extensions.diagram"),
+        ),
+        (
+            "from pdl.extensions.diagram import Node",
+            ("pdl.canvas", "pdl.backends", "pdl.extensions.spatial"),
+        ),
+    ],
+)
+def test_public_subpackage_imports_keep_unrelated_layers_uninitialized(
+    statement: str, forbidden: tuple[str, ...]
+) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            f"import sys; {statement}; "
+            f"assert not any(k.startswith({forbidden!r}) for k in sys.modules)",
         ],
         cwd=ROOT,
         capture_output=True,

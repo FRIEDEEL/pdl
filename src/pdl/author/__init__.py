@@ -1,86 +1,68 @@
-"""The sole editable drawing domain, independent of Canvas and output adapters."""
+"""Everyday Author entities and basic paint; advanced descriptions use subpackages."""
 
-from importlib import import_module
-from typing import TYPE_CHECKING
+import typing as _typing
+from importlib import import_module as _import_module
 
-if TYPE_CHECKING:
-    from pdl.author.entity import Entity as Entity
-    from pdl.author.entity import Gather as Gather
-    from pdl.author.entity import Group as Group
-    from pdl.author.entity import arc as arc
-    from pdl.author.entity import circle as circle
-    from pdl.author.entity import frame_axes as frame_axes
-    from pdl.author.entity import image as image
-    from pdl.author.entity import line as line
-    from pdl.author.entity import path as path
-    from pdl.author.entity import polygon as polygon
-    from pdl.author.entity import polyline as polyline
-    from pdl.author.entity import rectangle as rectangle
-    from pdl.author.entity import tex as tex
-    from pdl.author.entity import text as text
-    from pdl.author.style import BLACK as BLACK
+if _typing.TYPE_CHECKING:
+    from pdl.author.entity.base import Entity as Entity
+    from pdl.author.entity.factories import arc as arc
+    from pdl.author.entity.factories import circle as circle
+    from pdl.author.entity.factories import frame_axes as frame_axes
+    from pdl.author.entity.factories import image as image
+    from pdl.author.entity.factories import line as line
+    from pdl.author.entity.factories import path as path
+    from pdl.author.entity.factories import polygon as polygon
+    from pdl.author.entity.factories import polyline as polyline
+    from pdl.author.entity.factories import rectangle as rectangle
+    from pdl.author.entity.factories import tex as tex
+    from pdl.author.entity.factories import text as text
+    from pdl.author.entity.gather import Gather as Gather
+    from pdl.author.entity.group import Group as Group
     from pdl.author.style import Color as Color
-    from pdl.author.style import ColorStop as ColorStop
-    from pdl.author.style import Font as Font
-    from pdl.author.style import FontStack as FontStack
-    from pdl.author.style import LinearGradient as LinearGradient
-    from pdl.author.style import RadialGradient as RadialGradient
     from pdl.author.style import Style as Style
 
 _EXPORTS: dict[str, tuple[str, str]] = {
-    "arc": ("pdl.author.entity", "arc"),
-    "BLACK": ("pdl.author.style", "BLACK"),
-    "circle": ("pdl.author.entity", "circle"),
     "Color": ("pdl.author.style", "Color"),
-    "ColorStop": ("pdl.author.style", "ColorStop"),
-    "Entity": ("pdl.author.entity", "Entity"),
-    "Font": ("pdl.author.style", "Font"),
-    "FontStack": ("pdl.author.style", "FontStack"),
-    "Gather": ("pdl.author.entity", "Gather"),
-    "Group": ("pdl.author.entity", "Group"),
-    "image": ("pdl.author.entity", "image"),
-    "line": ("pdl.author.entity", "line"),
-    "LinearGradient": ("pdl.author.style", "LinearGradient"),
-    "path": ("pdl.author.entity", "path"),
-    "polygon": ("pdl.author.entity", "polygon"),
-    "polyline": ("pdl.author.entity", "polyline"),
-    "RadialGradient": ("pdl.author.style", "RadialGradient"),
-    "rectangle": ("pdl.author.entity", "rectangle"),
+    "Entity": ("pdl.author.entity.base", "Entity"),
+    "Gather": ("pdl.author.entity.gather", "Gather"),
+    "Group": ("pdl.author.entity.group", "Group"),
     "Style": ("pdl.author.style", "Style"),
-    "tex": ("pdl.author.entity", "tex"),
-    "text": ("pdl.author.entity", "text"),
-    "frame_axes": ("pdl.author.entity", "frame_axes"),
+    "arc": ("pdl.author.entity.factories", "arc"),
+    "circle": ("pdl.author.entity.factories", "circle"),
+    "frame_axes": ("pdl.author.entity.factories", "frame_axes"),
+    "image": ("pdl.author.entity.factories", "image"),
+    "line": ("pdl.author.entity.factories", "line"),
+    "path": ("pdl.author.entity.factories", "path"),
+    "polygon": ("pdl.author.entity.factories", "polygon"),
+    "polyline": ("pdl.author.entity.factories", "polyline"),
+    "rectangle": ("pdl.author.entity.factories", "rectangle"),
+    "tex": ("pdl.author.entity.factories", "tex"),
+    "text": ("pdl.author.entity.factories", "text"),
 }
 
 __all__ = [
-    "arc",
-    "BLACK",
-    "circle",
     "Color",
-    "ColorStop",
     "Entity",
-    "Font",
-    "FontStack",
     "Gather",
     "Group",
+    "Style",
+    "arc",
+    "circle",
+    "frame_axes",
     "image",
     "line",
-    "LinearGradient",
     "path",
     "polygon",
     "polyline",
-    "RadialGradient",
     "rectangle",
-    "Style",
     "tex",
     "text",
-    "frame_axes",
 ]
 
 
 def __getattr__(name: str) -> object:
-    """Load the explicitly requested public object without importing other layers."""
+    """Load a public object without initializing unrelated package layers."""
     if name not in _EXPORTS:
         raise AttributeError(name)
     module, attribute = _EXPORTS[name]
-    return getattr(import_module(module), attribute)
+    return getattr(_import_module(module), attribute)

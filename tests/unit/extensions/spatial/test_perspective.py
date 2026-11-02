@@ -7,29 +7,23 @@ from pathlib import Path as FilePath
 
 import pytest
 
-from pdl import (
-    Canvas,
-    Color,
-    Group,
-    Node,
+from pdl import Canvas, Color, Group, Style, text
+from pdl.author.geometry import Path as Path
+from pdl.author.geometry import Point
+from pdl.author.geometry.path import Move, Segment
+from pdl.author.transform import Translation
+from pdl.extensions.diagram import Node
+from pdl.extensions.spatial import (
     PerspectiveCamera,
     Plane3D,
-    Point,
     Point3D,
     Scene3D,
     Sphere,
-    Style,
-    Translation,
     Vector3D,
     regular_polyhedron,
-    text,
 )
-from pdl import (
-    PathGeometry as Path,
-)
-from pdl.author.geometry.path import Move, Segment
-from pdl.extensions.spacial._author import make_entity as Drawing
-from pdl.extensions.spacial.planar import PerspectiveArtwork
+from pdl.extensions.spatial._author import make_entity as Drawing
+from pdl.extensions.spatial.planar import PerspectiveArtwork
 
 
 def test_pinhole_scale_and_snapshot_point_queries() -> None:

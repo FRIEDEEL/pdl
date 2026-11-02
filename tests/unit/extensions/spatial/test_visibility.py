@@ -6,25 +6,23 @@ from random import Random
 
 import pytest
 
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, text
+from pdl.author.entity.capture import walk
+from pdl.author.geometry import Point
+from pdl.author.geometry.shapes import Polygon
+from pdl.extensions.spatial import (
     Cylinder,
     OrthographicCamera,
     PerspectiveCamera,
     Plane3D,
-    Point,
     Point3D,
     Polyhedron,
     Scene3D,
     Sphere,
     Vector3D,
-    text,
 )
-from pdl.author.entity.capture import walk
-from pdl.author.geometry.shapes import Polygon
-from pdl.extensions.spacial.solids import face_normal
-from pdl.extensions.spacial.visibility import convex_fragments
+from pdl.extensions.spatial.solids import face_normal
+from pdl.extensions.spatial.visibility import convex_fragments
 
 CAMERA = PerspectiveCamera(0, 0, distance=100, focal_length=100)
 

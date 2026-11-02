@@ -4,7 +4,8 @@ from dataclasses import replace
 
 import pytest
 
-from pdl import Color, Point3D, Vector3D
+from pdl import Color
+from pdl.extensions.spatial import Point3D, Vector3D
 from playground.visibility.bsp import Face, distances, project, split
 from playground.visibility.oracle import area, check
 from playground.visibility.scenes import CAMERA, crossing, max_trap, random_faces, world

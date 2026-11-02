@@ -1,7 +1,7 @@
 """Backend semantics, fallback and real TikZ compilation."""
 
 from pdl import Canvas, Entity, arc
-from pdl import PathGeometry as Path
+from pdl.author.geometry import Path as Path
 
 
 def test_quadratic_is_exactly_elevated_for_tikz() -> None:

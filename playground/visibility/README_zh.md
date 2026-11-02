@@ -68,4 +68,4 @@ pdl 现已将 BSP 接入 `Scene3D.project()`，支持凹面分解、源面对应
 
 ## API 迁移
 
-保留 BSP 算法和历史结果；输出构造已改用当前 Entity／Group 工厂及 extensions.spacial 路径。历史计时仍描述原始运行，比较当前性能前应重新运行基准。
+保留 BSP 算法和历史结果；输出构造已改用当前 Entity／Group 工厂及 extensions.spatial 路径。历史计时仍描述原始运行，比较当前性能前应重新运行基准。

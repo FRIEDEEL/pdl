@@ -11,9 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 
-from pdl import Color, Entity, Group, PerspectiveCamera, Point3D, Style, Vector3D, line, polygon
-from pdl.extensions.spacial.projected import ProjectedScene
-from pdl.extensions.spacial.solids import centroid, face_normal
+from pdl import Color, Entity, Group, Style, line, polygon
+from pdl.extensions.spatial import PerspectiveCamera, Point3D, Vector3D
+from pdl.extensions.spatial.projected import ProjectedScene
+from pdl.extensions.spatial.solids import centroid, face_normal
 
 EPSILON = 1e-8
 

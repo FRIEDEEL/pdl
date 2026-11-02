@@ -8,8 +8,11 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from pdl import Canvas, Connection, Font, Node, RendererConfig, TeXConfig, tex, text
+from pdl import Canvas, tex, text
 from pdl.author.geometry.tex import TeX as TeXGeometry
+from pdl.author.style import Font, RendererConfig
+from pdl.author.util.tex import TeXConfig
+from pdl.extensions.diagram import Connection, Node
 
 
 @pytest.fixture

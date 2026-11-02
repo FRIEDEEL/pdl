@@ -14,17 +14,9 @@ from statistics import median
 from time import perf_counter
 
 from examples._shared import latin_font
-from pdl import (
-    Canvas,
-    Color,
-    PerspectiveCamera,
-    Polyhedron,
-    Scaling,
-    Scene3D,
-    Style,
-    Translation,
-    text,
-)
+from pdl import Canvas, Color, Style, text
+from pdl.author.transform import Scaling, Translation
+from pdl.extensions.spatial import PerspectiveCamera, Polyhedron, Scene3D
 from playground.visibility.bsp import Face, project
 from playground.visibility.oracle import check
 from playground.visibility.scenes import CAMERA, crossing, cycle, max_trap, random_faces

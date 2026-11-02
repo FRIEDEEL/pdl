@@ -2,7 +2,8 @@
 
 import pytest
 
-from pdl import Canvas, Gather, Group, Layer, circle
+from pdl import Canvas, Gather, Group, circle
+from pdl.canvas import Layer
 
 
 def radius(canvas: Canvas) -> list[float]:

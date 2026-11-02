@@ -2,19 +2,15 @@
 
 from dataclasses import replace
 
-from pdl import (
-    Canvas,
-    Color,
+from pdl import Canvas, Color, Style, rectangle, text
+from pdl.author.transform import Translation
+from pdl.extensions.spatial import (
     PerspectiveCamera,
     Plane3D,
     Point3D,
     Scene3D,
-    Style,
-    Translation,
     Vector3D,
-    rectangle,
     regular_polyhedron,
-    text,
 )
 
 # tutorial-start

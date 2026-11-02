@@ -11,9 +11,11 @@ from pathlib import Path
 from statistics import median
 from time import perf_counter
 
-from pdl import Canvas, Point, ProjectedScene, Scene3D
+from pdl import Canvas
 from pdl.author.entity.capture import walk
+from pdl.author.geometry import Point
 from pdl.author.geometry.shapes import Polygon
+from pdl.extensions.spatial import ProjectedScene, Scene3D
 from playground.visibility.oracle import check
 from playground.visibility.run import baseline
 from playground.visibility.scenes import CAMERA, random_faces

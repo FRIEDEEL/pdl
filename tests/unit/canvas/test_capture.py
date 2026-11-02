@@ -2,10 +2,11 @@
 
 import pytest
 
-from pdl import Canvas, Color, Font, Gather, Group, Style, circle, text
+from pdl import Canvas, Color, Gather, Group, Style, circle, text
 from pdl.author.geometry.point import Point
 from pdl.author.geometry.shapes import Circle as CircleGeometry
 from pdl.author.geometry.text import Text as TextGeometry
+from pdl.author.style import Font
 from pdl.canvas.layers import Layer
 
 
@@ -87,8 +88,8 @@ def test_draw_override_preserves_explicit_member_paint() -> None:
 def test_snapshot_layout_survives_later_font_discovery_failure(
     font: Font, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from pdl import Node
     from pdl.author.geometry.frame import WORLD
+    from pdl.extensions.diagram import Node
 
     canvas = Canvas(80, 30, fonts=(font,))
     captured = canvas.snapshot(Node(text("Fixed metrics")))

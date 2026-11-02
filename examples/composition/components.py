@@ -1,19 +1,10 @@
 """Reusable components, nested groups and affine instance placement."""
 
 from examples._shared import BLUE, INK, LABEL, PALE, export, valve
-from pdl import (
-    Canvas,
-    Group,
-    RendererConfig,
-    Rotation,
-    Scaling,
-    Style,
-    Translation,
-    circle,
-    line,
-    text,
-)
+from pdl import Canvas, Group, Style, circle, line, text
 from pdl.author.entity.factories import as_entity
+from pdl.author.style import RendererConfig
+from pdl.author.transform import Rotation, Scaling, Translation
 
 
 def example() -> Canvas:

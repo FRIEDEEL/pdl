@@ -4,7 +4,8 @@ from colorsys import hsv_to_rgb
 from math import cos, pi, sin, sqrt
 from random import Random
 
-from pdl import Color, PerspectiveCamera, Point3D, Vector3D
+from pdl import Color
+from pdl.extensions.spatial import PerspectiveCamera, Point3D, Vector3D
 from playground.visibility.bsp import Face
 
 CAMERA = PerspectiveCamera(azimuth=0, elevation=0, distance=240, focal_length=240)

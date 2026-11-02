@@ -4,6 +4,13 @@
 
 ### Changed
 
+- **Breaking:** root imports now contain only drawing factories, Entity, Group,
+  Gather, Canvas, Style, and Color. Import geometry, explicit transforms,
+  advanced paint, Canvas helpers, and extensions from their owning packages.
+  `PathGeometry` becomes `Path` from `pdl.author.geometry`.
+- **Breaking:** the 3D package is now `pdl.extensions.spatial`; the previous
+  `spacial` package spelling is removed. Spatial, diagram, and Canvas packages
+  expose their selected public classes directly.
 - **Breaking:** drawing constructors such as `circle` and `text` are factory functions
   returning thin Entity objects. Pure descriptions live in author.geometry;
   explicit Entity(geometry, style=...) construction is supported.
@@ -35,7 +42,9 @@
 ### Migration examples
 
 ```python
-from pdl import Entity, Group, PathGeometry, Rescale, Style, circle
+from pdl import Entity, Group, Style, circle
+from pdl.author.geometry import Path as PathGeometry
+from pdl.author.transform import Rescale
 from pdl.author.geometry import Arc as ArcGeometry
 
 shape = circle((10, 10), 3, style=Style(line_width=0.5))

@@ -1,5 +1,6 @@
 # tutorial-start
-from pdl import Canvas, Color, ColorStop, LinearGradient, RadialGradient, Style, circle, rectangle
+from pdl import Canvas, Color, Style, circle, rectangle
+from pdl.author.style import ColorStop, LinearGradient, RadialGradient
 
 stops = (
     ColorStop(0, Color(0.1, 0.3, 0.8)),
