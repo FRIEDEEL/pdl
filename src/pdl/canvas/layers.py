@@ -48,6 +48,9 @@ class Layer:
     def register(self, member: Entity) -> None:
         self.registrations[id(member)] = member
 
+    def unregister(self, member: Entity) -> None:
+        self.registrations.pop(id(member), None)
+
     def add(self, *members: Entity) -> Self:
         for member in members:
             member.set_layer(self)

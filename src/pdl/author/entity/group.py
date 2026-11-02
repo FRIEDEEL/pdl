@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Self
 
-from pdl.author.entity.base import Entity
+from pdl.author.entity.base import Entity, LayerRegistration
 from pdl.author.geometry.bounds import Bounds
 from pdl.author.geometry.point import Point, Position
 from pdl.author.style.style import Style
@@ -40,24 +40,74 @@ class Group(Entity):
                 ancestor = ancestor.parent
             if member.parent is not None and member.parent is not self:
                 raise ValueError("Remove the member from its existing Group first.")
-        for member in members:
+        candidates = [self, *members]
+        stacks = {
+            m.layer.stack
+            for m in candidates
+            if isinstance(m.layer, LayerRegistration) and m.layer.stack is not None
+        }
+        if len(stacks) > 1:
+            raise ValueError("Cannot combine members from different Canvas layer stacks.")
+
+        def position(member: Entity) -> int:
+            layer = member.layer
+            return (
+                layer
+                if isinstance(layer, int)
+                else layer.position
+                if isinstance(layer, LayerRegistration)
+                else 0
+            )
+
+        highest = max(candidates, key=position)
+        layer, automatic = highest.layer, highest.automatic_layer
+        ordered = sorted(members, key=position)
+        for member in ordered:
             if member not in self._members:
                 self._members.append(member)
                 member._parent = self
+        self.bind_layer(layer, automatic=automatic)
         return self
 
     def remove(self, *members: Entity) -> Self:
-        for member in members:
+        candidates = [self, *members]
+        stacks = {
+            m.layer.stack
+            for m in candidates
+            if isinstance(m.layer, LayerRegistration) and m.layer.stack is not None
+        }
+        if len(stacks) > 1:
+            raise ValueError("Cannot combine members from different Canvas layer stacks.")
+
+        def position(member: Entity) -> int:
+            layer = member.layer
+            return (
+                layer
+                if isinstance(layer, int)
+                else layer.position
+                if isinstance(layer, LayerRegistration)
+                else 0
+            )
+
+        highest = max(candidates, key=position)
+        layer, automatic = highest.layer, highest.automatic_layer
+        ordered = sorted(members, key=position)
+        for member in ordered:
             if member not in self._members:
                 raise ValueError("Entity is not a member of this Group.")
+        layer, automatic = self.layer, self.automatic_layer
         for member in dict.fromkeys(members):
             self._members.remove(member)
             member._parent = None
+            member.bind_layer(layer, automatic=automatic)
         return self
 
     def dismiss(self) -> tuple[Entity, ...]:
         members = self.members
         self.remove(*members)
+        layer = self.layer
+        if isinstance(layer, LayerRegistration):
+            layer.unregister(self)
         return members
 
     @property

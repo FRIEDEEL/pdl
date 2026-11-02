@@ -68,3 +68,43 @@ def test_auto_size_and_fit_preserve_stroke_width() -> None:
     assert leaf.effective_style.line_width == 0.5
     assert leaf.center.x == pytest.approx(50)
     assert leaf.center.y == pytest.approx(25)
+
+
+def test_draw_override_preserves_explicit_member_paint() -> None:
+    inherited = Circle((1, 1), 1)
+    explicit = Circle((5, 1), 1, style=Style(line_width=2))
+    group = Group(inherited, explicit, style=Style(line_width=3))
+    canvas = Canvas(30, 20)
+    canvas.draw(group, Style(line_width=8))
+    captured = canvas.drawings[0]
+    assert isinstance(captured, Group)
+    assert captured.members[0].effective_style.line_width == 8
+    assert captured.members[1].effective_style.line_width == 2
+    assert inherited.style is None
+    assert group.style is not None and group.style.line_width == 3
+
+
+def test_snapshot_layout_survives_later_font_discovery_failure(
+    font: Font, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from pdl import Node
+    from pdl.author.geometry.frame import WORLD
+
+    canvas = Canvas(80, 30, fonts=(font,))
+    captured = canvas.snapshot(Node(Text("Fixed metrics")))
+    before = captured.bounds
+
+    def unavailable() -> tuple[Font, ...]:
+        raise AssertionError("Captured typography must not rediscover fonts.")
+
+    monkeypatch.setattr("pdl.author.style.typography.default_fonts", unavailable)
+    monkeypatch.setattr("pdl.author.geometry.text.default_fonts", unavailable)
+    other = Canvas(80, 30).add(captured)
+    assert other.query().bounds(captured, in_space=WORLD) == before
+    assert "Fixed metrics" in other.render()
+
+
+def test_ink_query_is_distinct_from_logical_layout(font: Font) -> None:
+    canvas = Canvas(80, 30)
+    text = Text(" x ", font)
+    assert canvas.query().ink_bounds(text).width < canvas.query().bounds(text).width

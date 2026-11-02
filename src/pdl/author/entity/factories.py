@@ -13,11 +13,9 @@ from pdl.author.geometry.path import Path as PathGeometry
 from pdl.author.geometry.point import Position, as_point
 from pdl.author.geometry.tex import TeX as TeXGeometry
 from pdl.author.geometry.text import Text as TextGeometry
-from pdl.author.style import BLACK, Font, FontStack, Style
+from pdl.author.style import Font, FontStack, Style
 from pdl.author.transform.affine import AffineTransform
 from pdl.author.util.tex import TeXConfig
-
-TEXT_STYLE = Style(stroke=None, fill=BLACK)
 
 
 def Circle(center: Position = (0, 0), radius: float = 1, *, style: Style | None = None) -> Entity:
@@ -74,7 +72,6 @@ def Text(
     return Entity(
         TextGeometry(text, font, position, size, align, line_spacing),
         style=style,
-        default_style=TEXT_STYLE,
     )
 
 
@@ -86,9 +83,7 @@ def TeX(
     *,
     style: Style | None = None,
 ) -> Entity:
-    return Entity(
-        TeXGeometry(source, position, size, config), style=style, default_style=TEXT_STYLE
-    )
+    return Entity(TeXGeometry(source, position, size, config), style=style)
 
 
 def Image(

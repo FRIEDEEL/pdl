@@ -93,3 +93,28 @@ def test_concrete_subclasses_retain_their_type_when_setting_style() -> None:
     updated: BlueEntity = entity.set_style(Style(line_width=2))
     assert updated is entity
     assert entity.geometry == Point(1, 2)
+
+
+def test_geometry_defaults_are_live_without_materializing_style(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from pdl import Text
+    from pdl.author.geometry.text import Text as TextGeometry
+
+    text = Text("Default")
+    paint = Style(stroke=None, fill=Color(0, 1, 0))
+    monkeypatch.setitem(Entity.geometry_defaults, TextGeometry, paint)
+    assert text.style is None
+    assert text.effective_style is paint
+    text.scale(2, 1)
+    assert text.style is None
+    assert text.effective_style is paint
+
+
+def test_copy_does_not_confuse_integer_layers_with_geometry_values() -> None:
+    from pdl import Circle, Group
+
+    original = Group(Circle((0, 0), 1))
+    copied = original.copy()
+    assert copied.members[0].reference == Point(0, 0)
+    assert copied.members[0].effective_style.stroke == Color(0, 0, 0)

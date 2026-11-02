@@ -5,10 +5,14 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import replace
 from typing import TYPE_CHECKING, ClassVar, Protocol, Self, runtime_checkable
+from warnings import warn
 
 from pdl.author.geometry.bounds import Anchor, Bounds
 from pdl.author.geometry.point import Point, Position, as_point
 from pdl.author.geometry.queries import bounds_of, ink_bounds_of, reference_of
+from pdl.author.geometry.tex import TeX as TeXGeometry
+from pdl.author.geometry.text import Text as TextGeometry
+from pdl.author.style.color import BLACK
 from pdl.author.style.style import Style
 from pdl.author.transform.affine import (
     Reflection,
@@ -35,6 +39,10 @@ class Entity:
     """
 
     default_style: ClassVar[Style] = Style()
+    geometry_defaults: ClassVar[dict[type, Style]] = {
+        TextGeometry: Style(stroke=None, fill=BLACK),
+        TeXGeometry: Style(stroke=None, fill=BLACK),
+    }
 
     def __init__(
         self,
@@ -45,11 +53,13 @@ class Entity:
         default_style: Style | None = None,
     ) -> None:
         self._default_style = default_style
+        self._style_kind = type(geometry)
         self._geometry = geometry
         self._style = style
         self._reference = as_point(reference) if reference is not None else None
         self._parent: Group | None = None
         self._layer: object | None = None
+        self._automatic_layer = True
 
     @property
     def geometry(self) -> object:
@@ -72,7 +82,11 @@ class Entity:
             if ancestor.style is not None:
                 return ancestor.style
             ancestor = ancestor.parent
-        return self._default_style or type(self).default_style
+        if self._default_style is not None:
+            return self._default_style
+        if type(self) is Entity:
+            return self.geometry_defaults.get(self._style_kind, self.default_style)
+        return type(self).default_style
 
     def set_style(self, style: Style | None) -> Self:
         """Set only this instance; None restores parent/type fallback."""
@@ -186,9 +200,12 @@ class Entity:
         memo: dict[int, object] = {}
         if self.parent is not None:
             memo[id(self.parent)] = None
-        if self._layer is not None:
+        if isinstance(self._layer, LayerRegistration):
             memo[id(self._layer)] = None
-        return deepcopy(self, memo)
+        result = deepcopy(self, memo)
+        result._layer = None
+        result._automatic_layer = True
+        return result
 
     def set_opacity(self, opacity: float) -> Self:
         return self.set_style(replace(self.effective_style, opacity=opacity))
@@ -205,12 +222,26 @@ class Entity:
         value = self.root._layer
         return 0 if value is None else value
 
-    def set_layer(self, layer: object) -> Self:
-        """Assign a paint layer to the outermost ownership unit."""
+    @property
+    def automatic_layer(self) -> bool:
+        return self.root._automatic_layer
+
+    def bind_layer(self, layer: object, *, automatic: bool) -> None:
+        """Bind a Canvas identity while retaining integer-assignment semantics."""
         root = self.root
         root._layer = layer
+        root._automatic_layer = automatic
         if isinstance(layer, LayerRegistration):
             layer.register(root)
+
+    def set_layer(self, layer: object) -> Self:
+        """Assign a paint layer to the outermost ownership unit."""
+        integer = isinstance(layer, int) and not isinstance(layer, bool)
+        if not integer and not isinstance(layer, LayerRegistration):
+            raise TypeError("Expected an integer layer or Layer identity.")
+        if self.root is not self:
+            warn("Layer target promoted to its outermost Group.", UserWarning, stacklevel=2)
+        self.bind_layer(layer, automatic=integer)
         return self
 
 
@@ -219,4 +250,9 @@ type TransformEdit = tuple[Entity, object, Point, Style | None]
 
 @runtime_checkable
 class LayerRegistration(Protocol):
+    @property
+    def position(self) -> int: ...
+    @property
+    def stack(self) -> object | None: ...
     def register(self, member: Entity) -> None: ...
+    def unregister(self, member: Entity) -> None: ...

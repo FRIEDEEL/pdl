@@ -93,14 +93,25 @@ class Canvas:
         with self.typography():
             yield
 
-    def snapshot(self, graphic: Entity | Composite) -> Entity:
+    def snapshot(self, graphic: Entity | Composite, *, style: Style | None = None) -> Entity:
+        """Capture a root override while preserving explicit member styles."""
         with self.typography():
+            if style is not None:
+                target = (
+                    graphic.copy().set_style(style)
+                    if isinstance(graphic, Entity)
+                    else Group(*graphic.decompose(), style=style)
+                )
+                return freeze(target)
             return freeze(graphic)
 
     def draw(self, graphic: Entity | Composite, style: Style | None = None) -> None:
         if isinstance(graphic, Entity) and graphic.parent is not None:
             raise ValueError("Draw the outermost Group rather than an owned member.")
         layer = graphic.layer if isinstance(graphic, Entity) else 0
+        automatic = not isinstance(graphic, Entity) or graphic.automatic_layer
+        if isinstance(layer, Layer) and automatic:
+            layer = layer.position
         if valid_integer(layer):
             assert isinstance(layer, int)
             selected = self.layers[layer]
@@ -108,13 +119,9 @@ class Canvas:
             selected = self.layers.adopt(layer)
         else:
             raise TypeError("Expected an integer layer or Canvas Layer.")
-        captured = self.snapshot(graphic)
-        if style is not None:
-            if isinstance(captured, Group):
-                # An explicit submission override applies to all captured leaves.
-                for leaf in walk((captured,)):
-                    leaf.set_style(style)
-            captured.set_style(style)
+        if isinstance(graphic, Entity):
+            graphic.bind_layer(selected, automatic=automatic)
+        captured = self.snapshot(graphic, style=style)
         self._records.append((selected, captured))
 
     def add(self, *graphics: Entity | Composite) -> Self:
