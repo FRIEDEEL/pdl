@@ -40,13 +40,46 @@
 
 确认旧能力不代表保留旧 API。Drawing/placement 包装、隐式 frame/space、局部锚点和累计矩阵，
 已按本轮讨论由直接 Entity、显式 Frame、世界坐标查询及即时几何替换代替。
-文字平移、旋转、正向均匀缩放保留原生表达；拉伸、剪切等按需转换为路径。
+普通 Text 的平移、旋转、正向均匀缩放保留原生表达；TeX 平移／旋转保留源码，
+缩放时转换并变换测量所得轮廓，避免修改字号导致固定毫米尺寸不缩放。拉伸、剪切等同样转路径。
 Node 第一次需要几何时确定成员；之后是普通 Group，修改文字后可显式 rebuild 边框。
 
 实现阶段验证：281 项测试、活动源码/测试的 Ruff 与严格 Pyright 通过，wheel/sdist 构建及隔离导入通过。
-整仓 Ruff 和示例尚待文档阶段更新；Pyright 目前仅检查 src/pdl 与 tests，示例迁移后恢复覆盖。
-下一阶段从本分支创建 docs/ 分支，保留文档和示例的大结构，全面更新接口并检查实际输出。
+当时整仓 Ruff 和示例尚待文档阶段更新，Pyright 仅检查 src/pdl 与 tests；后续完成情况见下一节。
+实现阶段检查点为 `2c9b79b`，随后由此建立 `docs/architecture_refactor`。
 两个分支均不得自行合并 dev，待用户审查并明确批准。
+
+## 文档迁移与最终核对（2026-11-02）
+
+当前交付分支为 `docs/architecture_refactor`，包含实现分支的完整历史、文档／示例迁移，
+以及运行示例时发现的边界修复。保留七部分双语教程、API 参考与专题指南的大结构。
+实现分支 `refactor/architecture_refactor` 保留阶段检查点；两个分支均未合并 dev，也未 push／发布。
+
+- 全部绘图示例采用新 API；46 个教程模块及主示例生成器均实际执行，SVG、TikZ、PDF 输出成功。
+- 修正显式可视 Frame 的基向量同步；核心纯几何导入不加载 Entity／Canvas／输出后端／扩展。
+- 捕获仍保留成员 Style None，复制归属并固定自身默认值；修改捕获 Group 的样式仍可产生回退效果。
+- 补回 TeX ink_bounds，区分轮廓与排版空白；空 Canvas 的 fit 查询可预测提交后的页面位置。
+- 所有对象变换即时生效，转换前先准备完整修改，失败时不留下部分变换。
+- 清除实现中的旧 Drawing／Geometry／Transform 类型别名，使用实际 Entity／PathSource／AffineTransform 名称。
+
+最终验证：
+
+| 范围 | 实际结果 |
+| --- | --- |
+| Ruff 检查及格式检查 | 全仓通过，旧实现／旧测试按配置排除 |
+| 严格 Pyright | src/pdl、tests、examples、playground/visibility 全部通过 |
+| 活动 pytest | 291 passed，无跳过 |
+| 独立 BSP playground | 10 passed；生产投影另经 1024 条射线抽样，无不一致 |
+| Sphinx | `-W --keep-going` 构建成功，实际重新生成教程与关联案例 |
+| 构建与隔离导入 | wheel／sdist 成功；不含归档代码；独立 wheel 执行 README 的 SVG／TikZ／PDF 及 3D SVG／TikZ |
+| 输出检查 | 74 个生成 SVG 通过 XML 解析；人工检查缩放／Frame 教程页面、D10／显微镜及中英文数学混排 PDF |
+
+已有能力的限制继续明确保留：当前曲线变换仅实现仿射，非线性／网格算法未实现；
+复杂／彩色 TeX 可原生嵌入，但不支持的转轮廓会报错，包括 fit 要求缩放时。
+不同引擎的原生文字不保证逐像素一致；3D 曲面／带图案场景仍遵循文档中的排序和透视限制。
+这些限制和新 API 的不兼容迁移已写入正式架构、API、教程与 CHANGELOG。
+
+DEVLOG 保持用户原有修改，不自动写入本轮进展。本临时笔记继续保留，待用户审查后决定如何收束。
 
 ## 历史讨论（以下冲突项已被最新确认取代）
 
