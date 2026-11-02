@@ -97,9 +97,10 @@ loading, and capture into ordinary Entity Groups. Numerical tests distinguish
 shape/visibility algorithms from rendering. Integration tests compile real TeX,
 PDF, gradients, fonts, and portable image assets.
 
-The archived src/pdl_old and tests_old remain for review, outside active checks
-and distribution artifacts. Current tests target the new semantics. Examples and
-both language manuals use the new API. The implementation branch is followed by
-a docs branch; merging into dev waits for explicit user review and approval.
+Current tests target the new semantics, and examples and both language manuals
+use the new API. After review, the archived implementation and tests were removed
+from the working tree. Their complete development history remains available in
+Git. Integration into dev preserves the reviewed implementation and documentation
+history through a non-fast-forward merge.
 
 [中文说明](architecture_zh.md)

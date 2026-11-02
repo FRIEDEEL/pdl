@@ -31,7 +31,7 @@ uv build
 ```
 
 The active implementation is src/pdl and its tests mirror modules under tests.
-Archived src/pdl_old/tests_old are review references and are excluded from checks
-and distributions. Reader examples are included in strict type checking. External
+The previous implementation and tests are available in Git history rather than
+the working tree. Reader examples are included in strict type checking. External
 integration tests report skips when required tools/fonts are unavailable; report
 those limitations rather than claiming an unexecuted rendering check passed.

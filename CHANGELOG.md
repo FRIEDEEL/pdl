@@ -29,8 +29,8 @@
 - Existing font/TeX measurement, SVG/TikZ/PDF, images, gradients, diagrams, 3D
   projection, smooth surfaces, perspective artwork, and BSP visibility are migrated.
 - Documentation and runnable examples are updated together while retaining their
-  broad directory structure. The old implementation/tests remain archived for review
-  and are excluded from built distributions.
+  broad directory structure. The archived old implementation/tests are removed
+  after review; earlier versions remain available in Git history.
 
 ### Migration examples
 

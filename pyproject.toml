@@ -30,7 +30,6 @@ docs = [
 
 [tool.ruff]
 line-length = 100
-extend-exclude = ["src/pdl_old", "tests_old"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]

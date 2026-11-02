@@ -1,1 +1,0 @@
-"""Backends svg implementation package."""
