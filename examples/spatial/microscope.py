@@ -17,17 +17,18 @@ from pdl import (
     Canvas,
     Color,
     DirectionalLight,
-    Drawing,
     OrthographicCamera,
     Point3D,
     Polyhedron,
+    Scaling,
     Scene3D,
     Style,
-    Text,
-    Transform,
     Transform3D,
+    Translation,
     Vector3D,
+    text,
 )
+from pdl.author.entity.factories import as_entity
 
 IVORY = Color(0.83, 0.86, 0.86)
 DARK = Color(0.19, 0.24, 0.29)
@@ -345,8 +346,10 @@ def example() -> Canvas:
     canvas = Canvas(290, 205)
     font = latin_font()
 
-    def label(text: str, x: float, y: float, size: float = 10) -> None:
-        canvas.draw(Text(text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK))
+    def label(label_text: str, x: float, y: float, size: float = 10) -> None:
+        canvas.draw(
+            text(label_text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK)
+        )
 
     label("A microscope, built from components", 12, 190, 20)
     label("Named Python assemblies / polygonal surfaces / BSP visibility", 12, 180)
@@ -357,7 +360,7 @@ def example() -> Canvas:
         scene = Scene3D(instrument.solids(), camera=camera, light=light, visibility="bsp")
         projected = scene.project()
         assert projected.visibility == "bsp"
-        canvas.draw(Drawing(projected, transform=Transform.translate(x, 38)))
+        canvas.draw(as_entity(projected, transform=Translation(x, 38)))
     label("ASSEMBLED", 44, 20, 11)
     label("COMPONENT STUDY", 180, 20, 11)
     label("Base / stand + focus / stage + slide / condenser / optics", 12, 8, 9)
@@ -386,18 +389,17 @@ def focus_detail() -> Canvas:
             light=DirectionalLight(Vector3D(-1, 1, -3), ambient=0.7 if x == 57 else 0.45),
         ).project()
         canvas.draw(
-            Drawing(
-                scene,
-                transform=Transform.translate(x, 58) @ Transform.scale(1.1 if x == 57 else 1.25),
-            )
+            as_entity(scene, transform=Translation(x, 58) @ Scaling(1.1 if x == 57 else 1.25))
         )
-    for text, x, y, size in (
+    for label_text, x, y, size in (
         ("Focus mechanism / component detail", 10, 116, 17),
         ("Earlier simplified support", 10, 16, 10),
         ("Rack, pinion, guides and saddle", 119, 16, 10),
         ("Near-side handwheel removed to expose the drive", 119, 8, 7),
     ):
-        canvas.draw(Text(text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK))
+        canvas.draw(
+            text(label_text, font=font, size=size, position=(x, y)), Style(stroke=None, fill=INK)
+        )
     return canvas
 
 

@@ -1,17 +1,19 @@
 """SVG output with native shapes and path fallback."""
 
-from pdl.author.shapes import Arc, Circle, Rectangle
-from pdl.author.style import Color, Style
-from pdl.backends.formatting import number
-from pdl.foundation.geometry.primitives import (
+from math import ceil
+
+from pdl.author.geometry.path import (
     Close,
     Cubic,
-    Geometry,
     Move,
     Quadratic,
     Segment,
-    point,
 )
+from pdl.author.geometry.point import as_point as point
+from pdl.author.geometry.protocols import PathSource
+from pdl.author.geometry.shapes import Arc, Circle, Rectangle
+from pdl.author.style import Color, Style
+from pdl.backends.formatting import number
 
 
 def color(value: Color | None) -> str:
@@ -36,7 +38,7 @@ def style_attributes(style: Style, gradient_id: str | None = None) -> str:
     )
 
 
-def path_data(geometry: Geometry) -> str:
+def path_data(geometry: PathSource) -> str:
     parts: list[str] = []
     for command in geometry.to_path().commands:
         match command:
@@ -59,7 +61,7 @@ def path_data(geometry: Geometry) -> str:
     return " ".join(parts)
 
 
-def shape(geometry: Geometry) -> str:
+def shape(geometry: PathSource) -> str:
     if isinstance(geometry, Circle):
         p = point(geometry.center)
         return f'circle cx="{number(p.x)}" cy="{number(p.y)}" r="{number(geometry.radius)}"'
@@ -73,7 +75,6 @@ def shape(geometry: Geometry) -> str:
         p = geometry.at(geometry.start_angle)
         data = f"M {number(p.x)} {number(p.y)}"
         # Split full circles as coincident SVG arc endpoints omit the arc.
-        from math import ceil
 
         count = max(1, ceil(abs(geometry.sweep_angle) / 180))
         for i in range(count):

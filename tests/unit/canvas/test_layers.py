@@ -2,18 +2,21 @@
 
 import pytest
 
-from pdl import Canvas, Circle, Gather, Group, Layer
+from pdl import Canvas, Gather, Group, Layer, circle
 
 
 def radius(canvas: Canvas) -> list[float]:
-    from pdl.author.composition import walk
+    from pdl.author.entity.capture import walk
+    from pdl.author.geometry.shapes import Circle as CircleGeometry
 
-    return [d.geometry.radius for d in walk(canvas.drawings) if isinstance(d.geometry, Circle)]
+    return [
+        d.geometry.radius for d in walk(canvas.drawings) if isinstance(d.geometry, CircleGeometry)
+    ]
 
 
 def test_integer_assignment_capture_and_layer_insertions() -> None:
     canvas = Canvas(100, 100)
-    a, b = Circle((10, 10), 1), Circle((10, 10), 2)
+    a, b = circle((10, 10), 1), circle((10, 10), 2)
     a.set_layer(1)
     canvas.draw(a)
     canvas.draw(b)
@@ -32,10 +35,10 @@ def test_integer_assignment_capture_and_layer_insertions() -> None:
 def test_group_uses_highest_layer_and_preserves_internal_order() -> None:
     canvas = Canvas(100, 100)
     bottom, top = canvas.layers[0], canvas.layers[1]
-    a, b = Circle((10, 10), 1), Circle((10, 10), 2)
+    a, b = circle((10, 10), 1), circle((10, 10), 2)
     bottom.add(a)
     top.add(b)
-    group = Group((b, a))
+    group = Group(b, a)
     assert group.layer is top
     assert group.members == (a, b)
     assert top.members == (group,)
@@ -51,13 +54,13 @@ def test_group_uses_highest_layer_and_preserves_internal_order() -> None:
 def test_layer_membership_and_invalid_drawables() -> None:
     from typing import cast
 
-    from pdl.author.composition import Graphic
+    from pdl.author.entity.base import Entity as Graphic
 
     layer = Layer(1)
-    a = Circle((0, 0), 1)
+    a = circle((0, 0), 1)
     layer.add(a)
     selection = layer.to_gather()
-    b = Circle((0, 0), 2)
+    b = circle((0, 0), 2)
     layer.add(b)
     assert selection.members == (a,)
     canvas = Canvas(100, 100)

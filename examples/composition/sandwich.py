@@ -1,6 +1,6 @@
 """The sandwich case: spatial groups, cross-layer Gather, and regrouping."""
 
-from pdl import Canvas, Circle, Color, Gather, Group, Rectangle, Style, Text
+from pdl import Canvas, Color, Gather, Group, Style, circle, rectangle, text
 
 INK = Color(0.12, 0.18, 0.25)
 BLUE = Color(0.25, 0.55, 0.82)
@@ -11,13 +11,15 @@ LABEL = Style(stroke=None, fill=INK)
 
 def plate(x: float, y: float, width: float, color: Color, label: str) -> Group:
     """Keep the plate, its two bolts, and its label in one spatial unit."""
-    body = Rectangle((x, y), width, 12).set_style(Style(stroke=INK, fill=color, line_width=0.35))
+    body = rectangle((x, y), width, 12).set_style(Style(stroke=INK, fill=color, line_width=0.35))
     bolts = tuple(
-        Circle((px, y + 6), 1.2).set_style(Style(stroke=None, fill=INK))
+        circle((px, y + 6), 1.2).set_style(Style(stroke=None, fill=INK))
         for px in (x + 4, x + width - 4)
     )
-    text = Text(label, size=11, position=(x + width / 2, y + 4.5), align="center").set_style(LABEL)
-    return Group((body, *bolts, text))
+    text_entity = text(label, size=11, position=(x + width / 2, y + 4.5), align="center").set_style(
+        LABEL
+    )
+    return Group(body, *bolts, text_entity)
 
 
 def example() -> Canvas:
@@ -44,15 +46,15 @@ def example() -> Canvas:
 
         if case == 2:
             # A real Group cannot straddle layers: it rises to the highest one.
-            combined = Group((base, lid))
+            combined = Group(base, lid)
             canvas.draw(combined)
         else:
             # Deliberately submit the lid first: Layer still controls coverage.
             canvas.draw(lid)
             canvas.draw(base)
         canvas.draw(middle)
-        canvas.draw(Text(titles[case], position=(6, y + 47), size=15), LABEL)
-        canvas.draw(Text(notes[case], position=(6, y - 3), size=10), LABEL)
+        canvas.draw(text(titles[case], position=(6, y + 47), size=15), LABEL)
+        canvas.draw(text(notes[case], position=(6, y - 3), size=10), LABEL)
     return canvas
     # tutorial-end
 

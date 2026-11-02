@@ -1,1 +1,0 @@
-"""Foundation geometry implementation package."""

@@ -11,8 +11,9 @@ from pathlib import Path
 from statistics import median
 from time import perf_counter
 
-from pdl import Canvas, Drawing, Point, Polygon, ProjectedScene, Scene3D, Transform
-from pdl.scene.composition import walk
+from pdl import Canvas, Point, ProjectedScene, Scene3D
+from pdl.author.entity.capture import walk
+from pdl.author.geometry.shapes import Polygon
 from playground.visibility.oracle import check
 from playground.visibility.run import baseline
 from playground.visibility.scenes import CAMERA, random_faces
@@ -72,7 +73,7 @@ def main() -> None:
             if result.mismatches:
                 raise RuntimeError("Production visibility differs from the ray oracle.")
             canvas = Canvas(200, 200)
-            canvas.draw(Drawing(snapshot, transform=Transform.translate(100, 100)))
+            canvas.add(snapshot.copy().translate(100, 100))
             canvas.save(OUTPUT / f"library-{density_name}-{count}.svg")
     (OUTPUT / "library-results.json").write_text(
         json.dumps(

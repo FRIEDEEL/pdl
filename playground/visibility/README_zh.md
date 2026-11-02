@@ -63,4 +63,9 @@ pdl 现已将 BSP 接入 `Scene3D.project()`，支持凹面分解、源面对应
 可对正式公开接口计时，并将实际返回的二维绘制片段与独立射线求交结果比较。
 输出 `output/library-*.svg`、`library-results.json`、`library-timings.csv`。
 原性能脚本基线已显式选择 centroid，防止库升级后参照算法改变。
-参见[正式教程](../../docs/tutorial/zh/26-visibility.md)。
+参见[正式教程](../../docs/tutorial/zh/05-spatial/05-visibility.md)。
+
+
+## API 迁移
+
+保留 BSP 算法和历史结果；输出构造已改用当前 Entity／Group 工厂及 extensions.spacial 路径。历史计时仍描述原始运行，比较当前性能前应重新运行基准。

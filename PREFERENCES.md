@@ -10,6 +10,8 @@
 
 - While pdl APIs remain provisional, do not retain old API compatibility unless
   explicitly requested. Update examples and documentation to the current API.
+- Name factory functions in lowercase snake_case (for example, `circle`, `text`,
+  and `tex`); retain PascalCase for actual classes.
 - During this development stage, prioritize clear behavior descriptions and
   understandable examples over polished tutorial prose and smooth transitions.
 - Organize tutorials into a few major parts; teach Group, Gather, and Layer
@@ -17,7 +19,27 @@
 
 # Design Discussions
 
-- Maintain the discussion draft under a second-level heading in `DEVLOG.md`.
-  For each new design question or proposal, check consistency with earlier
-  decisions and explain conflicts or compatible extensions. Distinguish explicit
-  user decisions from assistant suggestions and unresolved questions.
+- `DEVLOG.md` is written by the user or edited under the user's explicit
+  direction. Do not automatically append conversations, implementation progress,
+  decisions, or test reports. Write only the content the user asks to record.
+- Use `refactor_note.md` as temporary discussion guidance on the current
+  refactor branch. Check new proposals against confirmed decisions and
+  distinguish user decisions, assistant suggestions, and unresolved questions.
+  Consolidating the note into `DEVLOG.md` also requires explicit user direction.
+
+# Git Review
+
+- Unless the user explicitly delegates committing, present each proposed commit
+  for review and wait for explicit approval before execution. Implementation
+  authorization does not imply commit authorization.
+- Provide the proposed commit message, file scope, concise change summary,
+  validation results, and known incomplete work. Keep unrelated user edits out.
+- Previous autonomous commit and merge authorization is revoked. Obtain explicit
+  merge approval separately from approval of individual commits.
+- Prefer commit messages with a concise body explaining concrete changes.
+  Explicitly mention included test additions or updates, and distinguish them
+  from checks that were actually run.
+
+- For the complete architecture refactor on the current branch, the user has
+  explicitly delegated local commits again. Keep focused commits with bodies;
+  merging into dev, pushing, and release publication remain separate actions.

@@ -1,22 +1,22 @@
 """TikZ document orchestration and object dispatch."""
 
-from pdl.author.composition import Composite, Drawing
-from pdl.author.image import Image
-from pdl.author.style import BLACK, LinearGradient, RadialGradient, Style
-from pdl.author.tex import TeX
-from pdl.author.text import Text
+from pdl.author.entity.base import Entity
+from pdl.author.geometry.image import Image
+from pdl.author.geometry.protocols import PathSource
+from pdl.author.geometry.tex import TeX
+from pdl.author.geometry.text import Text
+from pdl.author.geometry.typography import Font
+from pdl.author.style import LinearGradient, RadialGradient
 from pdl.backends.formatting import number
-from pdl.backends.geometry import placed_geometry
+from pdl.backends.gradients import tikz_gradient
 from pdl.backends.images import tikz_image
 from pdl.backends.tikz.geometry import paint_options, path_data
 from pdl.backends.tikz.text import configuration, font_commands, preamble, render_tex, render_text
-from pdl.backends.traversal import prepare
+from pdl.backends.traversal import walk
 from pdl.canvas.records import Page
-from pdl.foundation.geometry.transforms import Transform
-from pdl.foundation.typography.shaping import Font
 
 
-def render_drawing(drawing: Drawing, commands: dict[Font, str], prefix: str = "pdlgradient") -> str:
+def render_drawing(drawing: Entity, commands: dict[Font, str], prefix: str = "pdlgradient") -> str:
     geometry = drawing.geometry
     if isinstance(geometry, Image):
         return tikz_image(geometry, drawing)
@@ -24,21 +24,15 @@ def render_drawing(drawing: Drawing, commands: dict[Font, str], prefix: str = "p
         return render_text(geometry, drawing, commands)
     if isinstance(geometry, TeX):
         return render_tex(geometry, drawing)
-    if isinstance(geometry, Composite):
-        raise TypeError("Expected a geometry leaf.")
-    paint = drawing.style or (
-        Style(stroke=None, fill=BLACK) if isinstance(geometry, Text) else Style()
-    )
+    paint = drawing.effective_style
+    if not isinstance(geometry, PathSource):
+        raise TypeError(f"Unsupported render geometry: {type(geometry).__name__}.")
     if isinstance(paint.fill, (LinearGradient, RadialGradient)):
-        from pdl.backends.gradients import tikz_gradient
-
         return tikz_gradient(geometry, drawing, paint, prefix)
-    if drawing.transform != Transform():
-        geometry = placed_geometry(geometry, drawing.transform)
     return "\\path[" + ",".join(paint_options(paint)) + "] " + path_data(geometry) + ";"
 
 
-def picture(canvas: Page, drawings: tuple[Drawing, ...]) -> str:
+def picture(canvas: Page, drawings: tuple[Entity, ...]) -> str:
     """Return a TikZ picture fragment for embedding in another document."""
     configuration(drawings)
     w, h = number(canvas.width), number(canvas.height)
@@ -56,7 +50,7 @@ def picture(canvas: Page, drawings: tuple[Drawing, ...]) -> str:
 
 
 def render(canvas: Page, *, standalone: bool = True) -> str:
-    drawings = tuple(prepare(canvas.drawings, lambda _: False))
+    drawings = tuple(walk(canvas.drawings))
     if not standalone:
         return picture(canvas, drawings)
     config = configuration(drawings)

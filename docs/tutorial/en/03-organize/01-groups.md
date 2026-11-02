@@ -1,7 +1,12 @@
 # 3.1 Reuse a group of objects
 
-Our small component is a rectangular body with a circular port. We want to
-place it twice and rotate one copy without recalculating its parts.
+Group is an Entity with ordered, single-parent members. Its transforms immediately update current member geometry in world coordinates. Existing members receive the edit; objects added afterward use their supplied current coordinates.
+
+A member's explicit Style wins. A None member style falls back to the closest explicitly styled Group and then its own default. Adding or removing members preserves None. `group.set_style` changes only the Group. The example's body inherits blue paint while its port keeps explicit orange paint.
+
+Native Text/TeX needs fill-only paint. Give labels an explicit fill-only Style when their Group supplies an outlined shape style.
+
+## Runnable examples and output
 
 ```{literalinclude} ../../../../examples/tutorial/layout/groups.py
 :language: python
@@ -11,26 +16,7 @@ place it twice and rotate one copy without recalculating its parts.
 
 ![One component reused in two placements](../../../../examples/output/tutorial/layout/groups.svg)
 
-[Complete runnable example](../../../../examples/tutorial/layout/groups.py)
-
-`Group((body, port))` owns these existing objects and preserves their world
-placement when adding them. Transforming the Group moves both together.
-`copy()` creates another Group with independent members.
-
-`first` is a translated copy. `second` rotates around the explicit world origin,
-then translates. The original component is unchanged. A child with an explicit
-style uses that whole style; otherwise it inherits the group default.
-
-Draw the outermost Group. Use `second.child(1)` to obtain a captured description
-of its port for anchors and connections; this does not draw the port separately.
-
-## Try it
-
-Create a third copy and move it elsewhere. Change a member of only that copy;
-the other groups should remain unchanged.
-
-API: {py:class}`pdl.Group`, {py:meth}`pdl.Entity.copy`, {py:meth}`pdl.Group.child`.
-
+Full source: [groups.py](../../../../examples/tutorial/layout/groups.py).
 
 ---
 

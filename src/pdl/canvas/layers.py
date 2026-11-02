@@ -1,6 +1,63 @@
-"""Canvas-owned ordering of author layer identities."""
+"""Canvas-owned layer identities, ordering, and weak membership."""
 
-from pdl.author.layers import Layer, valid_integer
+from __future__ import annotations
+
+from typing import Self
+from weakref import WeakValueDictionary
+
+from pdl.author.entity.base import Entity
+from pdl.author.entity.gather import Gather
+
+
+def valid_integer(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+class Layer:
+    """Stable paint-order identity; never a geometry or transform target."""
+
+    def __init__(self, position: int = 0, *, name: str = "") -> None:
+        if not valid_integer(position):
+            raise TypeError("Layer position must be an integer.")
+        self.initial_position = position
+        self.name = name
+        self.stack: LayerStack | None = None
+        self.registrations: WeakValueDictionary[int, Entity] = WeakValueDictionary()
+
+    def __deepcopy__(self, memo: dict[int, object]) -> Layer:
+        return self
+
+    @property
+    def position(self) -> int:
+        return self.initial_position if self.stack is None else self.stack.index(self)
+
+    @property
+    def upper(self) -> Layer | None:
+        if self.stack is None or self.position + 1 == len(self.stack):
+            return None
+        return self.stack[self.position + 1]
+
+    @property
+    def lower(self) -> Layer | None:
+        return None if self.stack is None or self.position == 0 else self.stack[self.position - 1]
+
+    @property
+    def members(self) -> tuple[Entity, ...]:
+        return tuple(m for m in self.registrations.values() if m.root is m and m.layer is self)
+
+    def register(self, member: Entity) -> None:
+        self.registrations[id(member)] = member
+
+    def unregister(self, member: Entity) -> None:
+        self.registrations.pop(id(member), None)
+
+    def add(self, *members: Entity) -> Self:
+        for member in members:
+            member.set_layer(self)
+        return self
+
+    def to_gather(self) -> Gather:
+        return Gather(*self.members)
 
 
 class LayerStack:

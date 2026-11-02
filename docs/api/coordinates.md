@@ -1,13 +1,20 @@
-# Coordinate frames and queries
+# Explicit frames and numerical queries
 
-Use explicit authoring frames when working before viewport fitting. Queries default to final Canvas coordinates.
+Frame stores a current origin and basis. Ordinary Entities use world coordinates
+and have no implicit frame. `CoordinateSystem` is an alias of Frame. A Frame is
+not submitted directly; frame_axes creates a drawable Entity Group.
 
-## CoordinateSystem
+Canvas queries default to final page coordinates. `in_space=WORLD` selects Author
+world values; another explicit Frame requests its inverse conversion. WORLD
+mapping and viewport fitting are final page policies. Query-frame overrides apply
+to explicit SpacePoint/SpaceVector queries and leave already numerical geometry
+unchanged.
+
+## Frame
 
 ```{eval-rst}
-.. autoclass:: pdl.CoordinateSystem
+.. autoclass:: pdl.Frame
    :members:
-   :undoc-members:
    :member-order: bysource
 ```
 
@@ -16,7 +23,6 @@ Use explicit authoring frames when working before viewport fitting. Queries defa
 ```{eval-rst}
 .. autoclass:: pdl.SpacePoint
    :members:
-   :undoc-members:
    :member-order: bysource
 ```
 
@@ -25,7 +31,6 @@ Use explicit authoring frames when working before viewport fitting. Queries defa
 ```{eval-rst}
 .. autoclass:: pdl.SpaceVector
    :members:
-   :undoc-members:
    :member-order: bysource
 ```
 
@@ -34,7 +39,18 @@ Use explicit authoring frames when working before viewport fitting. Queries defa
 ```{eval-rst}
 .. autoclass:: pdl.Query
    :members:
-   :undoc-members:
+   :member-order: bysource
+```
+
+## Frame visualization
+
+```{eval-rst}
+.. autofunction:: pdl.frame_axes
+```
+
+```{eval-rst}
+.. autoclass:: pdl.author.entity.frames.FrameAxes
+   :members:
    :member-order: bysource
 ```
 
@@ -44,5 +60,3 @@ Use explicit authoring frames when working before viewport fitting. Queries defa
 .. autodata:: pdl.WORLD
    :no-value:
 ```
-
-The shared default authoring frame. Ordinary root coordinates use this frame.

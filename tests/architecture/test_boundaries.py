@@ -1,60 +1,129 @@
-"""Keep the architectural dependency direction executable and reviewable."""
+"""Enforce package ownership, import direction, and the single Author model."""
 
 import ast
 import subprocess
 import sys
 from pathlib import Path
 
-SOURCE = Path(__file__).resolve().parents[2] / "src" / "pdl"
+ROOT = Path(__file__).parents[2]
+SOURCE = ROOT / "src/pdl"
 
 
-def test_module_dependency_boundaries() -> None:
-    violations: list[str] = []
+def imports(file: Path) -> list[str]:
+    result: list[str] = []
+    for node in ast.walk(ast.parse(file.read_text())):
+        if isinstance(node, ast.ImportFrom) and node.module is not None:
+            result.append(node.module)
+        elif isinstance(node, ast.Import):
+            result.extend(alias.name for alias in node.names)
+    return result
+
+
+def test_domain_and_adapter_import_directions() -> None:
     for file in SOURCE.rglob("*.py"):
-        relative = file.relative_to(SOURCE)
-        owner = relative.parts[0]
-        for node in ast.walk(ast.parse(file.read_text())):
-            if not isinstance(node, (ast.ImportFrom, ast.Import)):
-                continue
-            modules = (
-                [node.module or ""]
-                if isinstance(node, ast.ImportFrom)
-                else [alias.name for alias in node.names]
+        path = file.relative_to(SOURCE).as_posix()
+        for module in imports(file):
+            assert not module.startswith(("pdl_old", "pdl.foundation", "pdl.author.placement")), (
+                path,
+                module,
             )
-            for module in modules:
-                if not module.startswith("pdl."):
-                    continue
-                target = module.split(".")[1]
-                allowed = {
-                    "foundation": {"foundation"},
-                    "author": {"foundation", "author"},
-                    "extensions": {"foundation", "author", "extensions"},
-                    "canvas": {"foundation", "author", "canvas", "backends"},
-                    "backends": {"foundation", "author", "backends", "canvas"},
-                }.get(owner)
-                if allowed is not None and target not in allowed:
-                    violations.append(f"{relative}:{node.lineno} imports {module}")
-                if owner == "backends" and target == "canvas" and module != "pdl.canvas.records":
-                    violations.append(f"{relative}:{node.lineno} depends on Canvas implementation")
-    assert not violations, "\n".join(violations)
+            if path.startswith("author/util/"):
+                assert not module.startswith("pdl."), (path, module)
+            if path.startswith("author/"):
+                assert not module.startswith(("pdl.canvas", "pdl.backends", "pdl.extensions")), (
+                    path,
+                    module,
+                )
+            if path.startswith("author/style/"):
+                assert not module.startswith(
+                    ("pdl.author.entity", "pdl.author.geometry", "pdl.author.transform")
+                ), (path, module)
+            if path.startswith("author/geometry/"):
+                assert not module.startswith("pdl.author.entity"), (path, module)
+                if module.startswith("pdl.author.style"):
+                    assert module in (
+                        "pdl.author.style.font",
+                        "pdl.author.style.font_policy",
+                        "pdl.author.style.typography",
+                    ), (path, module)
+            if path.startswith("backends/") and module.startswith("pdl.canvas"):
+                assert module == "pdl.canvas.records", (path, module)
+            if path.startswith("extensions/"):
+                assert not module.startswith(("pdl.canvas", "pdl.backends")), (path, module)
 
 
-def test_foundation_and_core_import_without_extensions_or_backends() -> None:
-    checks = [
-        (
-            "import pdl.foundation.typography.tex",
-            ("pdl.author", "pdl.canvas", "pdl.backends", "pdl.extensions"),
-        ),
-        ("from pdl import Circle, Text, Style", ("pdl.canvas", "pdl.backends", "pdl.extensions")),
-        ("from pdl import Canvas, Circle", ("pdl.extensions",)),
-    ]
-    for statement, forbidden in checks:
-        script = (
-            "import sys\n"
-            + statement
-            + "\n"
-            + f"forbidden = {forbidden!r}\n"
-            + "assert not any(n == p or n.startswith(p + '.') "
-            + "for n in sys.modules for p in forbidden)"
-        )
-        subprocess.run([sys.executable, "-c", script], check=True, capture_output=True, text=True)
+def test_source_dependencies_are_not_hidden_in_function_imports() -> None:
+    for file in SOURCE.rglob("*.py"):
+        for node in ast.walk(ast.parse(file.read_text())):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                assert not any(
+                    isinstance(child, (ast.Import, ast.ImportFrom)) for child in ast.walk(node)
+                ), file
+
+
+def test_importing_the_core_does_not_load_optional_extensions() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; import pdl.author; from pdl import circle, Canvas; "
+            "assert not any(k.startswith('pdl.extensions') for k in sys.modules); "
+            "assert not any(k.startswith('pdl_old') for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_captured_extensions_are_ordinary_entity_groups() -> None:
+    from pdl import Canvas, Entity, Group, Node, Scene3D, regular_polyhedron, text
+    from pdl.author.entity.capture import Composite, walk
+    from pdl.author.geometry.protocols import PathSource
+
+    canvas = Canvas(60, 40)
+    canvas.add(Group(Scene3D((regular_polyhedron("cube"),)).project(), Node(text("Label"))))
+    for leaf in walk(canvas.drawings):
+        assert isinstance(leaf, Entity)
+        assert not isinstance(leaf, Composite)
+        assert isinstance(leaf.geometry, PathSource)
+        assert not hasattr(leaf, "transform")
+
+
+def test_pure_geometry_import_does_not_initialize_entity_or_output_layers() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; from pdl.author.geometry import Point, Circle; "
+            "assert Circle((0,0),1).radius == 1; "
+            "assert not any(k.startswith(('pdl.author.entity','pdl.canvas',"
+            "'pdl.backends','pdl.extensions')) for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_author_and_affine_imports_do_not_initialize_output_adapters() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; from pdl.author.transform import Translation; "
+            "from pdl.author import circle; c=circle((1,2),1); "
+            "Translation(2,3).apply_to(c); assert c.reference.x == 3; "
+            "assert not any(k.startswith(('pdl.canvas','pdl.backends',"
+            "'pdl.extensions')) for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr

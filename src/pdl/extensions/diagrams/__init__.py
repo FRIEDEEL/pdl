@@ -1,1 +1,0 @@
-"""Extensions diagrams implementation package."""

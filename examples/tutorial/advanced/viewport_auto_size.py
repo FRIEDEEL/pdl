@@ -1,12 +1,12 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, Rectangle, Style
+from pdl import Canvas, Color, Style, circle, rectangle
 
-rectangle = Rectangle((10, 10), width=30, height=20)
-circle = Circle((65, 20), radius=10)
+rectangle_entity = rectangle((10, 10), width=30, height=20)
+circle_entity = circle((65, 20), radius=10)
 
 canvas = Canvas(60, 40, mode="auto_size", padding=4)
-canvas.draw(rectangle, Style(fill=Color(1, 0.7, 0.35), line_width=0.5))
-canvas.draw(circle, Style(fill=Color(0.6, 0.8, 1), line_width=0.5))
+canvas.draw(rectangle_entity, Style(fill=Color(1, 0.7, 0.35), line_width=0.5))
+canvas.draw(circle_entity, Style(fill=Color(0.6, 0.8, 1), line_width=0.5))
 
 # tutorial-end
 

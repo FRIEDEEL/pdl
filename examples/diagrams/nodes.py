@@ -1,28 +1,28 @@
 """Content-sized nodes with explicit anchors, routes and arrowheads."""
 
 from examples._shared import BLUE, LABEL, PALE, export
-from pdl import Canvas, Connection, Node, Style, TeX, Text
-from pdl.extensions.diagrams.debug import debug_overlay
+from pdl import Canvas, Connection, Node, Style, tex, text
+from pdl.extensions.diagram.debug import debug_overlay
 
 SHOW_DEBUG = False
 
 
 def example() -> Canvas:
     paint = Style(stroke=BLUE, fill=PALE, line_width=0.45)
-    title = Text("Nodes / content sizing and explicit connections", size=16, position=(8, 112))
-    source = Node(Text("Source"), (30, 85), style=paint)
+    title = text("Nodes / content sizing and explicit connections", size=16, position=(8, 112))
+    source = Node(text("Source"), (30, 85), style=paint)
     process = Node(
-        Text("A longer process label\nwith a second line"), (112, 85), padding=(4, 3), style=paint
+        text("A longer process label\nwith a second line"), (112, 85), padding=(4, 3), style=paint
     )
-    sensor = Node(Text("Sensor"), (30, 35), shape="circle", style=paint)
+    sensor = Node(text("Sensor"), (30, 35), shape="circle", style=paint)
     result = Node(
-        TeX("$\\frac{x_i}{y^2}+\\alpha$", size=15), (112, 35), padding=(5, 3), style=paint
+        tex("$\\frac{x_i}{y^2}+\\alpha$", size=15), (112, 35), padding=(5, 3), style=paint
     )
     forward = Connection(source.anchor("east"), process.anchor("west"))
     down = Connection(process.anchor("south"), result.anchor("north"))
     feedback = Connection(result.anchor("west"), sensor.anchor("east"), arrow_start=True)
     measured = Connection(sensor.anchor("north"), source.anchor("south"), arrow_end=False)
-    note = Text(
+    note = text(
         "Anchors resolve at export; positions and routes remain explicit.",
         size=9,
         position=(8, 6),

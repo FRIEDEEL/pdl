@@ -1,8 +1,8 @@
 """Native TeX, packages/macros and the same output embedded into SVG."""
 
 from examples._shared import LABEL, export, output_base
-from pdl import Canvas, RendererConfig, TeX, TeXConfig, Text
-from pdl.extensions.diagrams.debug import debug_overlay
+from pdl import Canvas, RendererConfig, TeXConfig, tex, text
+from pdl.extensions.diagram.debug import debug_overlay
 
 CONFIG = TeXConfig(
     packages=("amsmath", "amssymb"),
@@ -13,29 +13,29 @@ SHOW_DEBUG = True
 
 def example() -> Canvas:
     canvas = Canvas(190, 125, renderer=RendererConfig(fonts=("sans-serif",), tex=CONFIG))
-    title = Text("TeX / native source and vector fragments", size=16, position=(8, 112))
-    formula = TeX(
+    title = text("TeX / native source and vector fragments", size=16, position=(8, 112))
+    formula = tex(
         "$p < 10^{-6}\\,\\mathrm{mbar},\\quad \\alpha_i=\\frac{x_i}{y^2}$",
         (12, 91),
         size=16,
     )
-    matrix = TeX(
+    matrix = tex(
         "$\\vect{v}=\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}\\in\\mathbb{R}^3$",
         (12, 58),
         size=15,
     )
-    mixed = TeX("样品温度：$T=300\\,\\mathrm{K}$；流量 $Q=\\dot{V}$", (12, 27), size=14)
-    note = Text(
+    mixed = tex("样品温度：$T=300\\,\\mathrm{K}$；流量 $Q=\\dot{V}$", (12, 27), size=14)
+    note = text(
         "Original TeX survives in .tex; SVG contains the same measured vector content.",
         size=9,
         position=(8, 7),
     )
     canvas.draw(title, LABEL)
     with canvas.typography():
-        for tex in (formula, matrix, mixed):
-            canvas.draw(tex)
+        for tex_entity in (formula, matrix, mixed):
+            canvas.draw(tex_entity)
             if SHOW_DEBUG:
-                canvas.draw(debug_overlay(tex))
+                canvas.draw(debug_overlay(tex_entity))
     canvas.draw(note, LABEL)
     return canvas
 

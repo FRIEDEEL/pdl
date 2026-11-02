@@ -3,13 +3,14 @@
 ## Communication and Change Authorization
 
 - Discuss work with the user in Chinese. Write this file in English.
-- The AI owns implementation, routine design choices, testing, documentation,
-  and local Git integration within the agreed project goals. Do not request
-  separate approval for each implementation step, commit, or feature merge.
+- The AI owns implementation, routine design choices, testing, and documentation
+  within the agreed project goals. Routine implementation steps do not require
+  separate approval. Git commits follow the scope-specific delegation rules below.
 - The user performs acceptance between stages, reviewing architecture, example
   code, and rendered results. Once stage goals are agreed, handle internal
   design and implementation decisions autonomously rather than introducing
-  additional approval checkpoints within the stage.
+  additional implementation approval checkpoints within the stage. This does not
+  waive review requirements outside an explicitly delegated scope.
 - Explain significant approaches and trade-offs concisely. Ask before changes
   that materially exceed the agreed stage scope; report decisions and concrete
   examples and outputs at the stage acceptance checkpoint.
@@ -139,15 +140,28 @@
 
 ## Development Log
 
-- Use `DEVLOG.md` to record project motivation, ideas, design discussions,
-  decisions, and open questions.
+- `DEVLOG.md` is user-authored. Edit it only when the user explicitly directs
+  what to write or change, and stay within that scope. Do not automatically add
+  discussions, implementation progress, decisions, or validation results.
+- Keep the formal log concise. Record durable conclusions and meaningful
+  milestones rather than chat transcripts, temporary task status, or repetitive
+  validation reports.
 - Organize content by topic as needed. No fixed set of sections is required.
 - Use Mermaid diagrams, including class diagrams and flowcharts, when they
   help explain the discussion.
 - When adding dated notes, place them under `Dated Note` with headings in
-  the format `### YYYY-MM-DD HH:mm:ss`, using local time.
+  the format `### YYYY-MM-DD HH:mm:ss`, using local time (Asia/Tokyo).
+- Keep all dated notes in reverse chronological order, newest first. Sort by
+  the full timestamp, including times within the same day, and insert each new
+  entry at its correct position rather than appending it at the bottom.
 - Distinguish tentative ideas from agreed decisions.
-- Preserve dated history and record subsequent changes in new entries.
+- Preserve useful dated history and record subsequent changes in new entries;
+  remove or rewrite historical entries only when the user authorizes cleanup.
+- Use `refactor_note.md` as temporary guidance for the current refactor branch.
+  At branch completion, consolidate confirmed decisions and branch outcomes into
+  `DEVLOG.md` only under the user's explicit direction, and update the relevant
+  architecture documentation before removing the temporary note. Do not treat
+  the note as implementation authorization.
 
 ## Changelog
 
@@ -180,6 +194,10 @@
 - Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 - Use the format `<type>[optional scope][optional !]: <description>`, with a
   short description and optional body and footers separated by blank lines.
+- Include a concise body describing the concrete changes rather than relying
+  only on the subject. When a commit includes added or updated tests, say so
+  explicitly in the body. Report executed validation accurately and keep the
+  detail proportional to the change.
 - Scopes are optional. Include one when it helps readers understand the area
   affected by the change; omit it when the description is already clear.
 - Choose scopes by meaning rather than mechanically mapping them to files or
@@ -227,18 +245,27 @@
   when merging branches.
 - Do not rebase, squash, amend commits, or otherwise rewrite existing history
   unless explicitly instructed.
-- The user has granted standing authorization to create branches, make commits,
-  and merge completed feature work into `dev` for authorized project work.
-  Commit each feature or focused development step separately, follow the
-  message and granularity rules above, and use `git merge --no-ff`.
-- This standing authorization does not include push or release publication.
-  Perform those actions only when explicitly instructed.
+- Unless the user explicitly delegates committing for the current scope, every
+  commit requires user review and explicit approval before execution. Permission
+  to implement or edit files alone is not permission to commit them.
+- Before each proposed commit, provide its message, intended files, a concise
+  change summary, validation results, and any known incomplete work or failures.
+  Keep unrelated user changes outside the proposed scope.
+- The previous standing authorization for autonomous commits and merges no
+  longer applies. A merge also requires explicit approval; do not infer it from
+  approval of the feature's commits. Continue using `git merge --no-ff`.
+- For the current refactor, finish implementation on its existing branch, then
+  create a `docs/*` branch from it for the full documentation/example migration.
+  Preserve their broad structure. Neither branch may be merged into `dev` until
+  the user reviews the completed result and explicitly approves integration.
+- Push and release publication require explicit instructions.
 
 ## Architecture Boundaries
 
-- Before each new design proposal, consult the "Author 设计讨论草稿" section
-  in `DEVLOG.md`. Identify related decision IDs and report whether the proposal
-  is compatible, a compatible extension, conflicting, or insufficiently defined.
+- Before each new design proposal, consult `refactor_note.md` while it exists,
+  along with relevant confirmed decisions in `DEVLOG.md`. Reference decision IDs
+  where available and report whether the proposal is compatible, a compatible
+  extension, conflicting, or insufficiently defined.
   Keep confirmed decisions, pending suggestions, rejected alternatives, and the
   current implementation distinct. Do not promote an assistant suggestion to a
   decision without explicit user confirmation or silently replace prior decisions.
@@ -258,10 +285,29 @@
 - Author is the sole drawing object model. Do not introduce a parallel Resolved
   scene hierarchy. Anchors and placement inputs are evaluated immediately from
   the referenced object's current state; later edits do not create live bindings.
-- Keep numerical geometry and typography measurement in `foundation/`, with no
-  dependency on Author, Canvas, backends, or extensions.
-- Keep editable 2D drawing semantics in `author/`. It may use foundation services,
-  including external TeX measurement, but must not import output adapters.
+- Keep geometric descriptions and numerical queries in `author/geometry/`.
+  Do not require a shared Geometry base. Geometry stores current shape data,
+  not accumulated transformations, ownership, or paint.
+- Keep mapping contracts, affine matrices, and geometry-conversion decisions in
+  `author/transform/`. Transform applies immediately to an Entity and replaces
+  its current Geometry as necessary; it may use geometry, style, and util.
+  Avoid runtime dependency cycles through narrow structural target contracts.
+- Keep reusable calculations and explicit font/TeX tool interfaces in
+  `author/util/`. It is infrastructure, not an object manager, drawing model,
+  or repository for relationship and conversion policies.
+- Keep styles in `author/style/` and drawing instances, Group ownership,
+  Gather selections, and positioning relationships in `author/entity/`.
+  Entity delegates transformation policy to the transform package and must
+  not import Canvas, output adapters, or extensions.
+- Drawing constructors such as `circle(...)` are lowercase factory functions returning
+  Entity instances around pure geometric descriptions. No CircleEntity class
+  is required. Group is an Entity; Gather is a separate collection, and Layer
+  belongs to Canvas.
+- Default transformations leave line width unchanged. Uniform Rescale may
+  explicitly include line width. Nonuniform scaling cannot use that option.
+- The user delegates local commits for the complete refactor on the current
+  branch. Keep focused commits with explanatory bodies and explicit test notes.
+  This delegation does not authorize merging into dev, pushing, or releasing.
 - Place 3D and advanced diagram components under `extensions/`; core 2D must not
   depend on these extensions. Capture expands extensions into core descriptions.
 - Canvas owns submissions, ordering, and viewport policy. Backends consume the

@@ -1,20 +1,21 @@
 # tutorial-start
-from pdl import Canvas, Circle, Color, CoordinateSystem, Line, Style, Text, Transform
+from pdl import Canvas, Color, Frame, Rotation, Style, Translation, circle, line, text
 
-local = CoordinateSystem(transform=Transform.translate(25, 15) @ Transform.rotate(30))
-circle = Circle((10, 0), radius=3).in_space(local)
+local = Frame().child(Translation(25, 15) @ Rotation(30))
+circle_entity = circle(local.point((10, 0)), radius=3)
 blue = Style(stroke=Color(0.15, 0.35, 0.75), line_width=0.4)
 gray = Style(stroke=Color(0.7, 0.7, 0.7), line_width=0.2)
-
 canvas = Canvas(65, 45)
-canvas.draw(Line((0, 0), (60, 0)), gray)
-canvas.draw(Line((0, 0), (0, 40)), gray)
-canvas.draw(Line((0, 0), (25, 0)).in_space(local), blue)
-canvas.draw(Line((0, 0), (0, 20)).in_space(local), blue)
-canvas.draw(circle, blue)
-canvas.draw(Text("local x", position=(48, 25), size=9))
-canvas.draw(Text("local y", position=(10, 34), size=9))
-canvas.draw(Text("(25, 15)", position=(25, 10), size=9))
+canvas.draw(line((0, 0), (60, 0)), gray)
+canvas.draw(line((0, 0), (0, 40)), gray)
+canvas.draw(line(local.point((0, 0)), local.point((25, 0))), blue)
+canvas.draw(line(local.point((0, 0)), local.point((0, 20))), blue)
+canvas.draw(circle_entity, blue)
+canvas.add(
+    text("local x", position=(48, 25), size=9),
+    text("local y", position=(10, 34), size=9),
+    text("(25,15)", position=(25, 10), size=9),
+)
 
 # tutorial-end
 

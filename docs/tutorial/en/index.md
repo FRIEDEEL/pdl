@@ -1,12 +1,6 @@
 # pdl tutorial — working notes
 
-The API is provisional. These chapters prioritize readable examples and explicit
-behavior over polished transitions. Read by topic; the seven parts provide an order.
-Examples use the current API only.
-
-Each example links its source and actual output. Run from the repository root with
-`uv run python -m examples.tutorial.render_all` to generate tutorial images.
-TeX examples require XeLaTeX and dvisvgm; see the text/formula chapter.
+The seven parts use the current Entity/Geometry/Style API. Examples are runnable Python and their images are generated from the linked source. Coordinates use millimeters; Text/TeX sizes use TeX points. Begin with drawing factories, then introduce pure geometry, composition, numerical positioning, 3D, and export.
 
 ```{toctree}
 :maxdepth: 2
@@ -20,4 +14,4 @@ TeX examples require XeLaTeX and dvisvgm; see the text/formula chapter.
 07-recipes/index
 ```
 
-[中文版](../zh/index.md) · [API](../../api/index.md)
+[中文教程](../zh/index.md) · [API](../../api/index.md)

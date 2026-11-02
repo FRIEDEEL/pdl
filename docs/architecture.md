@@ -1,85 +1,106 @@
 # Source architecture
 
-Author is the sole drawing object model. A measurement is an operation, not a
-second scene representation. Anchors return fixed numerical points; later edits
-to the queried object do not change previous results. Font and TeX measurement
-can run during authoring, independently of drawing or output order.
+Author is the sole editable drawing domain. Geometry describes current shape
+parameters, Style describes paint, and Entity combines them with numerical
+position queries. Lowercase drawing factories such as circle return Entity; pure shapes
+are imported from author.geometry. No shared Geometry base is required.
 
-## Responsibilities
+## Responsibilities and dependencies
 
-| Package | Owns | May depend on |
+| Package | Owns | Dependency boundary |
 | --- | --- | --- |
-| `foundation.geometry` | Numerical points, vectors, paths, matrices and bounds algorithms | Standard library |
-| `foundation.typography` | Font resources, shaping, TeX measurement, outlines and measurement configuration | Foundation and external font/TeX tools |
-| `author` | Editable 2D shapes, Text/TeX/Image objects, composition, references, styles and layer identities | Foundation and Author |
-| `canvas` | Captured submissions, layer ordering, queries, viewport and export entrypoints | Author, foundation and backend entrypoints |
-| `backends` | SVG/TikZ encoding, native primitive selection, output fallback and PDF compilation | Author, foundation and the `canvas.records.Page` contract |
-| `extensions.diagrams` | Nodes, connections and growing flowcharts | Author, foundation and extensions |
-| `extensions.spatial` | 3D geometry, cameras, projection and visibility | Author, foundation and extensions |
+| author.geometry | Points, paths, shapes, explicit frames, native text/TeX/image descriptions, and numerical queries | Numeric affine mappings, utility services, and font resource/configuration modules; no Entity, Canvas, or renderer |
+| author.style | Immutable paints, gradients, font descriptors, resource policy | Utilities and external resource discovery; no geometry ownership |
+| author.transform.base / affine | Mapping contract and finite affine matrices | Numeric data and Point/Vector adapters |
+| author.transform.operations | Immediate shape conversion and explicit paint changes | Geometry and Style; no concrete Entity dependency |
+| author.entity | Thin instances, drawing factories, Group ownership, Gather selections, positioning, capture | Geometry, Style, Transform, and utilities; no Canvas or backend imports |
+| author.util | Reusable infrastructure and explicit external-tool interfaces | Standard library, third-party libraries, external tools; no pdl imports |
+| canvas | Submissions, layers, queries, viewport, and export entrypoints | Author and adapter entrypoints |
+| backends | SVG/TikZ encoding and final PDF compilation | Current Author Entities and canvas.records.Page; no Canvas implementation |
+| extensions.diagram / extensions.spacial | Parametric diagrams, 3D geometry, cameras, visibility | Core Author and their own components; no output adapters |
 
-Arrows below mean imports/calls, not drawing data flow:
+The existing spacial directory spelling is retained. Shape descriptors may use
+numeric affine classes; application policy in transform.operations may inspect
+shape types. This is a split between numerical mapping and conversion policy,
+with no runtime module cycle. Utilities return ordinary measurements, raw font
+outline commands, or tool results; they do not manage drawing relationships.
+The root facade loads optional extensions lazily. Core-only imports do not load
+diagrams or 3D. No pdl_old import is used to supply missing behavior.
 
-```text
-extensions ──→ author ──→ foundation
-     └─────────────────→ foundation
-canvas ──→ author / foundation / backend entrypoints
-backends ──→ author / foundation / canvas.records.Page
-```
+## Current geometry and immediate edits
 
-`Page` is a small read-only protocol: dimensions and ordered Drawing records.
-Backends never import the Canvas implementation. Author layer identities use a
-small ordering protocol; the actual LayerStack lives in Canvas. These narrow
-contracts avoid a dependency on the owning implementation.
+An Entity directly retains supplied geometry. Explicit mutable geometry sharing
+is possible; direct shared edits are visible to both holders. A Transform
+constructs the target's current result and replaces its geometry. Entity identity
+remains stable when Circle becomes Path. No operation queue, accumulated object
+matrix, or implicit local frame is retained. Entity.copy isolates geometry and
+members and detaches the copied root from parent/layer identity.
 
-The root `pdl` module is a lazy public facade. `from pdl import Canvas, Circle`
-does not load 3D or diagram extensions. `pdl.author` is a core-only entrypoint.
+Entity reference points determine default rotation/scaling pivots. Center and
+world-aligned bounds anchors are separate queries. A matrix applied explicitly
+uses its world mapping; around supplies a pivot. Curve mappings currently require
+affine support. Nonlinear algorithms and approximation policies remain deferred.
+Stroke width is unchanged by default. Uniform Rescale can explicitly include
+line width; nonuniform scaling cannot use that option. Gradient coordinates can
+be baked into current paint data to follow geometry.
 
-## Author internals
+Text/TeX store baseline position, size, and current orientation. Text retains
+native form under orientation-preserving similarities. TeX retains native form
+under translation/rotation; geometric scaling lowers its measured artwork to
+paths, because changing font size would not scale absolute TeX dimensions.
+Stretch/shear/reflection also lower text to paths. Conversion is irreversible on
+that Entity. Unsupported rich SVG outline conversion fails explicitly, including
+when viewport fitting requires scaling. Image geometry stores current viewport
+corners and immutable source bytes; output matrices are derived for encoding.
 
-- `entity.py`: common mutable operations and ownership access.
-- `shapes.py`, `text.py`, `tex.py`, `image.py`: actual drawable objects.
-- `composition.py`: Drawing records, editable Group and ordered group descriptions.
-- `placement.py`: internal numerical placement state; it stores no deferred target.
-- `measurement.py`: immediate queries and temporary per-operation caches.
-- `capture.py`: state isolation and submission capture, using ordinary Author objects.
-- `style.py`, `layers.py`, `gather.py`, `frames.py`, `spaces.py`: their respective
-  styles, identities, selections and coordinate/reference operations.
-- `references.py`: numerical position input types and transient internal anchor queries.
+## Ownership and paint
 
-There are no `ResolvedGraphic`, `MeasuredText` or `MeasuredTeX` object families.
-Captured text stores measured layout on the same Text/TeX type. A captured
-Group description is an Author composition record, not a separate scene model.
+Group is an Entity with single-parent members in current world coordinates.
+Transforms edit existing members together. Adding later does not replay past
+edits. Member Style None remains None on entry and exit. Effective paint uses
+explicit member Style, nearest explicitly styled ancestor, then the member's
+own default. group.set_style changes only the Group. Gather is an identity
+selection without ownership; its style operations target exactly selected
+objects. Overlapping Group/member transform targets are processed once.
 
-## Timing and output
+Capture preserves unset member styles. It freezes each object's own default and
+clones the Group hierarchy, so captured Groups can still change their inherited
+paint and removed members fall back to their captured defaults.
 
-1. Construct and edit Author objects. Querying an anchor, moving an object by
-   its measured center, or choosing a default rotation pivot can measure text.
-2. A query returns numbers using the current state and measurement settings.
-   Use `with measurement(RendererConfig(...)):` or `canvas.typography()` to
-   select settings explicitly. Otherwise ordinary text discovers default fonts.
-3. `Canvas.draw` captures geometry, placement and measured typography using the
-   canvas settings. Extensions are decomposed to core 2D descriptions here.
-4. The final paint list determines fit/auto-size. Backends encode that content;
-   they do not recompute anchor relationships or revisit extension definitions.
+Layer belongs to Canvas. A Group occupies one effective layer, and captured
+members paint contiguously. Layers can be reordered independently of geometry.
+An explicit Frame is pure geometry; frame_axes creates a drawing Group whose
+current basis and visual axes are edited together. Ordinary objects have no
+implicit frame/space attributes.
 
-`Canvas.snapshot` captures an ordinary Drawing without submitting it. Coordinates
-remain in Author space; a destination Canvas applies its own final viewport.
-`Canvas.resolve`, `ResolvedGraphic` and public deferred `AnchorRef` are removed.
-Native TikZ node layout is removed: diagrams export fixed shapes and separately
-positioned text. Backend-native glyph shaping can still differ from measurements;
-fixed layout does not guarantee pixel-identical SVG and TeX text.
+## Query, capture, and output timing
 
-Explicit coordinate systems and the existing Entity frame/space accessors remain
-provisional Author features in this first refactor. Their further simplification
-is separate from this package-boundary change. Per-frame Canvas mappings affect
-subsequent measurements/submissions, not already captured records. WORLD mapping
-and fit are final page transforms.
+1. Construct and edit Author objects. Queries return fixed numbers; references
+   never establish live bindings or determine paint order.
+2. Font/TeX measurement runs when an operation needs layout or outlines. Resource
+   policy is shared by queries and submission through RendererConfig/typography.
+3. Canvas.snapshot captures an ordinary Entity. Canvas.add/draw additionally
+   records order and layer identity. Effective styles, font candidates, and
+   typography are fixed on captured copies. Extensions expand into core Entities.
+4. Viewport policy determines page dimensions and current output geometry.
+   Backends consume the Page contract and encode Entity geometry/Style. No
+   parallel Resolved scene hierarchy or TikZ-driven diagram layout is introduced.
 
-## Enforced boundaries
+Native SVG and LaTeX text can rasterize differently. Glyph resources are not
+embedded into native SVG. TeX measurement cache keys include declared dependencies
+and tool versions; undeclared environment changes require explicit invalidation.
 
-`tests/architecture/test_boundaries.py` checks imports, including function-local
-and type-only imports, and tests fresh-process imports of foundation and 2D core.
-Behavior tests cover immediate anchor values, independent paint order, fixed draw
-records, copying and regrouping, typography, diagrams, and 3D projections.
+## Verification and migration
+
+Architecture tests enforce import boundaries, explicit imports, core-only
+loading, and capture into ordinary Entity Groups. Numerical tests distinguish
+shape/visibility algorithms from rendering. Integration tests compile real TeX,
+PDF, gradients, fonts, and portable image assets.
+
+Current tests target the new semantics, and examples and both language manuals
+use the new API. After review, the archived implementation and tests were removed
+from the working tree. Their complete development history remains available in
+Git. Integration into dev preserves the reviewed implementation and documentation
+history through a non-fast-forward merge.
 
 [中文说明](architecture_zh.md)

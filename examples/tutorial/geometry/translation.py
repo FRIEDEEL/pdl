@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Color, Rectangle, Style
+from pdl import Canvas, Color, Style, rectangle
 
-box = Rectangle((10, 10), width=20, height=10)
+box = rectangle((10, 10), width=20, height=10)
 ghost = Style(stroke=Color(0.65, 0.65, 0.65), line_width=0.3)
 blue = Style(fill=Color(0.6, 0.8, 1), line_width=0.5)
 

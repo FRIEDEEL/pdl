@@ -3,19 +3,20 @@
 from collections.abc import Iterator
 from pathlib import Path as FilePath
 
-from pdl.author.composition import Drawing
-from pdl.author.style import BLACK, Color, Style
-from pdl.author.tex import TeX
-from pdl.author.text import Text
+from pdl.author.entity.base import Entity
+from pdl.author.geometry.point import as_point as point
+from pdl.author.geometry.tex import TeX
+from pdl.author.geometry.text import Text
+from pdl.author.style import Color
+from pdl.author.style.font import Font
+from pdl.author.style.typography import current_renderer
+from pdl.author.transform.affine import Rotation
+from pdl.author.util.tex import TeXConfig
 from pdl.backends.formatting import number
 from pdl.backends.tikz.geometry import color, coordinate
-from pdl.foundation.geometry.primitives import point
-from pdl.foundation.typography.config import current_renderer
-from pdl.foundation.typography.shaping import Font
-from pdl.foundation.typography.tex import TeXConfig
 
 
-def resources(drawings: tuple[Drawing, ...]) -> Iterator[Text | TeX]:
+def resources(drawings: tuple[Entity, ...]) -> Iterator[Text | TeX]:
     """Inspect native object content without decomposing supported objects."""
     for drawing in drawings:
         geometry = drawing.geometry
@@ -23,7 +24,7 @@ def resources(drawings: tuple[Drawing, ...]) -> Iterator[Text | TeX]:
             yield geometry
 
 
-def configuration(drawings: tuple[Drawing, ...]) -> TeXConfig | None:
+def configuration(drawings: tuple[Entity, ...]) -> TeXConfig | None:
     configs = {text.environment for text in resources(drawings) if isinstance(text, TeX)}
     if len(configs) > 1:
         raise ValueError("One native TikZ document requires a shared TeXConfig.")
@@ -37,7 +38,7 @@ def configuration(drawings: tuple[Drawing, ...]) -> TeXConfig | None:
     return TeXConfig() if any(isinstance(text, Text) for text in resources(drawings)) else None
 
 
-def font_commands(drawings: tuple[Drawing, ...]) -> dict[Font, str]:
+def font_commands(drawings: tuple[Entity, ...]) -> dict[Font, str]:
     result: dict[Font, str] = {}
     for text in resources(drawings):
         if isinstance(text, Text):
@@ -54,7 +55,7 @@ def font_commands(drawings: tuple[Drawing, ...]) -> dict[Font, str]:
     return result
 
 
-def preamble(drawings: tuple[Drawing, ...]) -> str:
+def preamble(drawings: tuple[Entity, ...]) -> str:
     config = configuration(drawings)
     lines = [r"\usepackage{tikz}", r"\usepackage{graphicx}"]
     if config:
@@ -89,16 +90,16 @@ def _escape_text(text: str) -> str:
     return "".join(replacements.get(character, character) for character in text)
 
 
-def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
+def render_text(text: Text, drawing: Entity, commands: dict[Font, str]) -> str:
     """Emit native LaTeX text; font shaping belongs to the TeX engine."""
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("Native Text supports fill-only paint; use fill and stroke=None.")
     if paint.fill is None:
         return ""
     if not isinstance(paint.fill, Color):
         raise ValueError("Native Text and TeX require solid color fills.")
-    t = drawing.transform
+    t = Rotation(text.rotation).around(point(text.position))
     if t.a * t.d - t.b * t.c == 0:
         return ""
     a, b, c, d, e, f = (number(v) for v in t.values)
@@ -119,18 +120,18 @@ def render_text(text: Text, drawing: Drawing, commands: dict[Font, str]) -> str:
     return "\n".join(lines)
 
 
-def render_tex(tex: TeX, drawing: Drawing) -> str:
-    t = drawing.transform
+def render_tex(tex: TeX, drawing: Entity) -> str:
+    t = Rotation(tex.rotation).around(point(tex.position))
     if t.a * t.d - t.b * t.c == 0:
         return ""
-    paint = drawing.style or Style(stroke=None, fill=BLACK)
+    paint = drawing.effective_style
     if paint.stroke is not None:
         raise ValueError("Native TeX supports fill-only paint; use Style(stroke=None, fill=...).")
     if paint.fill is None:
         return ""
     if not isinstance(paint.fill, Color):
         raise ValueError("Native Text and TeX require solid color fills.")
-    a, b, c, d, e, f = (number(v) for v in drawing.transform.values)
+    a, b, c, d, e, f = (number(v) for v in t.values)
     return (
         f"\\begin{{scope}}[cm={{{a},{b},{c},{d},({e},{f})}},transform shape]\n"
         + f"\\node[anchor=base west,inner sep=0pt,outer sep=0pt,text={color(paint.fill)},"

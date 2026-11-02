@@ -5,17 +5,18 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from pdl import Canvas, Circle, Color, Rectangle, Style
+from pdl import Canvas, Color, Style, circle, rectangle
+from pdl.author.geometry.shapes import Circle as CircleGeometry
 
 
 def test_order_and_native_identity() -> None:
     canvas = Canvas(30, 20)
-    circle = Circle((5, 5), 3)
-    canvas.draw(circle)
-    canvas.draw(Rectangle((0, 0), 2, 2))
+    circle_entity = circle((5, 5), 3)
+    canvas.draw(circle_entity)
+    canvas.draw(rectangle((0, 0), 2, 2))
     captured = canvas.snapshot(canvas.drawings[0]).geometry
-    assert isinstance(captured, Circle)
-    assert captured is not circle
+    assert isinstance(captured, CircleGeometry)
+    assert captured is not circle_entity
     assert captured.radius == 3
     root = ET.fromstring(canvas.render())
     assert root.attrib["width"] == "30mm"

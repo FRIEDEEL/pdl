@@ -2,19 +2,20 @@
 
 from base64 import b64encode
 
-from pdl.author.composition import Drawing
-from pdl.author.image import Image
+from pdl.author.entity.base import Entity
+from pdl.author.geometry.image import Image
+from pdl.author.geometry.point import as_point as point
 from pdl.backends.formatting import number
-from pdl.foundation.geometry.primitives import point
+from pdl.backends.tikz.geometry import path_data
 
 
-def svg_image(image: Image, drawing: Drawing, prefix: str) -> str:
-    p = point(image.position)
+def svg_image(image: Image, drawing: Entity, prefix: str) -> str:
+    p = point((0, 0))
     x, y, width, height = image.content_box()
-    matrix = " ".join(number(v) for v in drawing.transform.values)
+    matrix = " ".join(number(v) for v in image.mapping.values)
     encoded = b64encode(image.data).decode("ascii")
     clip = prefix + "image-clip"
-    opacity = 1 if drawing.style is None else drawing.style.opacity
+    opacity = drawing.effective_style.opacity
     return (
         f'<g opacity="{number(opacity)}" transform="matrix({matrix})"><defs><clipPath id="{clip}">'
         f'<rect x="{number(p.x)}" y="{number(p.y)}" width="{number(image.width)}" '
@@ -26,15 +27,12 @@ def svg_image(image: Image, drawing: Drawing, prefix: str) -> str:
     )
 
 
-def tikz_image(image: Image, drawing: Drawing) -> str:
-    from pdl.author.shapes import Rectangle
-    from pdl.backends.geometry import placed_geometry
-    from pdl.backends.tikz.geometry import path_data
+def tikz_image(image: Image, drawing: Entity) -> str:
 
     x, y, width, height = image.content_box()
-    a, b, c, d, e, f = (number(v) for v in drawing.transform.values)
-    clip = placed_geometry(Rectangle(image.position, image.width, image.height), drawing.transform)
-    opacity = 1 if drawing.style is None else drawing.style.opacity
+    a, b, c, d, e, f = (number(v) for v in image.mapping.values)
+    clip = image.to_path()
+    opacity = drawing.effective_style.opacity
     return (
         f"\\begin{{scope}}[opacity={number(opacity)}]\n"
         f"\\clip {path_data(clip)};\n"

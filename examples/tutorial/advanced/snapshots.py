@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, Node, Text
+from pdl import Canvas, Node, text
 
-label = Node(Text("Snapshot")).move_to((25, 15))
+label = Node(text("Snapshot")).move_to((25, 15))
 
 canvas = Canvas(80, 45)
 canvas.draw(label)

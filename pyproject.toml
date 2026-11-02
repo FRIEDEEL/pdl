@@ -36,7 +36,7 @@ select = ["E", "F", "I", "UP"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
-include = ["src", "tests", "examples"]
+include = ["src/pdl", "tests", "examples", "playground/visibility"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

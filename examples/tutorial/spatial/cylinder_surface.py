@@ -1,14 +1,6 @@
 """An open half-cylinder projected into ordinary 2D authoring."""
 
-from pdl import (
-    Canvas,
-    Color,
-    CylinderSurface,
-    OrthographicCamera,
-    Point3D,
-    Scene3D,
-    Transform,
-)
+from pdl import Canvas, Color, CylinderSurface, OrthographicCamera, Point3D, Scene3D, Translation
 
 # tutorial-start
 camera = OrthographicCamera(0, 20)
@@ -22,7 +14,7 @@ material = CylinderSurface(
 )
 material_2d = Scene3D((material,), camera, sort_faces=False).project()
 canvas = Canvas(75, 70)
-canvas.draw(material_2d.copy().apply_transform(Transform.translate(37, 34)))
+canvas.draw(material_2d.copy().apply_transform(Translation(37, 34)))
 # tutorial-end
 
 if __name__ == "__main__":

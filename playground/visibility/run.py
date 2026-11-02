@@ -17,13 +17,13 @@ from examples._shared import latin_font
 from pdl import (
     Canvas,
     Color,
-    Drawing,
     PerspectiveCamera,
     Polyhedron,
+    Scaling,
     Scene3D,
     Style,
-    Text,
-    Transform,
+    Translation,
+    text,
 )
 from playground.visibility.bsp import Face, project
 from playground.visibility.oracle import check
@@ -62,7 +62,7 @@ def poster() -> None:
     ink = Style(stroke=None, fill=Color(0.1, 0.17, 0.24))
 
     def label(value: str, x: float, y: float, size: float = 11) -> None:
-        canvas.draw(Text(value, font=font, position=(x, y), size=size), ink)
+        canvas.draw(text(value, font=font, position=(x, y), size=size), ink)
 
     label("Perspective visibility / centroid vs BSP", 12, 523, 23)
     label("Centroid ordering (reference)", 20, 508)
@@ -85,10 +85,10 @@ def poster() -> None:
         bottom, top = min(p.y for p in points), max(p.y for p in points)
         scale = min(0.8, 140 / (right - left), 80 / (top - bottom))
         for x, scene in ((87, before), (267, after)):
-            transform = Transform.translate(
+            transform = Translation(
                 x - scale * (left + right) / 2, y + 52 - scale * (bottom + top) / 2
-            ) @ Transform.scale(scale)
-            canvas.draw(Drawing(scene, transform=transform))
+            ) @ Scaling(scale)
+            canvas.add(scene.copy().apply_transform(transform))
         label(f"Ray-check mismatches: {old_check.mismatches}/{old_check.samples}", 20, y + 3, 9)
         label(
             f"{metrics.fragments} fragments / {metrics.total_seconds * 1000:.1f} ms to Authoring",
@@ -155,7 +155,7 @@ def main() -> None:
             print(json.dumps(row), flush=True)
             # Export and Canvas evaluation are deliberately outside all measured intervals.
             canvas = Canvas(200, 200)
-            canvas.draw(Drawing(author, transform=Transform.translate(100, 100)))
+            canvas.add(author.copy().translate(100, 100))
             canvas.save(OUTPUT / f"{density_name}-{count}.svg")
             if result.mismatches:
                 raise RuntimeError("Visibility oracle found a mismatch; inspect the case.")

@@ -1,1 +1,0 @@
-"""Foundation typography implementation package."""

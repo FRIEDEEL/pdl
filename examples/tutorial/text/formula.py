@@ -1,7 +1,7 @@
 # tutorial-start
-from pdl import Canvas, TeX
+from pdl import Canvas, tex
 
-formula = TeX(r"$E = mc^2$", position=(10, 12), size=20)
+formula = tex(r"$E = mc^2$", position=(10, 12), size=20)
 
 canvas = Canvas(65, 30)
 canvas.draw(formula)

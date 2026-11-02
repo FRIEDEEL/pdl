@@ -3,26 +3,39 @@
 from dataclasses import replace
 from decimal import Decimal
 
-from pdl.author.composition import Drawing
+from pdl.author.entity.base import Entity
+from pdl.author.geometry.bounds import geometry_bounds
+from pdl.author.geometry.point import as_point as point
+from pdl.author.geometry.protocols import PathSource
 from pdl.author.style import LinearGradient, RadialGradient, Style
+from pdl.author.transform.affine import AffineTransform, Scaling, Translation
 from pdl.backends.formatting import number
-from pdl.backends.geometry import placed_geometry
-from pdl.foundation.geometry.bounds import geometry_bounds
-from pdl.foundation.geometry.primitives import Geometry, point
-from pdl.foundation.geometry.transforms import Transform
+from pdl.backends.svg.geometry import color
+from pdl.backends.tikz.geometry import paint_options, path_data
 
 
-def gradient_matrix(geometry: Geometry, placement: Transform) -> Transform:
+def gradient_matrix(
+    geometry: PathSource,
+    placement: AffineTransform,
+    gradient: LinearGradient | RadialGradient | None = None,
+) -> AffineTransform:
+    if gradient is not None and gradient.frame is not None:
+        origin, x, y = gradient.frame
+        return placement @ AffineTransform(
+            x[0] - origin[0],
+            x[1] - origin[1],
+            y[0] - origin[0],
+            y[1] - origin[1],
+            origin[0],
+            origin[1],
+        )
     box = geometry_bounds(geometry)
-    return (
-        placement
-        @ Transform.translate(box.left, box.bottom)
-        @ Transform.scale(box.width, box.height)
-    )
+    return placement @ Translation(box.left, box.bottom) @ Scaling(box.width, box.height)
 
 
-def svg_gradient(gradient: LinearGradient | RadialGradient, matrix: Transform, name: str) -> str:
-    from pdl.backends.svg.geometry import color
+def svg_gradient(
+    gradient: LinearGradient | RadialGradient, matrix: AffineTransform, name: str
+) -> str:
 
     transform = " ".join(number(v) for v in matrix.values)
     common = (
@@ -94,13 +107,12 @@ def _function(gradient: LinearGradient | RadialGradient) -> str:
     return distance + result
 
 
-def tikz_gradient(geometry: Geometry, drawing: Drawing, style: Style, name: str) -> str:
-    from pdl.backends.tikz.geometry import paint_options, path_data
+def tikz_gradient(geometry: PathSource, drawing: Entity, style: Style, name: str) -> str:
 
     gradient = style.fill
     assert isinstance(gradient, (LinearGradient, RadialGradient))
-    matrix = gradient_matrix(geometry, drawing.transform)
-    placed = placed_geometry(geometry, drawing.transform)
+    matrix = gradient_matrix(geometry, AffineTransform(), gradient)
+    placed = geometry
     if matrix.determinant == 0:
         return (
             "\\path["
@@ -110,7 +122,7 @@ def tikz_gradient(geometry: Geometry, drawing: Drawing, style: Style, name: str)
             + ";"
         )
     # Shading is 100bp square; PGF text uses physical big points.
-    matrix = matrix @ Transform.scale(1 / (100 * 25.4 / 72))
+    matrix = matrix @ Scaling(1 / (100 * 25.4 / 72))
     a, b, c, d, e, f = (number(v) for v in matrix.values)
     rule = "even odd rule" if style.fill_rule == "evenodd" else "nonzero rule"
     fill = (

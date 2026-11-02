@@ -1,1 +1,1 @@
-"""Canvas implementation package."""
+"""Submission capture, layers, and viewport policy."""

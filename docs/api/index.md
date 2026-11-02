@@ -1,31 +1,24 @@
 # API reference
 
-Use this section to check a signature, default, unit, or behavior. For your
-first drawing, follow the [tutorial](../tutorial/en/index.md) instead.
-Import public objects from `pdl`; implementation module paths are not the
-recommended user API.
+Drawing factories imported from `pdl` return Entity objects. Pure descriptions
+live in `pdl.author.geometry`; use them for geometric construction and explicit
+`Entity(geometry, style=...)` composition. There is no common Geometry base class.
 
-本节给出公共接口的签名、默认值、单位和行为约定，接口说明直接来自英文 docstring。
-中文入门说明见[教程](../tutorial/zh/index.md)。
+Coordinates and line widths use millimeters, x right and y up. Text/TeX size uses
+TeX points. Entity methods mutate and return the receiving object. Queries return
+fixed numerical values. Canvas submission captures geometry, effective paint,
+and typography independently of later edits.
 
-- Coordinates and shape sizes use millimeters, with x right and y up.
-- Text and TeX sizes use TeX points (1/72.27 inch).
-- Numerical geometry is reusable; Entity methods modify the handle.
-- Draw captures built-in mutable state. Measurements happen when queried or rendered.
-- All interfaces are provisional before release. TikZ-style aliases are not yet implemented.
+| Name | Meaning |
+| --- | --- |
+| Position | Point or an `(x, y)` pair |
+| Anchor | center, north, south, east, west, or a spaced diagonal |
+| Entity | Current geometry, optional Style, reference point, and drawing operations |
+| Group | Entity owning ordered members with style fallback |
+| Gather | Explicit identity selection; no ownership or inherited paint |
+| Frame | Explicit numerical origin and basis; visualized with frame_axes |
 
-## Types used in signatures
-
-| Name | Accepted values |
-|---|---|
-| `Position` | A `Point` or an `(x, y)` coordinate pair |
-| `PointSource` | A numerical Position or frame-qualified SpacePoint, evaluated when used |
-| `Graphic` | Numerical geometry or a composite such as a Node, Group, or Entity |
-| `Anchor` | `center`, `north`, `south`, `east`, `west`, or a spaced diagonal such as `north east` |
-| `Self` | The same kind of object as the method's receiver; Entity/Path builder methods return the modified receiver |
-
-These names explain type annotations; import the public classes from `pdl`.
-Do not import internal aliases just to supply ordinary coordinates or objects.
+说明来自英文 docstring；中文入门见[教程](../tutorial/zh/index.md)。
 
 ```{toctree}
 :maxdepth: 1

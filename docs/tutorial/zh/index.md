@@ -1,11 +1,6 @@
 # pdl 教程：开发阶段说明
 
-目前 API 尚未稳定，教程先保证例子和行为说明清楚，不追求章节间的自然衔接。
-可以按主题查阅，也可以按下面七篇依次阅读。示例统一使用当前 API。
-
-每个例子附源代码和实际输出。生成教程图片时，在仓库根目录运行
-`uv run python -m examples.tutorial.render_all`。
-涉及 TeX 的例子需要 XeLaTeX 和 dvisvgm，详见文字与公式一节。
+七部分采用当前 Entity／Geometry／Style API。示例均为可运行 Python，图片由链接源码实际生成。坐标使用毫米，文字／TeX 字号使用 TeX point。从绘图工厂开始，再介绍纯几何、组合、数值定位、3D 和输出。
 
 ```{toctree}
 :maxdepth: 2

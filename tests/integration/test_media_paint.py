@@ -7,16 +7,15 @@ import pytest
 
 from pdl import (
     Canvas,
-    Circle,
     Color,
     ColorStop,
-    Drawing,
-    Image,
     LinearGradient,
     RadialGradient,
-    Rectangle,
+    Shear,
     Style,
-    Transform,
+    circle,
+    image,
+    rectangle,
 )
 
 
@@ -30,11 +29,9 @@ def test_compile_images_and_gradients_after_moving_export(tmp_path: Path) -> Non
         ColorStop(1, Color(0, 0, 1)),
     )
     canvas = Canvas(100, 70)
-    canvas.draw(Rectangle((5, 5), 40, 20), Style(fill=LinearGradient(stops, (0, 0), (1, 1))))
-    canvas.draw(Circle((70, 20), 15), Style(fill=RadialGradient(stops)))
-    canvas.draw(
-        Drawing(Image(asset, 40, 20, (20, 40), fit="cover"), transform=Transform.shear(0.2))
-    )
+    canvas.draw(rectangle((5, 5), 40, 20), Style(fill=LinearGradient(stops, (0, 0), (1, 1))))
+    canvas.draw(circle((70, 20), 15), Style(fill=RadialGradient(stops)))
+    canvas.draw(image(asset, 40, 20, (20, 40), fit="cover").apply_transform(Shear(0.2)))
     original = tmp_path / "original"
     original.mkdir()
     canvas.save(original / "drawing.tex", backend="tikz", tikz_mode="tex")

@@ -1,1 +1,1 @@
-"""Backends implementation package."""
+"""Output encoding of captured Author entities."""

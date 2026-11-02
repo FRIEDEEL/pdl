@@ -8,13 +8,13 @@ from pdl import (
     PerspectiveCamera,
     Plane3D,
     Point3D,
-    Rectangle,
     Scene3D,
     Style,
-    Text,
-    Transform,
+    Translation,
     Vector3D,
+    rectangle,
     regular_polyhedron,
+    text,
 )
 
 # tutorial-start
@@ -24,8 +24,8 @@ orange = Style(fill=Color(1, 0.4, 0.1), opacity=0.55, line_width=0.3)
 far = Plane3D(Point3D(-8, -4, 0), Vector3D(0, 1, 0), Vector3D(0, 0, 1))
 near = Plane3D(Point3D(8, 4, 0), Vector3D(0, 1, 0), Vector3D(0, 0, 1))
 objects = (
-    near.place(Rectangle((-15, -13), 30, 26), orange),
-    far.place(Rectangle((-15, -13), 30, 26), blue),
+    near.place(rectangle((-15, -13), 30, 26), orange),
+    far.place(rectangle((-15, -13), 30, 26), blue),
 )
 automatic = Scene3D(objects, camera, light=None, visibility="centroid").project()
 manual = Scene3D(objects, camera, light=None, sort_faces=False).project()
@@ -40,15 +40,15 @@ transparent_view = Scene3D((transparent,), view).project()
 
 canvas = Canvas(150, 135)
 for x, image in ((37, opaque_view), (112, transparent_view)):
-    canvas.draw(image.copy().apply_transform(Transform.translate(x, 103)))
+    canvas.draw(image.copy().apply_transform(Translation(x, 103)))
 for x, image in ((37, automatic), (112, manual)):
-    canvas.draw(image.copy().apply_transform(Transform.translate(x, 38)))
+    canvas.draw(image.copy().apply_transform(Translation(x, 38)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Opaque reference"), (87, "Opacity 0.25 / back faces kept")):
-    canvas.draw(Text(title, position=(x, 129), size=10), ink)
+    canvas.draw(text(title, position=(x, 129), size=10), ink)
 for x, title in ((9, "Automatic: far, then near"), (83, "Manual: near, then far")):
-    canvas.draw(Text(title, position=(x, 63), size=10), ink)
-canvas.draw(Text("Transparent overlap changes with paint order", position=(25, 10), size=11), ink)
+    canvas.draw(text(title, position=(x, 63), size=10), ink)
+canvas.draw(text("Transparent overlap changes with paint order", position=(25, 10), size=11), ink)
 # tutorial-end
 
 if __name__ == "__main__":

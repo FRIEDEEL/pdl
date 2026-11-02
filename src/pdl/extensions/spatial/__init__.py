@@ -1,1 +1,0 @@
-"""Extensions spatial implementation package."""

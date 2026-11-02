@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 from pdl import Color, Font, Style
-from pdl.foundation.typography.config import resolve_font
+from pdl.author.style.typography import resolve_font
 
 EXAMPLES = Path(__file__).resolve().parents[1]
 OUTPUT = EXAMPLES / "output"

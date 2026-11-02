@@ -10,8 +10,8 @@ from pdl import (
     Polyhedron,
     Scene3D,
     Style,
-    Text,
-    Transform,
+    Translation,
+    text,
 )
 
 # tutorial-start
@@ -35,13 +35,13 @@ assert projected.visibility == "bsp"
 assert set(projected.source_faces) == {(0, 0), (1, 0)}
 
 canvas = Canvas(180, 95)
-canvas.draw(reference.copy().apply_transform(Transform.translate(45, 45)))
-canvas.draw(projected.copy().apply_transform(Transform.translate(135, 45)))
+canvas.draw(reference.copy().apply_transform(Translation(45, 45)))
+canvas.draw(projected.copy().apply_transform(Translation(135, 45)))
 ink = Style(stroke=None, fill=Color(0.12, 0.18, 0.25))
 for x, title in ((12, "Centroid reference"), (103, "BSP: split and order")):
-    canvas.draw(Text(title, position=(x, 85), size=12), ink)
+    canvas.draw(text(title, position=(x, 85), size=12), ink)
 canvas.draw(
-    Text("Same faces / perspective / no extra cut-edge strokes", position=(25, 8), size=10), ink
+    text("Same faces / perspective / no extra cut-edge strokes", position=(25, 8), size=10), ink
 )
 # tutorial-end
 

@@ -1,8 +1,8 @@
 # tutorial-start
-from pdl import Canvas, Color, Node, Style, TeX, TeXConfig
+from pdl import Canvas, Color, Node, Style, TeXConfig, tex
 
 config = TeXConfig(packages=("amsmath",), preamble=(r"\newcommand{\energy}{E}",))
-formula = TeX(r"$\energy = \frac{1}{2}mv^2$", size=18, config=config)
+formula = tex(r"$\energy = \frac{1}{2}mv^2$", size=18, config=config)
 node = Node(formula, position=(35, 20), style=Style(fill=Color(0.9, 0.95, 1), line_width=0.4))
 
 canvas = Canvas(70, 40)
