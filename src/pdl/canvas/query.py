@@ -48,7 +48,7 @@ class Query:
         transform = (
             self.canvas.frame_mapping(in_space).inverse()
             if in_space is not None
-            else self.canvas.output_transform
+            else self.canvas.viewport(self.canvas.drawings or (captured,)).output_transform
         )
         return captured.apply_transform(transform).bounds
 
@@ -59,7 +59,7 @@ class Query:
         transform = (
             self.canvas.frame_mapping(in_space).inverse()
             if in_space is not None
-            else self.canvas.output_transform
+            else self.canvas.viewport(self.canvas.drawings or (captured,)).output_transform
         )
         return captured.apply_transform(transform).ink_bounds
 

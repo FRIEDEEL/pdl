@@ -160,3 +160,18 @@ def test_native_text_uses_edited_snapshot_group_fallback(font: Font) -> None:
     assert 'opacity="0.25"' in canvas.render()
     assert "blue,1" in canvas.render("tikz")
     assert "text opacity=0.25" in canvas.render("tikz")
+
+
+def test_unsubmitted_query_predicts_fit_and_viewport_exposes_its_mapping() -> None:
+    shape = Circle((100, 200), 10, style=Style(line_width=0))
+    canvas = Canvas(100, 60, mode="fit", padding=5)
+    before = canvas.query().bounds(shape)
+    assert before.width == pytest.approx(50)
+    assert before.height == pytest.approx(50)
+    assert before.anchor().x == pytest.approx(50)
+    assert before.anchor().y == pytest.approx(30)
+    assert canvas.drawings == ()
+    view = canvas.viewport((canvas.snapshot(shape),))
+    assert view.output_transform.map(shape.center).x == pytest.approx(50)
+    canvas.add(shape)
+    assert canvas.query().bounds(shape) == before

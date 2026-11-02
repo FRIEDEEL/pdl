@@ -183,7 +183,7 @@ class Canvas:
                 )
         for drawing in drawings:
             drawing.apply_transform(placement)
-        return Viewport(width, height, drawings), placement @ self._world
+        return Viewport(width, height, drawings, placement @ self._world), placement @ self._world
 
     def viewport(self, source: tuple[Entity, ...] | None = None) -> Viewport:
         return self._viewport(source)[0]
