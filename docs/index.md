@@ -3,6 +3,8 @@
 pdl is a Python library for static vector drawings. Start with a small labeled
 box, learn shapes and styles, then build connected and reusable components.
 Export SVG or TikZ without changing the objects that describe your drawing.
+Drawing factories return thin Entities containing current geometry and optional
+Style. Edits take effect immediately; Canvas captures independent submissions.
 
 ## Start drawing
 
@@ -38,7 +40,7 @@ tikz-output_zh
 ## Scope
 
 The current library supports shapes, paths, ordinary text, TeX, nodes,
-connectors, groups, affine transforms, authoring frames, and viewport fitting.
+connectors, groups, affine transforms, explicit frames, and viewport fitting.
 Editable groups, flat overlapping Gathers, ordered layers, PNG/JPEG images,
 per-leaf opacity, and linear/radial gradient fills are supported. Layer groups,
 isolated compositing, general automatic graph layout, and automatic routing are not implemented.

@@ -1,159 +1,79 @@
 # pdl — Python Drawing Library
 
-具体形状本身就是可编辑的 `Entity`：直接变换，需要留档时使用 `.copy()`。
-`Frame` 和 `ReferencePoint` 是不绘制的参考对象；需要参考系随图形共同变换时，
-显式使用 `Gather`。参见[对象与参考系教程](docs/tutorial/zh/03-organize/07-frames.md)。
+pdl 用 Python 对象构建静态矢量图，包括 2D 形状和路径、Unicode 文字与 TeX、可复用组件、
+图示连接及 3D 形体投影。SVG 与 TikZ/PDF 共用同一 Author 领域模型，需要 Python 3.12+。
 
-一个用于静态矢量绘图的类型化 Python 库，支持几何图形、路径、文字、LaTeX 公式、
-节点连接、组合复用和仿射坐标系，输出 SVG 或 TikZ。需要 Python 3.12 或更高版本。
+[English](README.md) · [中文教程](docs/tutorial/zh/index.md) ·
+[API 参考](docs/api/index.md) · [架构](docs/architecture_zh.md)
 
-[English](README.md) · [英文教程](docs/tutorial/en/index.md) ·
-[中文教程](docs/tutorial/zh/index.md) · [API reference](docs/api/index.md)
+## 绘制与保存
 
-## 阅读文档
-
-在仓库根目录构建本地文档站：
-
-```sh
-uv sync --group docs
-uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
-```
-
-用浏览器打开 `docs/_build/html/index.html`。构建会自动生成教程图片，
-并直接从可运行示例中截取代码。完整构建需要可用的系统 sans-serif 字体、
-XeLaTeX、dvisvgm，以及 LaTeX 的 standalone、amsmath 和 TikZ 包。
-详见[构建说明](docs/building.md)。当前只配置本地站点，没有公开托管。
-
-## 一个小例子
+在仓库中通过 pyenv 选择 Python，运行 `uv sync` 安装。SVG 需要可用字体；
+TeX 测量需要 XeLaTeX 和 dvisvgm，原生字体 PDF 输出需要 XeLaTeX 及相应 LaTeX 包。
 
 ```python
-from pdl import Canvas, Circle, Color, Path, Style
+from pdl import Canvas, Circle, Color, Entity, Group, PathGeometry, Style, Text
 
-canvas = Canvas(80, 50)
-canvas.draw(Circle((20, 25), 10), Style(fill=Color(0.7, 0.85, 1)))
-curve = Path().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10))
-canvas.draw(curve, Style(line_width=0.5))
-canvas.save("drawing.svg", backend="svg")
-canvas.save("drawing.tex", backend="tikz")
-```
-
-## 坐标与绘制约定
-
-- 坐标、几何尺寸和线宽以毫米为单位。默认固定视口的原点在左下角，x 向右、y 向上，
-  超出视口的内容被裁剪。角度以度为单位，逆时针为正。
-- Point 是坐标值，不是可绘制图形，也可以直接传入坐标对。
-- Line、Polyline、Circle、Rectangle、Polygon、Arc、Path 描述几何，
-  Style 描述外观，Canvas.draw 把物件加入绘制列表。
-- 普通几何的默认样式为黑色描边、线宽 1 mm、不填充、butt 线端、miter 拐角，
-  miter limit 为 10。RGB 各分量在 0 到 1 之间。
-- 图层从下向上绘制，同层后加入的物件画在前面。后端尽量保留原生图形，不支持时再通过 to_path 等方式拆解。
-- Path 是可变构造器。draw 捕获当时的命令，后续修改需要再次 draw；
-  path.to_path() 可以取得独立副本。
-- Path 支持绝对坐标的 move_to、line_to、quadratic_to、cubic_to、arc、close。
-  二次贝塞尔曲线有一个控制点，三次曲线有两个。
-- close 闭合当前子路径，并把当前点返回起点。填充会隐式闭合开放子路径，
-  但描边不会自动补上闭合边。填充规则支持默认 nonzero 和 evenodd。
-- 两个后端都不绘制零线宽描边。无效值抛出普通 Python 异常，没有自定义异常层次。
-
-## 圆弧
-
-标准形式是 `Arc(center, radius_x, radius_y, start_angle, sweep_angle, rotation=0)`。
-半径必须为正，带符号跨度的绝对值不超过 360 度。另外提供两种参数形式：
-
-```python
-from pdl import Arc
-
-arc = Arc.from_tikz((10, 20), radius=8, start_angle=90, end_angle=270)
-arc = Arc.from_svg(
-    (10, 20),
-    (30, 25),
-    radius_x=15,
-    radius_y=8,
-    rotation=20,
-    large_arc=False,
-    sweep=True,
+circle = Circle((20, 25), 10, style=Style(fill=Color(0.7, 0.85, 1)))
+curve = Entity(
+    PathGeometry().move_to((35, 10)).cubic_to((40, 45), (65, 45), (70, 10)),
+    style=Style(line_width=0.5),
 )
+label = Text("A reusable component", position=(12, 45), size=11)
+component = Group(circle, curve, label)
+canvas = Canvas(80, 55).add(component)
+canvas.save("drawing.svg")
+canvas.save("drawing.tex", backend="tikz", tikz_mode="pdf")
 ```
 
-from_tikz 的位置是圆弧起点，可用 radius_y 指定椭圆。
-from_svg 使用 SVG 端点换算和半径修正，但坐标仍是笛卡尔方向，sweep=True 表示角度递增，
-视觉上逆时针。负输入半径取绝对值，零半径返回 Line，重合端点返回只移动的 Path。
-完整圆应使用标准构造或角度构造，不能用重合的 SVG 端点表示。
+Circle、Rectangle、Text 等绘图工厂返回 Entity。纯几何从 `pdl.author.geometry` 导入；
+PathGeometry 负责构造路径，Entity 结合样式与绘图操作。Canvas.add／draw 捕获当前状态，
+之后的修改需要再次提交。
 
-SVG 保留原生椭圆弧；TikZ 保留未旋转的原生圆弧，旋转圆弧回退为三次曲线。
-Arc.to_path 和 Path.arc 也使用每段不超过 45 度的三次曲线近似；
-单位圆径向误差低于 5e-6，椭圆误差按较大半径缩放。
-Circle 在两个后端都使用原生输出。TikZ 把二次曲线精确转换为三次曲线。
-这里保证几何与外观语义的一致，不保证逐像素一致。
+## Author 行为
 
-## 示例与开发
+- Geometry 保存当前坐标与形状参数；Entity 直接持有几何及可选 Style，并提供参考点、中心和锚点查询。
+- Entity 方法立即编辑并返回自身。拉伸圆可转成 Path 几何，Entity 身份保持不变；对象不保存累计变换或隐式局部坐标系。
+- 默认旋转／缩放围绕参考点：圆心、矩形原点、路径首个 Move、文字基线，或显式 Group 参考点。
+  可用 origin 指定其他支点，set_reference 改变后续默认支点。
+- 默认线宽不变；均匀 rescale 可显式包含线宽，非均匀缩放不提供此选项。
+- Entity.style None 保持未设置，按显式 Group 样式及默认值回退。
+  Group.set_style 只改 Group；Gather(*group.members).set_style 显式统一修改成员。
+- Group 是有单父级归属的 Entity；Gather 是可重叠的身份选择；Layer 属于 Canvas，控制覆盖顺序。
+- 世界坐标采用毫米，x 向右、y 向上。显式 Frame 提供数值转换，frame_axes 创建可绘制坐标轴。
+- 文字／TeX 按需测量，字号使用 TeX point。普通 Text 在保持朝向手性的相似变换下保留原生描述；
+  TeX 平移／旋转保留源码，缩放则变换已测量的轮廓。其他变形也不可逆地转路径，不支持的复杂 TeX 轮廓会报错。
+- Canvas 捕获几何、有效样式、排版与顺序，后端直接编码这些 Entity，不建立第二套场景模型。
 
-用 pyenv 选择 Python 后运行：
+需要保留可编辑版本时调用 copy。允许显式共享可变几何：直接几何编辑会影响共享者，
+Entity 变换仅替换目标持有的几何。参见[复制与捕获](docs/tutorial/zh/02-shapes/03-copy-and-capture.md)。
+
+## 组件与 3D
+
+用参数化 Python 函数或 Entity／Group 子类构建自己的组件库，组合形状、查询当前锚点，再提交 Group。
+位置查询返回固定数字，后续编辑不建立持续约束，也不会自动重画依赖连接。
+
+Scene3D.project 产生 2D ProjectedScene Group，支持正交／透视相机、索引多面体、平面图案、
+平滑圆柱表面、光照和 BSP 可见性。曲面／带图案场景采用已说明的 centroid 限制。
+独立投影组件的覆盖遵循普通 Canvas 顺序。
+
+[examples](examples) 保留 geometry、composition、text、diagrams、coordinates、spatial 和七部分教程的组织。
+生成输出按来源路径镜像到 examples/output，不纳入 Git。
+
+## 构建与验证
 
 ```sh
-uv sync
-uv run python -m examples.geometry.gallery
-uv run python -m examples.tutorial.render_all
 uv run ruff check .
 uv run ruff format --check .
 uv run pyright
 uv run pytest
+uv run python -m examples.tutorial.render_all
+uv run python -m examples.tools.render_all --tikz-mode pdf
+uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
+uv build
 ```
 
-画廊输出在 `examples/output/geometry/`，教程输出在 `examples/output/tutorial/`，
-均镜像源码目录。完整教程运行器还会编译其中的 TeX 示例。
-TikZ 编译需要外部 TeX 环境、TikZ 和 standalone，它们不是 Python 运行时依赖。
-测试检查几何、圆弧转换、路径、XML 结构、原生输出、回退和真实 TeX 编译；
-缺少相关编译器时会显式跳过对应测试。示例仍需要视觉检查，目前没有像素基准套件。
-
-尚未实现图层组、整组合成透明度、自动布局与布线、任意后端选项、动画和 3D。
-发布前公共接口仍可能调整。捕获语义、锚点、变换和画布适配见教程与
-[坐标专题](docs/coordinates_zh.md)。
-
-
-## 组合、层序与图像
-
-Group 是单一父级的空间组合，Gather 是可以跨层的扁平操作集合。
-通过 Entity／Group 的 set_layer(int_or_layer) 分配图层；Layer 只控制覆盖顺序。
-详见教程[第 16–18 章](docs/tutorial/zh/03-organize/02-edit-groups.md)。
-
-[图片](docs/tutorial/zh/04-finish/02-images.md)使用显式毫米视口，支持 PNG／JPEG 和
-contain／cover／stretch 适配。SVG 内嵌字节，导出 TikZ 后需要保留同级图片资源目录。
-[渐变](docs/tutorial/zh/04-finish/01-gradients.md)使用形状局部边界归一化坐标。
-原生文字／TeX 仍限纯色；本阶段不含图层组与整组合成透明度。
-
-三维多面体支持正交与[透视投影](docs/tutorial/zh/05-spatial/03-perspective.md)，纯多面体场景默认用 BSP 切分处理相交与循环遮挡（不含面内图案），另有显式近似模式；
-保留背面并支持每面透明度，参见[透明度与手动顺序](docs/tutorial/zh/05-spatial/04-depth-order.md)。
-
-多面体切分与模式边界见[相交面与可见性教程](docs/tutorial/zh/05-spatial/05-visibility.md)。
-
-## 从组件搭建显微镜
-
-运行 `uv run python -m examples.spatial.microscope`，导出整机与组件拆分图的
-SVG、TikZ 和 PDF。[源码](examples/spatial/microscope.py)用参数化函数和具名嵌套
-组合构建底座、支架、载物台、聚光器与光学组件。整机位置在 `make_microscope`
-中调整，玻片细节见 `make_stage`，物镜和目镜见 `make_optics`。
-示例内的 `Assembly` 是局部组合配方，不是公共 Group3D API。
-圆形部件使用多面体近似，完整场景先用 BSP 处理遮挡，再生成二维绘图对象。
-
-调焦机构细分为导轨、升降齿条／滑座、横向传动轴、示意小齿轮和带握纹的
-粗细调焦轮；`make_focus_drive` 将齿条与载物台托架的升降关联。
-额外导出 `microscope-focus`，用浅色简化旧结构对照打开近侧旋钮后的机构细节。
-齿形和微调连接表达构造意图，不作为工程齿形或运动学规格。
-
-## 圆柱材料与 probe 图层
-
-`CylinderSurface` 表示开放半圆柱面，`AnnularCylinder` 表示封闭垫圈。
-两者使用 OrthographicCamera，输出纯色、平滑矢量边界。
-见[曲面教程](docs/tutorial/zh/05-spatial/06-curved-surfaces.md)与
-[投影图层教程](docs/tutorial/zh/05-spatial/07-projected-composition.md)。
-
-运行 `uv run python -m examples.spatial.material_probe` 生成
-[材料／probe 剖面示意图](examples/spatial/material_probe.py)。
-独立投影共用相机，之后按材料、内部截面、probe、标注的二维顺序绘制。
-BSP 仅在每个受支持的多边形场景内处理，不计算独立快照之间的遮挡。
-曲面暂不支持透视或跨对象 BSP 裁切。
-
-## 源码架构
-
-模块分工和依赖边界见 [架构说明](docs/architecture_zh.md)。
+打开 docs/_build/html/index.html。文档构建通过可运行源码生成实际插图。
+工具配置见[构建指南](docs/building.md)，不兼容变化见[迁移说明](CHANGELOG.md)。
+原生字体在 SVG 查看器与 LaTeX 中可能呈现不同像素。
+非线性／网格变换、自动避障、独立组透明合成与实体布尔运算仍待后续工作。

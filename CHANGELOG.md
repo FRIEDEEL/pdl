@@ -4,199 +4,42 @@
 
 ### Changed
 
-- **Breaking:** reorganized internal imports into foundation, author, canvas,
-  backends, and extensions. Core 2D imports no longer load diagram or 3D extensions.
-- **Breaking:** anchors return fixed numerical points immediately. Placement and
-  pivot queries use current state; draw captures measured layouts. Later font or
-  object edits do not relayout existing draw records.
-- **Breaking:** removed Canvas.resolve, ResolvedGraphic and deferred AnchorRef.
-  Canvas.snapshot returns an ordinary Drawing in authoring coordinates.
-- TikZ diagrams use pdl-computed shapes and text positions instead of native
-  TikZ node layout. Existing numerical geometry, SVG/TikZ and 3D features remain.
+- **Breaking:** drawing constructors such as Circle and Text are factory functions
+  returning thin Entity objects. Pure descriptions live in author.geometry;
+  explicit Entity(geometry, style=...) construction is supported.
+- **Breaking:** transforms immediately update current geometry. Stretching circles
+  or native text can replace their representation with paths. There is no stored
+  placement/accumulated matrix. Native text retains baseline, size, and orientation
+  under supported similarity transforms. TeX translation/rotation retain source,
+  while geometric scaling outlines measured artwork so absolute dimensions scale.
+- **Breaking:** default pivots use reference points. Use origin= for an explicit
+  pivot; set_reference changes the default. Queries use world-aligned logical
+  bounds and fixed numerical positions.
+- **Breaking:** Group uses varargs members, single-parent ownership, current world
+  coordinates, and dynamic whole-style fallback. set_style updates only the Group.
+  Gather operates on explicit Entity selections; use *group.members to edit members.
+- **Breaking:** Frame is pure explicit geometry. Use frame_axes for drawable axes;
+  ordinary objects no longer expose implicit frame/space. Layer belongs to Canvas.
+- Canvas snapshots/submissions use ordinary Entities and fixed typography/paint.
+  Drawing, placement wrappers, a common Geometry base, and foundation imports are
+  removed from the new API. Use Entity.copy/apply_transform and author subpackages.
+- Uniform Rescale optionally scales line width; nonuniform Scaling leaves it fixed.
+- Existing font/TeX measurement, SVG/TikZ/PDF, images, gradients, diagrams, 3D
+  projection, smooth surfaces, perspective artwork, and BSP visibility are migrated.
+- Documentation and runnable examples are updated together while retaining their
+  broad directory structure. The old implementation/tests remain archived for review
+  and are excluded from built distributions.
 
-- Reorganized both tutorials into seven nested parts. Group, Gather, and Layer
-  precede reference points and Frame; evaluation and coordinate mapping follow
-  practical drawing. D10 and the material/probe recipe live in the case-study part.
-- Removed the Entity(shape) constructor and center pivot keyword. Use concrete
-  objects, about pivots, and in_space for explicit coordinate placement.
+### Migration examples
 
-- Concrete 2D drawing objects now inherit Entity and support mutable placement,
-  style, and independent copies directly. The former Entity(shape) wrapper has been removed.
-- **Breaking behavior:** direct shapes and Groups rotate/scale around their own
-  center by default. Use about=(0, 0) for world-origin operations; only about is accepted
-  as the pivot keyword.
-- Canvas captures independent object descriptions rather than preserving leaf
-  object identity. Integer-derived layers can be reused across canvases;
-  explicitly assigned Layer identities remain bound to one Canvas.
+```python
+from pdl import Circle, Entity, Group, PathGeometry, Style, Rescale
+from pdl.author.geometry import Arc as ArcGeometry
 
-- **Breaking behavior:** default polygon projection can produce multiple children
-  per source face. Use ProjectedScene.source_faces for correspondence and use
-  sort_faces=False for source-order manual lists; visibility="centroid" restores
-  the former approximate sorting. Original vertex/face-center query indices stay stable.
-
-### Fixed
-
-- Flowchart cardinal-port connections now default to orthogonal elbows. Removed
-  accidental node offsets and fixed-coordinate routes from the growing example.
-  Explicit waypoints remain authoritative; `route="straight"` opts into direct lines.
-
-### Added
-
-- Small copy/capture and non-painting reference-point examples with original
-  states retained for visual comparison.
-
-- Non-painting Frame and ReferencePoint entities for explicit Group/Gather
-  transformations, coordinate references, and independent frame visualizations.
-- A bilingual tutorial comparing fixed reference axes with axes explicitly
-  transformed alongside a shape, retaining original outlines for comparison.
-
-- Smooth `CylinderSurface` angular patches and closed `AnnularCylinder` washers
-  for orthographic illustrations, with uniform fills, open bores, visible
-  boundaries and similarity transforms; no mesh edges or new dependencies.
-- A cylindrical-material/probe cutaway example and bilingual step-by-step
-  tutorials for curved geometry and independently projected 2D layers. Shared
-  camera/world coordinates align snapshots; Canvas order controls their overlap.
-  Curves remain outside BSP and perspective projection support.
-
-- Detailed microscope focus-drive recipes: rack/pinion, guides, stage saddle,
-  knurled controls, fasteners, and a separate exposed-mechanism comparison.
-
-- A parameterized microscope example with named nested component recipes,
-  assembled/exploded views, and BSP visibility for all polygonal parts.
-
-- BSP visibility is now the default for polygon-only Scene3D scenes without face
-  artwork, supporting intersecting faces, cycles, concave loops and per-face opacity
-  in both cameras. New split edges are not stroked. Projection stays 2D Authoring.
-- Scene3D.visibility selects auto/bsp/centroid; unsupported auto scenes warn and
-  use whole-scene centroid ordering. Explicit bsp rejects unsupported artwork or
-  curved solids. sort_faces=False still preserves manual whole-face order.
-- BSP tolerance/fragment safeguards, ProjectedScene.visibility/source_faces, and
-  bilingual visibility tutorials with centroid-reference SVG/TikZ examples.
-
-- PerspectiveCamera for polygon solids and planar vector artwork, with explicit
-  near-plane validation and perspective-aware projected point queries.
-- Polyhedron opacity and ProjectedScene.reordered for manual paint order,
-  with bilingual perspective/transparency tutorials and runnable comparisons.
-
-- A bilingual Group/Layer/Gather comparison chapter with a shared-member
-  example showing how overlapping selections change one another's arrangement.
-
-- Layer.upper/lower read current adjacent layers without creating them; missing
-  neighbors, including on unattached layers, return None.
-
-- Explicit `Scene3D.project()` snapshots into ordinary 2D Authoring, with source
-  vertex/face-center correspondence and deferred bounds anchors for 2D legends.
-- Plane-local vector face artwork, transported with polyhedron transforms and
-  sorted with its face. Includes a numbered D10 example and three bilingual
-  tutorial steps with actual SVG/PDF output.
-- Simple concave planar face loops; self-crossing, touching and zero-length
-  face edges are rejected. Whole-shell closure remains a separate concern.
-
-- Smooth 3D cylinders and spheres with portable SVG/TikZ/PDF vector gradients.
-  Cylinders sample directional Lambert shading; spheres use an explicit radial
-  lighting approximation. Includes light-direction and limiting-view examples.
-
-- 3D Cartesian frames and affine transforms, orthographic projection, planar
-  placement of 2D drawings, indexed polygonal solids and all five Platonic solids.
-  Directional flat shading maps intrinsic RGB color using oriented face normals;
-  centroid depth sorting produces SVG/TikZ vectors without face intersections.
-
-- Growing flowchart components: editable FlowNode, Decision, Terminal and FlowEdge,
-  font-aware directional placement, merges and feedback, and isolated draw captures.
-  Includes a bilingual guide and an SVG/TikZ/PDF example.
-
-- Editable single-parent Groups with add/remove/dismiss, world-preserving
-  reparenting, and flat overlapping Gather selections with promotion warnings.
-- Canvas-owned Layer identities with integer lookup, insertion/reordering,
-  per-record layer capture, and Layer.to_gather for imperative operations.
-- Captured PNG/JPEG images with contain/cover/stretch fitting, embedded SVG,
-  and portable TikZ image sidecars.
-- Linear/radial RGB gradient fills in local normalized bounds and per-leaf
-  opacity, with native SVG resources and PDF functional shading output.
-- Five bilingual tutorial chapters and six runnable examples for editable
-  groups, Gathers, layers, images, gradients, and opacity; expanded API reference.
-
-### Changed
-
-- Face artwork is now retained on back faces, appearing mirrored from behind,
-  so transparent faces can reveal it. Perspective artwork uses vector outlines
-  and adaptive curve polylines; orthographic text stays native.
-
-- Breaking: LayerStack insertion and movement methods now use spatial names:
-  `insert_below`/`insert_above` and `move_below`/`move_above` replace the former
-  before/after methods. Update callers; the old names have been removed.
-
-- Group is now editable. Existing Drawing-based component definitions remain
-  supported and create independent instances; live Entity/Group members use
-  single-parent ownership. Mutating Group methods affect future captures only.
-- Breaking: individual grouped members cannot be submitted directly to Canvas;
-  draw the outermost Group, or remove/dismiss a member first. Gather and layer
-  assignments to grouped children promote to the outermost Group with a warning.
-- Grouping across layers moves the assembly to the highest member layer unless
-  overridden. Dismiss retains its current layer rather than restoring old layers.
-- Independent Layer instances are separate identities, even at equal initial
-  positions; use canvas.layers[index] for canonical canvas-local lookup.
-
-
-- A local Sphinx/MyST documentation site with Furo, Google-style docstring
-  extraction, and a reference for all public exports. Build dependencies live
-  in the optional `docs` group; tutorial assets are generated during the build.
-- English and Chinese tutorials on paint order, text/TeX, transforms, authoring
-  frames, anchors, groups, paths, queries, viewports, resolution, and fill rules,
-  with runnable examples and rendered comparisons.
-
-- English and Chinese step-by-step tutorials covering a Hello world node,
-  basic shapes, coordinate guides, strokes and fills, with seven runnable SVG examples.
-
-- Optional TikZ PDF compilation during `Canvas.save`, with auto/source/required
-  modes and configurable intermediate-file retention; examples use the same pipeline.
-
-- Basic lines, polylines, circles, rectangles, polygons, elliptical arcs and
-  quadratic/cubic paths with explicit closing and multiple subpaths.
-- Solid RGB fill and stroke, fill rules, line caps and joins.
-- Ordered, fixed-size millimeter canvas with SVG and standalone TikZ exports.
-- TikZ-style and SVG-style arc constructors, a dual-backend gallery and tests.
-- Deferred anchor references for connections and relative node positions,
-  including anchors on explicitly placed component children.
-- Native TikZ node shapes for translation and rotation, with general
-  decomposition for SVG and other affine placements.
-- Automatic default fonts for initial renders and examples comparing font
-  choices on the same authoring objects.
-
-- Mutable `Entity` authoring handles with captured anchor/space descriptions,
-  independent draw records, and in-place placement transformations.
-- Nested Cartesian coordinate systems, canvas-specific mappings, explicit
-  space points/vectors, inverse transforms, pivoted transforms, shear and reflection.
-- Canvas-bound queries, fixed resolved snapshots retaining native object identity,
-  text ink bounds, and Canvas-to-authoring point conversion.
-- `fit`, `auto_size`, and default `clip` viewport policies with padding, plus a
-  square/triangle/circle example demonstrating captured and renewed attachments.
-- Analytic affine circle/elliptical-arc bounds and explicit empty bounds.
-
-### Changed
-
-- **Breaking:** `Node.anchor()` and `Group.anchor()` return `AnchorRef` instead
-  of coordinate snapshots. `Canvas.anchor()` has been removed. Define
-  relationships with object or instance anchors; use `Canvas.bounds()` for
-  explicit numerical layout bounds.
-- Content sizes and dependent endpoints are recalculated on each render,
-  using that invocation's font configuration. Paint order remains unchanged.
-- Backends select supported native objects before general decomposition.
-
-- **Breaking:** drawing a mutable built-in `Path` now captures its commands;
-  later edits require another `draw` call. Immutable geometry retains identity.
-- `Canvas.bounds()` now returns final Canvas coordinates by default; request
-  `canvas.query().bounds(object, in_space=WORLD)` for authoring world coordinates.
-- Rendering now resolves dependencies through a common stage before adapter dispatch.
-
-### Limitations
-
-- Generic arc lowering and rotated TikZ arcs use cubic approximation.
-- Layers, automatic routing, general constraint solving and arbitrary
-  backend-specific options remain outside this stage.
-- Native SVG and LaTeX text metrics may differ slightly. Default font coverage
-  depends on the installed fonts; explicit font stacks remain available.
-- Fitted viewports reserve conservative stroke margins rather than exact painted
-  bounds. Text scales with geometry; stroke widths stay in Canvas millimeters.
-- Custom composites must provide immutable descriptions. Nonlinear frames,
-  curve lengths, closest-point queries and general intersections are deferred.
+shape = Circle((10, 10), 3, style=Style(line_width=0.5))
+changed = shape.copy().scale(2, 1)
+Rescale(2, include_linewidth=True).around(shape.reference).apply_to(shape)
+path = Entity(PathGeometry().move_to((0, 0)).line_to((5, 2)))
+arc = Entity(ArcGeometry.from_tikz((8, 4), radius=2, start_angle=0, end_angle=90))
+group = Group(shape, path, arc)
+```
