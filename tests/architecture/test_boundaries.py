@@ -90,3 +90,40 @@ def test_captured_extensions_are_ordinary_entity_groups() -> None:
         assert not isinstance(leaf, Composite)
         assert isinstance(leaf.geometry, PathSource)
         assert not hasattr(leaf, "transform")
+
+
+def test_pure_geometry_import_does_not_initialize_entity_or_output_layers() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; from pdl.author.geometry import Point, Circle; "
+            "assert Circle((0,0),1).radius == 1; "
+            "assert not any(k.startswith(('pdl.author.entity','pdl.canvas',"
+            "'pdl.backends','pdl.extensions')) for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_author_and_affine_imports_do_not_initialize_output_adapters() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; from pdl.author.transform import Translation; "
+            "from pdl.author import Circle; c=Circle((1,2),1); "
+            "Translation(2,3).apply_to(c); assert c.reference.x == 3; "
+            "assert not any(k.startswith(('pdl.canvas','pdl.backends',"
+            "'pdl.extensions')) for k in sys.modules)",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
