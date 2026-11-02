@@ -3,7 +3,7 @@
 An independent prototype of BSP visibility for **opaque convex planar polygons**.
 It does not change `Scene3D` or any public pdl API. Each source face has a stable
 ID; fragments keep that ID. Output is an ordinary `ProjectedScene` containing
-2D `Drawing` objects, before Canvas evaluation and backend rendering.
+2D `Entity`/`Group` objects, before Canvas evaluation and backend rendering.
 
 [中文说明](README_zh.md)
 
@@ -107,4 +107,9 @@ library through 2D Authoring and check its actual paint list against the same
 independent oracle. This writes `output/library-*.svg`, `library-results.json`
 and `library-timings.csv`. The original runner explicitly requests centroid
 mode for its baseline so upgrading pdl does not accidentally change the reference.
-See the [formal tutorial](../../docs/tutorial/en/26-visibility.md).
+See the [formal tutorial](../../docs/tutorial/en/05-spatial/05-visibility.md).
+
+
+## API migration
+
+The BSP algorithm and historical results are retained. The output construction now uses ordinary Entity/Group factories and the current extensions.spacial imports. Historical timing numbers describe their original runs; rerun the benchmark before comparing current performance.

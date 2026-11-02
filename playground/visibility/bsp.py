@@ -11,9 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 
-from pdl import Color, Drawing, Group, Line, PerspectiveCamera, Point3D, Polygon, Style, Vector3D
-from pdl.spatial.projected import ProjectedScene
-from pdl.spatial.solids import centroid, face_normal
+from pdl import Color, Entity, Group, Line, PerspectiveCamera, Point3D, Polygon, Style, Vector3D
+from pdl.extensions.spacial.projected import ProjectedScene
+from pdl.extensions.spacial.solids import centroid, face_normal
 
 EPSILON = 1e-8
 
@@ -189,7 +189,7 @@ def project(
 ) -> tuple[ProjectedScene, Metrics, tuple[Face, ...]]:
     """Build BSP and return ordinary 2D Authoring, timings and source-tagged fragments.
 
-    Timing includes near-plane checks, BSP, traversal, projection and Drawing
+    Timing includes near-plane checks, BSP, traversal, projection and Entity
     construction, but no Canvas evaluation, font measurement, export or oracle.
     Input validity is a caller precondition; duplicate source IDs are rejected.
     """
@@ -206,20 +206,21 @@ def project(
     metrics.build_seconds = perf_counter() - started
     author_started = perf_counter()
     fragments = ordered(tree, camera.eye)
-    children: list[Drawing] = []
+    children: list[Entity] = []
     for face in fragments:
         projected = tuple(camera.project(point) for point in face.vertices)
-        fill = Drawing(Polygon(projected), Style(stroke=None, fill=face.color))
+        fill = Polygon(projected, style=Style(stroke=None, fill=face.color))
         if outlines:
             edges = tuple(
-                Drawing(
-                    Line(point, projected[(i + 1) % len(projected)]),
-                    Style(stroke=Color(0.12, 0.16, 0.22), line_width=0.18),
+                Line(
+                    point,
+                    projected[(i + 1) % len(projected)],
+                    style=Style(stroke=Color(0.12, 0.16, 0.22), line_width=0.18),
                 )
                 for i, point in enumerate(projected)
                 if face.boundary[i]
             )
-            children.append(Drawing(Group((fill, *edges))))
+            children.append(Group(fill, *edges))
         else:
             children.append(fill)
     right, up = camera.right, camera.up
