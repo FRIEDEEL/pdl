@@ -120,3 +120,16 @@ def test_extend_preserves_independent_closed_subpaths() -> None:
     assert result is first
     assert sum(isinstance(command, Move) for command in result.commands) == 2
     assert sum(isinstance(command, Close) for command in result.commands) == 2
+
+
+def test_descriptions_query_their_own_current_coordinates_without_a_shared_base() -> None:
+    circle = Circle((2, 3), 4)
+    assert circle.reference == Point(2, 3)
+    assert circle.anchor("north") == Point(2, 7)
+    rectangle = Rectangle((2, 3), 4, 6)
+    assert rectangle.reference == Point(2, 3)
+    assert rectangle.center == Point(4, 6)
+    path = Path().move_to((7, 8)).line_to((10, 12))
+    assert path.reference == Point(7, 8)
+    assert path.anchor("south west") == Point(7, 8)
+    assert Point(2, 3).anchor("east") == Point(2, 3)

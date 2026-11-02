@@ -1,8 +1,11 @@
 """Small structural contracts, not a universal Geometry hierarchy."""
 
-from typing import Protocol, runtime_checkable
+from __future__ import annotations
 
-from pdl.author.geometry.path import Path
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from pdl.author.geometry.path import Path
 
 
 @runtime_checkable

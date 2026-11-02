@@ -28,6 +28,29 @@ class Point:
         if not isfinite(self.x) or not isfinite(self.y):
             raise ValueError("Point coordinates must be finite.")
 
+    @property
+    def center(self) -> Point:
+        return self
+
+    @property
+    def reference(self) -> Point:
+        return self
+
+    def anchor(self, name: str = "center") -> Point:
+        if name not in (
+            "center",
+            "north",
+            "south",
+            "east",
+            "west",
+            "north east",
+            "north west",
+            "south east",
+            "south west",
+        ):
+            raise ValueError(f"Unknown anchor: {name}")
+        return self
+
     def __add__(self, offset: Point | Vector | tuple[float, float]) -> Point:
         """Return a displaced numerical point."""
         p = offset if isinstance(offset, Vector) else as_point(offset)

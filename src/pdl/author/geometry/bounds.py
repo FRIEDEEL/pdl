@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from math import atan2, cos, degrees, hypot, radians, sin, sqrt
 from typing import Literal, Protocol, runtime_checkable
 
-from pdl.author.geometry.path import (
+from pdl.author.geometry.commands import (
     Close,
     Cubic,
     Move,

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import atan2, ceil, cos, degrees, isfinite, pi, radians, sin, sqrt, tan
 
+from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
 from pdl.author.geometry.point import as_point as point
@@ -24,6 +25,21 @@ class Line:
 
     def to_path(self) -> Path:
         return Path().move_to(self.start).line_to(self.end)
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def reference(self) -> Point:
+        return point(self.start)
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)
 
 
 @dataclass(eq=False)
@@ -45,6 +61,21 @@ class Polyline:
         for p in self.points[1:]:
             path.line_to(p)
         return path
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def reference(self) -> Point:
+        return point(self.points[0]) if self.points else Point(0, 0)
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)
 
 
 @dataclass(eq=False)
@@ -92,6 +123,21 @@ class Rectangle:
                 (p.x, p.y + self.height),
             )
         ).to_path()
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def reference(self) -> Point:
+        return point(self.origin)
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)
 
 
 @dataclass(eq=False)
@@ -235,6 +281,17 @@ class Arc:
             path.cubic_to(p1, p2, self.at(degrees(b)))
         return path
 
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def reference(self) -> Point:
+        return point(self.center)
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)
+
 
 @dataclass(eq=False)
 class Circle:
@@ -258,3 +315,14 @@ class Circle:
 
     def to_path(self) -> Path:
         return Arc(self.center, self.radius, self.radius, 0, 360).to_path().close()
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def reference(self) -> Point:
+        return point(self.center)
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)

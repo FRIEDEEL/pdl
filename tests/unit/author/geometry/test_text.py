@@ -112,3 +112,14 @@ def test_rotation_preserves_native_text_and_rotates_layout_bounds(font: Font) ->
     assert "Wide label</text>" in canvas.render()
     assert "Wide label" in canvas.render("tikz")
     assert "controls" not in canvas.render("tikz")
+
+
+def test_captured_layout_refreshes_after_explicit_content_edits(font: Font) -> None:
+    from pdl import Canvas
+    from pdl import Text as DrawText
+
+    captured = Canvas(80, 30).snapshot(DrawText("A", font))
+    before = captured.bounds.width
+    assert isinstance(captured.geometry, Text)
+    captured.geometry.text = "A considerably longer label"
+    assert captured.bounds.width > before * 3

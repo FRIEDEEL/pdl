@@ -44,10 +44,8 @@ def _freeze(value: object, ancestors: frozenset[int]) -> Entity:
     result.set_style(value.effective_style)
     geometry = result.geometry
     if isinstance(geometry, Text):
+        geometry.font = FontStack(geometry.resolved_fonts())
         geometry.capture_layout()
-        fonts = tuple(dict.fromkeys(run.font for run in geometry.layout.runs))
-        if fonts:
-            geometry.font = FontStack(fonts)
     elif isinstance(geometry, TeX):
         geometry.capture_layout()
     return result

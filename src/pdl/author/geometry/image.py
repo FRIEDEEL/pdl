@@ -9,6 +9,7 @@ from pathlib import Path as FilePath
 from tempfile import gettempdir
 from typing import Literal
 
+from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
 from pdl.author.geometry.path import Path
 from pdl.author.geometry.point import Point, Position
 from pdl.author.geometry.point import as_point as point
@@ -100,3 +101,18 @@ class Image:
             p.x,
             p.y,
         )
+
+    @property
+    def reference(self) -> Point:
+        return point(self.position)
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)

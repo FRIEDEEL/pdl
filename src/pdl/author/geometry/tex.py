@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import isfinite
 
-from pdl.author.geometry.bounds import Bounds
+from pdl.author.geometry.bounds import Anchor, Bounds
 from pdl.author.geometry.path import Path
-from pdl.author.geometry.point import Position
+from pdl.author.geometry.point import Point, Position
 from pdl.author.geometry.point import as_point as point
 from pdl.author.geometry.tex_svg import outline_path
 from pdl.author.style.typography import current_renderer
@@ -41,6 +41,8 @@ class TeX:
 
     _measurement: TeXLayout | None = field(default=None, init=False, repr=False)
 
+    _measurement_key: tuple[object, ...] | None = field(default=None, init=False, repr=False)
+
     def __post_init__(self) -> None:
         point(self.position)
         if not isfinite(self.rotation):
@@ -59,7 +61,11 @@ class TeX:
 
     @property
     def layout(self) -> TeXLayout:
-        if self._measurement is not None:
+        if self._measurement is not None and self._measurement_key == (
+            self.source,
+            self.size,
+            self.config,
+        ):
             return self._measurement
         return measure(self)
 
@@ -67,6 +73,7 @@ class TeX:
         """Fix measured layout on a captured description before output."""
         self.config = self.environment
         self._measurement = self.layout
+        self._measurement_key = (self.source, self.size, self.config)
 
     @property
     def layout_bounds(self) -> Bounds:
@@ -79,3 +86,18 @@ class TeX:
         """Lower monochrome TeX outlines; general SVG artwork is not supported."""
         p = point(self.position)
         return outline_path(self.layout).mapped(Translation(p.x, p.y) @ Rotation(self.rotation))
+
+    @property
+    def reference(self) -> Point:
+        return point(self.position)
+
+    @property
+    def bounds(self) -> Bounds:
+        return self.layout_bounds
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)

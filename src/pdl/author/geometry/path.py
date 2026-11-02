@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from math import hypot
 from typing import TYPE_CHECKING, Self
 
@@ -10,46 +9,26 @@ if TYPE_CHECKING:
     from pdl.author.geometry.protocols import Mapping, PathSource
     from pdl.author.geometry.shapes import Arc
 
+from pdl.author.geometry.bounds import Anchor, Bounds, geometry_bounds
+from pdl.author.geometry.commands import (
+    Close as Close,
+)
+from pdl.author.geometry.commands import (
+    Command as Command,
+)
+from pdl.author.geometry.commands import (
+    Cubic as Cubic,
+)
+from pdl.author.geometry.commands import (
+    Move as Move,
+)
+from pdl.author.geometry.commands import (
+    Quadratic as Quadratic,
+)
+from pdl.author.geometry.commands import (
+    Segment as Segment,
+)
 from pdl.author.geometry.point import Point, Position, as_point
-
-
-@dataclass(frozen=True)
-class Move:
-    """Start a subpath at an absolute position without drawing a segment."""
-
-    end: Point
-
-
-@dataclass(frozen=True)
-class Segment:
-    """Draw a straight segment from the current position to an absolute endpoint."""
-
-    end: Point
-
-
-@dataclass(frozen=True)
-class Quadratic:
-    """Draw a quadratic Bezier segment using one absolute control point."""
-
-    control: Point
-    end: Point
-
-
-@dataclass(frozen=True)
-class Cubic:
-    """Draw a cubic Bezier segment using two absolute control points."""
-
-    control1: Point
-    control2: Point
-    end: Point
-
-
-@dataclass(frozen=True)
-class Close:
-    """Close the current subpath back to its initial Move position."""
-
-
-type Command = Move | Segment | Quadratic | Cubic | Close
 
 
 class Path:
@@ -81,6 +60,21 @@ class Path:
     def current_point(self) -> Point | None:
         """Return the current position, or None while the path is empty."""
         return self._current
+
+    @property
+    def bounds(self) -> Bounds:
+        return geometry_bounds(self)
+
+    @property
+    def center(self) -> Point:
+        return self.bounds.anchor()
+
+    @property
+    def reference(self) -> Point:
+        return next((c.end for c in self.commands if isinstance(c, Move)), Point(0, 0))
+
+    def anchor(self, name: Anchor = "center") -> Point:
+        return self.bounds.anchor(name)
 
     def move_to(self, end: Position) -> Self:
         """Start a subpath at an absolute Point or pair of millimeter coordinates.
